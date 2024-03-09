@@ -1,0 +1,36 @@
+{
+  "name": "pizzaria",
+  "version": "1.0.0",
+  "description": "Projeto Pizzaria ",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "prod": "nodemon index.js",
+    "teste": "nodemon notification.js",
+    "license": "node ./system/authLi.js",
+    "vlicense": "node ./system/verificarion.js",
+    "extract": "node pedido.js"
+  },
+  "author": "celebre",
+  "license": "ISC",
+  "dependencies": {
+    "bcrypt": "^5.1.1",
+    "body-parser": "^1.20.2",
+    "cors": "^2.8.5",
+    "crypto": "^1.0.1",
+    "date-fns": "^3.3.1",
+    "dotenv": "^16.4.5",
+    "express": "^4.18.2",
+    "express-session": "^1.18.0",
+    "jsonwebtoken": "^9.0.2",
+    "mysql2": "^3.9.1",
+    "node-notifier": "^10.0.1",
+    "node-pre-gyp": "^0.17.0",
+    "nodemon": "^3.0.3",
+    "passport": "^0.7.0",
+    "passport-jwt": "^4.0.1",
+    "passport-local": "^1.0.0",
+    "request": "^2.88.2",
+    "tesseract.js": "^5.0.5"
+  }
+}

@@ -2,6 +2,7 @@ const express = require("express");
 
 const { stockList, registerProduct, allProducts, serachProductByName, productUpdate } = require('../../service/stock');
 const { errorMiddleware } = require('../../utils/intTelegram');
+const upload = require('../../config/multer');
 
 const stock = express.Router();
 
@@ -21,7 +22,7 @@ stock.get("/estoque", async (req, res, next) => {
   }
 });
 
-stock.post("/produto", async (req, res, next) => {
+stock.post("/produto", upload.single('img_produto'), async (req, res, next) => {
   try {
     const productDate = req.body;
     const result = await registerProduct(productDate);

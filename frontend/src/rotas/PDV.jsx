@@ -1,14 +1,17 @@
 import "../rotas/PDV.css";
 import dinhero from "../assets/img/dinheiro.png";
-import { useState, useEffect, useRef } from "react";
+import agua from "../assets/img/agua.png";
+import { useState, useEffect } from "react";
 import apiAcai from "../axios/config";
 import Modal from "react-modal";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import { Camera } from "react-camera-pro";
 import SetaVoltar from "../components/SetaVoltar";
 import SetaFechar from "../components/SetaFechar";
 import { IoIosCloseCircle } from "react-icons/io";
+import pix from "../assets/img/pix.png";
+import dinheiro_pag from "../assets/img/dinheiro_pag.png";
+import cartao from "../assets/img/cartao.png";
 
 const PDV = () => {
   const [produto, setProduto] = useState("");
@@ -23,8 +26,6 @@ const PDV = () => {
   const [modalConfirmacaoAberto, setModalConfirmacaoAberto] = useState(false);
   const [modalPesquisaAberto, setModalPesquisaAberto] = useState(false);
   const [modalResumo, setModalResumo] = useState(false);
-  const [cameraAberta, setCameraAberta] = useState(false);
-  const [capturedImage, setCapturedImage] = useState(null);
   const [resultadoPesquisaProduto, setResultadoPesquisaProduto] = useState("");
   const [pesquisaProduto, setPesquisaProduto] = useState("");
   const [insersaoManual, setInsersaoManual] = useState(false);
@@ -32,37 +33,66 @@ const PDV = () => {
   const [precoacai, setPrecoAcai] = useState("");
   const [pesoBalanca, setPesoBalanca] = useState("");
   const [codigo_produto, setCodigo_Produto] = useState("");
-  const cameraRef = useRef();
+  const [quantidadeEstoque, setQuantidadeEstoque] = useState(0);
+  const [sta, setSta] = useState("");
   const [modalCancelamento, setModalCancelamento] = useState(false);
+  const [modalPagamento, setModalPagamento] = useState(false);
+  const [tipo, setTipo] = useState("");
+  const [valor_recebido, setValor_Recebido] = useState("");
+  const [status, setStatus] = useState("");
+  const [pagamentos, setPagamentos] = useState([]);
+  const [modalPreco_Recebido, setModalPreco_Recebido] = useState(false);
+  const [modalSenha, setModalSenha] = useState(false);
+  const [senha, setSenha] = useState("");
+  const [disabled, setDisabled] = useState(true);
+  const [modalInserirProdto, setModalInserirProduto] = useState(false);
+  const [modalAdicionarProdudoCel, setModalAdicionarProdudoCel] =
+    useState(false);
+  const [tabAtiva, setTabAtiva] = useState("produto");
+  const [modalFinalizarPedidoCel, setModalFinalizarPedidoCel] = useState(false);
 
   const userData = JSON.parse(localStorage.getItem("user"));
 
   const { user } = userData || {};
-
-  const capturarImagem = async (e) => {
-    e.preventDefault();
-    if (cameraRef.current) {
-      try {
-        const fotoCapturada = await cameraRef.current.takePhoto();
-        const blob = dataURItoBlob(fotoCapturada);
-        const file = new File([blob], "foto.jpg", { type: "image/jpeg" });
-        setCapturedImage(file);
-      } catch (error) {
-        console.log("Erro ao capturar", error);
-      }
-    }
+  const abrirFinalizarPedidoCel = () => {
+    setModalFinalizarPedidoCel(true);
   };
-  function dataURItoBlob(dataURI) {
-    const byteString = atob(dataURI.split(",")[1]);
-    const mimeString = dataURI.split(",")[0].split(":")[1].split(";")[0];
-    const ab = new ArrayBuffer(byteString.length);
-    const ia = new Uint8Array(ab);
-    for (let i = 0; i < byteString.length; i++) {
-      ia[i] = byteString.charCodeAt(i);
-    }
-    const blob = new Blob([ab], { type: mimeString });
-    return blob;
-  }
+
+  const fecharFinalizarPedidoCel = () => {
+    setModalFinalizarPedidoCel(false);
+  };
+  const abrirAdicionarProdudoCel = () => {
+    setModalAdicionarProdudoCel(true);
+  };
+
+  const fecharAdicionarProdudoCel = () => {
+    setTabAtiva("produto");
+    setModalAdicionarProdudoCel(false);
+  };
+
+  const abrirModalInserirProduto = () => {
+    setTabAtiva("produto");
+    setModalInserirProduto(true);
+    console.log("isso");
+  };
+
+  const abrirResumo = () => {
+    setTabAtiva("resumo");
+    setModalInserirProduto(false);
+    console.log("foi");
+  };
+
+  const fecharModalInserirProduto = () => {
+    setTabAtiva("resumo");
+    setModalInserirProduto(false);
+  };
+
+  const abrirModalSenha = () => {
+    setModalSenha(true);
+  };
+  const fecharModalSenha = () => {
+    setModalSenha(false);
+  };
   const abrirModalConfirmacao = () => {
     setModalConfirmacaoAberto(true);
   };
@@ -93,9 +123,47 @@ const PDV = () => {
   const fecharModalRelatorio = () => {
     setModalResumo(false);
   };
+  const abrirModalPagamento = () => {
+    setModalPagamento(true);
+    setModalConfirmacaoAberto(false);
+  };
+  const fecharMosalPagamento = () => {
+    setModalPagamento(false);
+  };
+  const abrirModalPreco_Recebido = (novoTipo) => {
+    setModalPreco_Recebido(true);
+    setTipo(novoTipo);
+  };
+  const fecharModalPreco_Recebido = () => {
+    setModalPreco_Recebido(false);
+    setTipo("");
+    setValor_Recebido("");
+  };
+  const adicionaPagamento = () => {
+    const novoPagamento = {
+      tipo: tipo,
+      valor_recebido: parseFloat(valor_recebido),
+    };
+    setPagamentos([...pagamentos, novoPagamento]);
+    fecharModalPreco_Recebido();
+    setTipo("");
+    setValor_Recebido("");
+  };
+
   const adicionarProduto = () => {
     if (produto && unino && precoUnitario) {
-      console.log(codigo_produto);
+      if (
+        (produto !== "1" && unino > parseFloat(quantidadeEstoque)) ||
+        (produto === "1" && unino > parseFloat(quantidadeEstoque))
+      ) {
+        setNome("");
+        setProduto("");
+        setUnino("");
+        setPrecoUnitario("");
+        setCodigo_Produto("");
+        toast.error("Produto sem estoque");
+        return;
+      }
       const novoProduto = {
         id: parseInt(produto),
         nome: nome,
@@ -123,20 +191,110 @@ const PDV = () => {
     });
     return total.toFixed(2);
   };
+  const valorRecebidoPagamento = () => {
+    let total = 0;
+    pagamentos.forEach((pagameto) => {
+      total += pagameto.valor_recebido;
+    });
+    return total.toFixed(2);
+  };
+  const valorTroco = () => {
+    const totalValorTotal = parseFloat(valorTotal());
+    const totalValorRecebidoPagamento = parseFloat(valorRecebidoPagamento());
+    const troco = totalValorRecebidoPagamento - totalValorTotal;
 
-  const botaoCancelar = () => {
-    setProdutos([]);
-    fecharModalCancelamento();
+    return troco.toFixed(2);
+  };
+  const botaoLimpar = () => {
     setNome("");
     setProduto("");
     setUnino("");
     setPrecoUnitario("");
     setCodigo_Produto("");
   };
+  const botaoInativdo = () => {
+    const valorRecebido = parseFloat(valorRecebidoPagamento());
+    const valorTrocoFalta = parseFloat(valorTotal());
+    const inativo = parseFloat(valorTrocoFalta) <= parseFloat(valorRecebido);
+    console.log(inativo);
+    return inativo;
+  };
+
+  const botaoCancelar = async (e) => {
+    e.preventDefault();
+    if (produtos.length === 0) {
+      toast.error("Impossível cancelar o pedido, nenhum produto adicionado.");
+      fecharModalCancelamento();
+      return;
+    }
+    if (pagamentos.length === 0) {
+      toast.error(
+        "Impossível cancelar o pedido, sem adicionar metodo de pagamento"
+      );
+    }
+
+    try {
+      const cancelarPedido = {
+        pedido: {
+          produtos: produtos.map((item) => ({
+            pedido: proximoPedido.message,
+            prodno: item.id,
+            valor_unit: item.precoUnitario,
+            unino: 0,
+            nome: item.nome,
+            sta: 0,
+            userno: user && user.nome,
+          })),
+          pagamentos: pagamentos.map((item) => ({
+            pedido: proximoPedido.message,
+            tipo: item.tipo,
+            status: 1,
+            valor_recebido: item.valor_recebido,
+          })),
+        },
+      };
+
+      const res = await apiAcai.post("/ped", cancelarPedido);
+
+      if (res.status === 200) {
+        toast.success(res.data);
+        navigate("/");
+      }
+    } catch (error) {
+      console.log("Erro ao inserir produto no banco de dados");
+    }
+  };
+  const liberarPedido = async (e) => {
+    e.preventDefault();
+
+    try {
+      const usuarioCadastro = {
+        operador_liberacao: user && user.id,
+        pedido: proximoPedido.message,
+        senha,
+      };
+      const res = await apiAcai.post("/liberacao", usuarioCadastro);
+      if (res.status === 200) {
+        setDisabled(false);
+        setSenha("");
+        toast.success("Pedido liberado para alteração");
+        setModalSenha(false);
+      }
+    } catch (error) {
+      setDisabled(true);
+      toast.error("Usuário não é administrador ou senha incorreta");
+    }
+  };
 
   const botaoEnvio = async (e) => {
-    fecharModalConfirmacao();
     e.preventDefault();
+    if (produtos.length === 0) {
+      toast.error("Impossível finalizar o pedido, nenhum produto adicionado.");
+      fecharModalConfirmacao();
+      return;
+    }
+    fecharModalConfirmacao();
+
     try {
       const inserirNovoPedido = {
         pedido: {
@@ -149,13 +307,18 @@ const PDV = () => {
             sta: 1,
             userno: user && user.nome,
           })),
+          pagamentos: pagamentos.map((item) => ({
+            pedido: proximoPedido.message,
+            tipo: item.tipo,
+            status: 0,
+            valor_recebido: item.valor_recebido,
+          })),
         },
       };
 
       const res = await apiAcai.post("/ped", inserirNovoPedido);
 
       if (res.status === 200) {
-        console.log("Sucesso", res.data);
         toast.success(res.data);
         navigate("/");
       }
@@ -187,28 +350,6 @@ const PDV = () => {
     carregarProximoPedido();
   }, []);
 
-  const abrirCamera = () => {
-    setCameraAberta(true);
-  };
-  const enviarFoto = async (e) => {
-    e.preventDefault();
-    try {
-      const formData = new FormData();
-      formData.append("imagePath", capturedImage);
-
-      const res = await apiAcai.post("/up", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
-      if (res.status === 201) {
-        console.log("Imagem enviada com sucesso", res);
-        setCapturedImage(null);
-      }
-    } catch (error) {
-      console.log("Erro", error);
-    }
-  };
   const handlePesquisaProduto = async (e) => {
     if (e.key == "Enter") {
       e.preventDefault();
@@ -231,6 +372,7 @@ const PDV = () => {
       setUnino(kgacai);
       setNome(produtoSelecionado.nome);
       setProduto(produtoSelecionado.codigo_produto);
+      setQuantidadeEstoque(produto.quantidade);
     } else {
       abrirModalPesquisa(false);
       if (parseFloat(produtoSelecionado.quantidade) > 0) {
@@ -238,6 +380,7 @@ const PDV = () => {
         setPrecoUnitario(produtoSelecionado.preco_custo);
         setProduto(produtoSelecionado.codigo_produto);
         setQuantidade(produtoSelecionado.quantidade);
+        setQuantidadeEstoque(produto.quantidade);
       } else {
         setNome("");
         setPrecoUnitario("");
@@ -253,7 +396,6 @@ const PDV = () => {
     try {
       if (parseInt(codigo) === 1) {
         setInsersaoManual(true);
-        setNome("Açai");
         setCodigo_Produto(codigo);
         await carregandoEstoque(codigo);
       } else {
@@ -265,10 +407,12 @@ const PDV = () => {
             setPrecoUnitario(produto.preco_custo);
             setProduto(produto.codigo_produto);
             setQuantidade(produto.quantidade);
+            setQuantidadeEstoque(produto.quantidade);
           } else {
             setNome("");
             setPrecoUnitario("");
             setProduto("");
+            setUnino("");
             toast.error("Produto sem estoque");
           }
         }
@@ -280,11 +424,12 @@ const PDV = () => {
   const calculoKg = (evento) => {
     if (evento.key == "Enter") {
       let totalAcai = 0;
-      totalAcai += kgacai * precoacai;
+      let totalUnino = 0;
+      totalAcai += (kgacai / 1000) * precoacai;
+      totalUnino += kgacai / 1000;
       setPrecoUnitario(totalAcai);
-      setUnino(kgacai);
+      setUnino(totalUnino);
       setInsersaoManual(false);
-      console.log(totalAcai);
     }
   };
 
@@ -293,7 +438,6 @@ const PDV = () => {
       const res = await apiAcai.get("/peso");
       setPesoBalanca(res.data.peso);
       setKgacai(res.data.peso);
-      console.log(pesoBalanca);
 
       calculoBalanca();
     } catch (error) {
@@ -304,20 +448,21 @@ const PDV = () => {
   const calculoBalanca = () => {
     let totalAcaiBalaca = pesoBalanca * precoacai;
     setPrecoUnitario(totalAcaiBalaca);
-    console.log(totalAcaiBalaca);
   };
 
   const carregandoEstoque = async (codigo_produto) => {
     try {
-      console.log(codigo_produto);
       const res = await apiAcai.get(
         `/produtoid?codigo_produto=${codigo_produto}`
       );
       if (res.status === 200) {
         const produdoEsto = res.data[0];
+
         if (parseFloat(produdoEsto.quantidade) > 0) {
           setNome(produdoEsto.nome);
           setPrecoUnitario(produdoEsto.preco_custo);
+          setQuantidadeEstoque(produdoEsto.quantidade);
+          setCodigo_Produto(produdoEsto.codigo_produto);
         } else {
           setNome("");
           setPrecoUnitario("");
@@ -335,9 +480,8 @@ const PDV = () => {
     const novaListaProdutos = produtos.filter((produto) => produto.id !== id);
     setProdutos(novaListaProdutos);
   };
-  useEffect(() => {
-    console.log("Produtos:", produtos);
-  }, [produtos]);
+  useEffect(() => {}, [produtos]);
+
   return (
     <>
       <nav>
@@ -388,7 +532,7 @@ const PDV = () => {
                 <div className="container-modal">
                   <h2>Deseja confirmar a finalização do pedido?</h2>
                   <div className="btn-modal">
-                    <button onClick={botaoEnvio} className="verde">
+                    <button onClick={abrirModalPagamento} className="verde">
                       Confirmar
                     </button>
                     <button
@@ -397,6 +541,149 @@ const PDV = () => {
                     >
                       Cancelar
                     </button>
+                  </div>
+                </div>
+              </Modal>
+              <Modal
+                isOpen={modalPagamento}
+                onRequestClose={fecharMosalPagamento}
+                style={{
+                  content: {
+                    maxWidth: "80%",
+                    maxHeight: "100%",
+                    margin: "auto",
+                    padding: 0,
+                    backgroundColor: "#f8f4f4",
+                  },
+                }}
+              >
+                <div className="modal-mensagem">
+                  <SetaFechar Click={fecharMosalPagamento} />
+                  <h2>Pagamento</h2>
+                </div>
+                <div className="flex_pagamento">
+                  <div>
+                    <div className="tabela_pagamento">
+                      <table className="tabela_resumo tabela_pag">
+                        <thead>
+                          <tr>
+                            <th className="thPDV">Código</th>
+                            <th className="thPDV">Desc</th>
+                            <th className="thPDV">Qtd</th>
+                            <th className="thPDV">Total</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {produtos.map((produto, index) => (
+                            <tr key={produto.id ? produto.id : index}>
+                              <td className="tdPDV">{produto.id}</td>
+                              <td className="tdPDV">{produto.nome}</td>
+                              <td className="tdPDV">{produto.unino}</td>
+                              <td className="tdPDV">
+                                R$
+                                {parseInt(produto.id) === 1
+                                  ? `${produto.precoUnitario}`
+                                  : `${produto.precoUnitario * produto.unino}`}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                    <Modal
+                      isOpen={modalPreco_Recebido}
+                      onRequestClose={fecharModalPreco_Recebido}
+                      contentLabel="Modal Produto Específico"
+                      style={{
+                        content: {
+                          width: "50%",
+                          height: "120px",
+                          margin: "auto",
+                          padding: 0,
+                        },
+                      }}
+                    >
+                      <div className="modal-mensagem">
+                        <SetaFechar Click={fecharModalPreco_Recebido} />
+                        <h2>Valor recebido por cliente</h2>
+                      </div>
+                      <div className="kg">
+                        <label>Valor Recebido </label>
+                        <input
+                          type="number"
+                          onChange={(e) => {
+                            setValor_Recebido(e.target.value);
+                          }}
+                        />
+                        <input
+                          type="button"
+                          value="Lançar Adicionar Valor"
+                          className="botao-add"
+                          onClick={() => {
+                            adicionaPagamento();
+                          }}
+                        />
+                      </div>
+                    </Modal>
+                    <div className="container-box">
+                      <div
+                        className="box"
+                        onClick={() => abrirModalPreco_Recebido(0)}
+                      >
+                        <img src={pix} alt="" />
+                        <p>PIX</p>
+                      </div>
+                      <div
+                        className="box"
+                        onClick={() => abrirModalPreco_Recebido(1)}
+                      >
+                        <img src={dinheiro_pag} alt="" />
+                        <p>DINHEIRO</p>
+                      </div>
+                    </div>
+                    <div
+                      className="container-box"
+                      onClick={() => abrirModalPreco_Recebido(2)}
+                    >
+                      <div className="box carta">
+                        <img src={cartao} alt="" />
+                        <p>
+                          CARTÃO DE <br /> CRÉDITO
+                        </p>
+                      </div>
+                      <div
+                        className="box carta"
+                        onClick={() => abrirModalPreco_Recebido(3)}
+                      >
+                        <img src={cartao} alt="" />
+                        <p>
+                          CARTÃO DE <br /> DEBITO
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="input-pagamento">
+                    <label>Valor Total</label>
+                    <input type="" value={valorTotal()} disabled />
+                    <label>Valor Recebido</label>
+                    <input type="" value={valorRecebidoPagamento()} disabled />
+                    <label>Valor Troco</label>
+                    <input type="" value={valorTroco()} disabled />
+                    <div className="btn-pagamento">
+                      <button
+                        className="btn-finalizar"
+                        onClick={botaoEnvio}
+                        disabled={!botaoInativdo()}
+                      >
+                        Finalizar
+                      </button>
+                      <button
+                        className="btn-cancelar-pagamento"
+                        onClick={botaoCancelar}
+                      >
+                        Cancelar
+                      </button>
+                    </div>
                   </div>
                 </div>
               </Modal>
@@ -426,12 +713,12 @@ const PDV = () => {
                     <p>AÇAI COPACABANA</p>
                     <br />
                     <p className="endereco">
-                      Rua Santa Rita - São Marcos - Casa nº 147 E
+                      Rua direta do Uruguai, N° 218 - Uruguai
                     </p>
                     <br />
                     <br />
                     <h2>CNPJ: 89.455.000/003-00</h2>
-                    <h2>IE: 10.457.621-2</h2>
+                    <h2>IE: </h2>
                   </div>
                   <div className="flex-dados-2">
                     <h2>{data}</h2>
@@ -477,6 +764,9 @@ const PDV = () => {
                 <hr style={{ border: "1px dashed #838383" }} />
                 <div className="rodape">
                   <p>ESSE CUPOM NÃO TEM VALOR FISCAL</p>
+                </div>
+                <div className="rodape">
+                  <p>Desenvolvido por www.celebreprojetos.com.br</p>
                 </div>
               </Modal>
             </div>
@@ -599,7 +889,7 @@ const PDV = () => {
                   contentLabel="Modal Produto Específico"
                   style={{
                     content: {
-                      width: "50%",
+                      width: "60%",
                       height: "120px",
                       margin: "auto",
                       padding: 0,
@@ -608,10 +898,10 @@ const PDV = () => {
                 >
                   <div className="modal-mensagem">
                     <SetaFechar Click={fecharModalKgAcai} />
-                    <h2>Açai</h2>
+                    <h2>Produto por peso</h2>
                   </div>
                   <div className="kg">
-                    <label>Kg do Açai</label>
+                    <label>Gramas da Balança</label>
                     <input
                       type="number"
                       onChange={(e) => {
@@ -619,13 +909,58 @@ const PDV = () => {
                       }}
                       onKeyPress={calculoKg}
                       value={kgacai}
+                      disabled={disabled}
                     />
                     <input
                       type="button"
-                      value="+ Kg da Balança"
+                      value="Lançar peso"
                       className="botao-add"
                       onClick={() => {
                         carregandoBalanca();
+                      }}
+                    />
+                    <input
+                      type="button"
+                      value="Lançar peso manual"
+                      className="botao-add"
+                      onClick={() => {
+                        abrirModalSenha();
+                      }}
+                    />
+                  </div>
+                </Modal>
+                <Modal
+                  isOpen={modalSenha}
+                  onRequestClose={fecharModalSenha}
+                  contentLabel="Modal Produto Específico"
+                  style={{
+                    content: {
+                      width: "60%",
+                      height: "120px",
+                      margin: "auto",
+                      padding: 0,
+                    },
+                  }}
+                >
+                  <div className="modal-mensagem">
+                    <SetaFechar Click={fecharModalSenha} />
+                    <h2>Liberação pedido manual</h2>
+                  </div>
+                  <div className="kg">
+                    <label>Inserir senha do ADM</label>
+                    <input
+                      type="password"
+                      onChange={(e) => {
+                        setSenha(e.target.value);
+                      }}
+                      value={senha}
+                    />
+                    <input
+                      type="button"
+                      value="Enviar"
+                      className="botao-add"
+                      onClick={(e) => {
+                        liberarPedido(e);
                       }}
                     />
                   </div>
@@ -635,7 +970,9 @@ const PDV = () => {
                 <label>Quantidade</label>
                 <input
                   type="number"
-                  onChange={(e) => setUnino(e.target.value)}
+                  onChange={(e) => {
+                    setUnino(e.target.value);
+                  }}
                   value={produto === "1" ? kgacai : unino}
                   required
                 />
@@ -670,40 +1007,10 @@ const PDV = () => {
                   />
                   <input
                     type="button"
-                    value="+   Abrir camera Foto"
+                    value="+   Limpar Produtos"
                     className="botao-add btn-pdv "
-                    onClick={abrirCamera}
+                    onClick={botaoLimpar}
                   />
-                  {cameraAberta && (
-                    <>
-                      <Camera ref={cameraRef} />
-                      <button
-                        className="button-fechar"
-                        onClick={capturarImagem}
-                      >
-                        Capturar Imagem
-                      </button>
-                      {capturedImage && (
-                        <div className="imagem-capturada">
-                          <img
-                            src={URL.createObjectURL(capturedImage)}
-                            alt="Imagem Capturada"
-                          />
-                        </div>
-                      )}
-                      {capturedImage && (
-                        <button className="button-enviar" onClick={enviarFoto}>
-                          Enviar Imagem
-                        </button>
-                      )}
-                      <button
-                        className="button-fechar"
-                        onClick={() => setCameraAberta(false)}
-                      >
-                        Fechar Câmera
-                      </button>
-                    </>
-                  )}
                 </div>
               </div>
             </form>
@@ -739,6 +1046,296 @@ const PDV = () => {
           </table>
         </div>
       </header>
+      <div className="celular-tab">
+        <h1
+          onClick={abrirModalInserirProduto}
+          className={tabAtiva === "produto" ? "tab-ativa" : ""}
+        >
+          Produto
+        </h1>
+        <h1
+          onClick={abrirResumo}
+          className={tabAtiva === "resumo" ? "tab-ativa" : ""}
+        >
+          Resumo
+        </h1>
+      </div>
+
+      <div className="conteudo-tabs">
+        {tabAtiva === "produto" && (
+          <div className="inserir-produto-celular">
+            <Modal
+              isOpen={modalInserirProdto}
+              onRequestClose={fecharModalInserirProduto}
+              contentLabel="Modal Produto Específico"
+              style={{
+                content: {
+                  width: "80%",
+                  height: "150px",
+                  margin: "auto",
+                  padding: 0,
+                  border: "1px solid #46295A",
+                },
+              }}
+            >
+              <div className="nav-modal-cel">
+                <p>INSERIR PRODUTO</p>
+                <IoIosCloseCircle
+                  size={25}
+                  nav-modal-cel
+                  style={{
+                    color: "red",
+                  }}
+                  onClick={() => {
+                    fecharModalInserirProduto();
+                  }}
+                />
+              </div>
+              <div className="body-modal-cel">
+                <label>Código</label>
+                <input
+                  type="number"
+                  value={produto}
+                  className="codigo-produto-cel"
+                  onChange={(e) => {
+                    setProduto(e.target.value);
+                    verificarCodigoProduto(e.target.value);
+                    carregandoEstoque(e.target.value);
+                    // fecharModalInserirProduto(e);
+                    fecharModalKgAcai(e);
+                    abrirAdicionarProdudoCel(e);
+                  }}
+                />
+                <input
+                  type="button"
+                  value="Procurar por nome"
+                  className="botao-add-cel"
+                />
+              </div>
+            </Modal>
+            <Modal
+              isOpen={modalAdicionarProdudoCel}
+              onRequestClose={fecharAdicionarProdudoCel}
+              contentLabel="Modal Produto Específico"
+              style={{
+                content: {
+                  width: "80%",
+                  height: "400px",
+                  margin: "auto",
+                  padding: 0,
+                  border: "1px solid #46295A",
+                },
+              }}
+            >
+              <div className="container-add-produto-cel">
+                <div className="modal-adicionar-produto">
+                  <img src={agua} />
+                  <div className="borde-produto">
+                    <p>{nome}</p>
+                  </div>
+                </div>
+                <div className="input-cel-add">
+                  <div className="box-cel">
+                    <label>Quantidade</label>
+                    <input
+                      type="number"
+                      value={unino}
+                      className="codigo-produto-add-cel"
+                      onChange={(e) => {
+                        setUnino(e.target.value);
+                      }}
+                    />
+                  </div>
+                  <div className="box-cel">
+                    <label>Valor total</label>
+                    <input
+                      required
+                      type="number"
+                      className="codigo-produto-add-cel"
+                      value={precoUnitario}
+                      onChange={(e) => setPrecoUnitario(e.target.value)}
+                      disabled
+                    />
+                  </div>
+                  <input
+                    type="button"
+                    value="Adicionar"
+                    className="botao-add-lista-cel"
+                    onClick={() => {
+                      adicionarProduto();
+                      fecharModalInserirProduto();
+                      fecharAdicionarProdudoCel();
+                    }}
+                  />
+                </div>
+              </div>
+            </Modal>
+          </div>
+        )}
+
+        {tabAtiva === "resumo" && (
+          <div className="resumo-celular">
+            <table className="tabela-cel-resumo">
+              <thead>
+                <tr>
+                  <th>Produto</th>
+                  <th>Quantidade</th>
+                  <th>Valor</th>
+                </tr>
+              </thead>
+              <tbody>
+                {produtos.map((produto, index) => (
+                  <tr key={index}>
+                    <td>{produto.nome}</td>
+                    <td>{produto.unino}</td>
+                    <td>
+                      R$
+                      {parseInt(produto.id) === 1
+                        ? `${produto.precoUnitario}`
+                        : `${produto.precoUnitario * produto.unino}`}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+        <div className="total-pedido-cel">
+          <p>TOTAL</p>
+          <p>R$ {valorTotal()}</p>
+        </div>
+        <div className="container-cel">
+          <input
+            type="button"
+            value="FINALIZAR PEDIDO"
+            className="botao-finalizar-cel"
+            onClick={abrirFinalizarPedidoCel}
+          />
+        </div>
+        <Modal
+          isOpen={modalFinalizarPedidoCel}
+          onRequestClose={fecharAdicionarProdudoCel}
+          style={{
+            content: {
+              width: "80%",
+              height: "100%",
+              padding: 0,
+              margin: 0,
+              backgroundColor: "#f8f4f4",
+            },
+          }}
+        >
+          <div className="modal-mensagem">
+            <SetaFechar Click={fecharMosalPagamento} />
+            <h2>Pagamento</h2>
+          </div>
+          <div className="flex_pagamento_cel">
+            <div>
+              <Modal
+                isOpen={modalPreco_Recebido}
+                onRequestClose={fecharModalPreco_Recebido}
+                contentLabel="Modal Produto Específico"
+                style={{
+                  content: {
+                    width: "50%",
+                    height: "120px",
+                    margin: "auto",
+                    padding: 0,
+                  },
+                }}
+              >
+                <div className="modal-mensagem">
+                  <SetaFechar Click={fecharModalPreco_Recebido} />
+                  <h2>Valor recebido por cliente</h2>
+                </div>
+                <div className="kg">
+                  <label>Valor Recebido </label>
+                  <input
+                    type="number"
+                    onChange={(e) => {
+                      setValor_Recebido(e.target.value);
+                    }}
+                  />
+                  <input
+                    type="button"
+                    value="Lançar Adicionar Valor"
+                    className="botao-add"
+                    onClick={() => {
+                      adicionaPagamento();
+                    }}
+                  />
+                </div>
+              </Modal>
+
+              <div className="container-box">
+                <div
+                  className="box-cel-p"
+                  onClick={() => abrirModalPreco_Recebido(0)}
+                >
+                  <img src={pix} alt="" />
+                  <p>PIX</p>
+                </div>
+                <div
+                  className="box-cel-p"
+                  onClick={() => abrirModalPreco_Recebido(1)}
+                >
+                  <img src={dinheiro_pag} alt="" />
+                  <p>DINHEIRO</p>
+                </div>
+              </div>
+              <div
+                className="container-box"
+                onClick={() => abrirModalPreco_Recebido(2)}
+              >
+                <div className="box-cel-p carta-cel">
+                  <img src={cartao} alt="" />
+                  <p>
+                    CARTÃO DE <br /> CRÉDITO
+                  </p>
+                </div>
+                <div
+                  className="box-cel-p carta-cel"
+                  onClick={() => abrirModalPreco_Recebido(3)}
+                >
+                  <img src={cartao} alt="" />
+                  <p>
+                    CARTÃO DE <br /> DEBITO
+                  </p>
+                </div>
+              </div>
+              <div className="btn-pagamento">
+                <button
+                  className="btn-finalizar"
+                  onClick={botaoEnvio}
+                  disabled={!botaoInativdo()}
+                >
+                  Finalizar
+                </button>
+                <button
+                  className="btn-cancelar-pagamento"
+                  onClick={botaoCancelar}
+                >
+                  Cancelar
+                </button>
+              </div>
+            </div>
+            <div className="input-pagamento-cel">
+              <div className="box-cel-pag">
+                <label>Valor Total</label>
+                <input type="" value={valorTotal()} disabled />
+              </div>
+              <div className="box-cel-pag">
+                <label>Valor Pago</label>
+                <input type="" value={valorRecebidoPagamento()} disabled />
+              </div>
+              <div className="box-cel-pag">
+                <label>Valor Troco</label>
+                <input type="" value={valorTroco()} disabled />
+              </div>
+            </div>
+          </div>
+        </Modal>
+      </div>
 
       <footer>Software Licensiado pela Célebre </footer>
     </>

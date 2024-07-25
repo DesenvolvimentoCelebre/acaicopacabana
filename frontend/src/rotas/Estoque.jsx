@@ -1,7 +1,7 @@
 import styled, { createGlobalStyle } from "styled-components";
 import SideBar from "../components/SideBar";
 import imgFundo from "../assets/img/logo_sem_fundo.png";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import apiAcai from "../axios/config";
 import Modal from "react-modal";
 import { toast } from "react-toastify";
@@ -151,6 +151,8 @@ const Estoque = () => {
   const [modalAdd, setMoldalAdd] = useState(false);
   const [bit, setBit] = useState("");
   const [isChecked, setIsChecked] = useState(false);
+  const [modalQuantidade, setModalQuantidade] = useState("");
+  const quantidadeRef = useRef(null);
 
   useEffect(() => {
     const carregarEstoque = async () => {
@@ -209,6 +211,7 @@ const Estoque = () => {
     }
     console.log("teste-bit", bit);
     setQuantidade(quantidade);
+    setModalQuantidade(quantidade);
     setCodigo_Produto(codigo_produto);
     setBit(bit);
     setMoldalAdd(true);
@@ -249,7 +252,7 @@ const Estoque = () => {
     try {
       const produtoEditado = {
         codigo_produto,
-        quantidade,
+        quantidade: modalQuantidade,
         bit,
       };
       const res = await apiAcai.put("/attestoque", produtoEditado);
@@ -278,7 +281,7 @@ const Estoque = () => {
         return "red";
       } else if (quantidade >= blue) {
         return "green";
-      } else if (quantidade > red && quantidade < blue ) {
+      } else if (quantidade > red && quantidade < blue) {
         return "yellow";
       }
     }};
@@ -379,14 +382,14 @@ const Estoque = () => {
                       value={categoria}
                       onChange={(e) => setCategoria(parseInt(e.target.value))}
                     >
-                      <OptionEstilizado value={0}>Kilo</OptionEstilizado>
+                      <OptionEstilizado value={0}>Quilo</OptionEstilizado>
                       <OptionEstilizado value={1}>Quantidade</OptionEstilizado>
                     </SelectEstilizado>
                   </Form1>
                 </Form>
                 <Form>
                   <Form1>
-                    <label>Valor de Compra</label>
+                    <label>Valor de Venda</label>
                     <input
                       type="number"
                       placeholder="Nome do produto"
@@ -426,7 +429,7 @@ const Estoque = () => {
               </tr>
             </thead>
             {!filteredEstoque || filteredEstoque.length === 0 ? (
-              <p>Nenhum item cadastrado</p>
+              <p>Nenhum produto cadastrado</p>
             ) : (
               filteredEstoque.map((produto) => (
                 <tbody key={produto.codigo_produto}>
@@ -438,7 +441,7 @@ const Estoque = () => {
                       <p>{produto.nome}</p>
                     </td>
                     <td>
-                      {Number(produto.categoria) === 0 ? "Kilo" : "Quantidade"}
+                      {Number(produto.categoria) === 0 ? "Quilo" : "Quantidade"}
                     </td>
                     <td>
                       <Status
@@ -493,16 +496,16 @@ const Estoque = () => {
                           />
                           <label>Adicionar</label>
                           <input
+                            ref={quantidadeRef}
                             type="number"
-                            onKeyDown={(e) => {
-                              if (e.key === "Enter") {
-                                adicionarEstoque(e);
-                              }
-                            }}
+                            placeholder="Quantidade de produto"
+                            value={modalQuantidade}
                             onChange={(e) => {
-                              setQuantidade(e.target.value);
+                              setModalQuantidade(e.target.value);
+                              setTimeout(() => {
+                                quantidadeRef.current.focus();
+                              }, 0);
                             }}
-                            value={quantidade}
                           />
                           <label>Ativar/Inativar</label>
                           <Switch

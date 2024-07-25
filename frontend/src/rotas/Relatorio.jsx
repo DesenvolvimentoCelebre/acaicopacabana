@@ -95,9 +95,27 @@ const Relatorio = () => {
   const [pedido, setPedido] = useState("");
   const [pedidoRes, setPedidoRes] = useState([]);
   const [vendasRel, setVendasRel] = useState([]);
+  const [vendasCanceladasRel, setVendasCanceladasRel] = useState([]);
+  const [vendasCanceladas, setVendasCanceladas] = useState(false);
+  const [modalDataCancelado, setModalDataCancelado] = useState(false);
+  const [pagamentoRel, setPagamentoRel] = useState([]);
+  const [modalPedidoPagamento, setModalPedidoPagamento] = useState(false);
+  const [pagamentoPedidoRel, setPagamentoPedidoRel] = useState(false);
+
   const data = dataHora.toLocaleDateString();
   const hora = dataHora.toLocaleTimeString();
-
+  const abrirNPedidoCancelado = () => {
+    setModalPedidoPagamento(true);
+  };
+  const fecharNPedidoCancelado = () => {
+    setModalPedidoPagamento(false);
+  };
+  const abrirModalPagamento = () => {
+    setPagamentoPedidoRel(true);
+  };
+  const fecharModalPagamento = () => {
+    setPagamentoPedidoRel(false);
+  };
   const abrirNPedido = () => {
     setModalNPedido(true);
   };
@@ -124,6 +142,18 @@ const Relatorio = () => {
   const fecharVendaLanRel = () => {
     setModalVendaLanRel(false);
   };
+  const abrirDataCancelados = () => {
+    setModalDataCancelado(true);
+  };
+  const fecharDataCancelados = () => {
+    setModalDataCancelado(false);
+  };
+  const abrirVendasCancelas = () => {
+    setVendasCanceladas(true);
+  };
+  const fecharVendasCanceladas = () => {
+    setVendasCanceladas(false);
+  };
 
   const relatorioPedido = async (pedido) => {
     try {
@@ -132,6 +162,18 @@ const Relatorio = () => {
         setPedidoRes(res.data);
         fecharNPedido();
         abrirModalRelPedido();
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  const relatorioPagamento = async (pedido) => {
+    try {
+      const res = await apiAcai.get(`/dvendas?pedido=${pedido}`);
+      if (res.status === 200) {
+        setPagamentoRel(res.data);
+        fecharNPedidoCancelado();
+        abrirModalPagamento();
       }
     } catch (error) {
       console.log(error);
@@ -153,6 +195,23 @@ const Relatorio = () => {
       console.log(error);
     }
   };
+  const relatorioCancelados = async () => {
+    try {
+      const dataInicialFormatada = data_inicial.split("/").reverse().join("-");
+      const dataFinalFormatada = data_final.split("/").reverse().join("-");
+      const res = await apiAcai.get(
+        `/cvendas?data_inicial=${dataInicialFormatada}&data_final=${dataFinalFormatada}`
+      );
+      if (res.status === 200) {
+        console.log(res.data);
+        setVendasCanceladasRel(res.data);
+        fecharDataCancelados();
+        abrirVendasCancelas();
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
   return (
     <>
       <GlobalStyle />
@@ -169,7 +228,7 @@ const Relatorio = () => {
             <tbody>
               <tr onClick={abrirNPedido}>
                 <td>
-                  <p>55</p>
+                  <p>01</p>
                 </td>
                 <td>
                   <p>RELATÓRIO DETALHADO DO PEDIDO</p>
@@ -177,10 +236,26 @@ const Relatorio = () => {
               </tr>
               <tr onClick={abrirVendaLan}>
                 <td>
-                  <p>56</p>
+                  <p>02</p>
                 </td>
                 <td>
                   <p>RELATÓRIO DE VENDAS LANÇADAS</p>
+                </td>
+              </tr>
+              <tr onClick={abrirDataCancelados}>
+                <td>
+                  <p>03</p>
+                </td>
+                <td>
+                  <p>PEDIDOS CANCELADOS</p>
+                </td>
+              </tr>
+              <tr onClick={abrirNPedidoCancelado}>
+                <td>
+                  <p>04</p>
+                </td>
+                <td>
+                  <p>DETALHAMENTO DO PAGAMENTO POR PEDIDO</p>
                 </td>
               </tr>
             </tbody>
@@ -350,15 +425,242 @@ const Relatorio = () => {
                   <th className="thPDV">Valor Total</th>
                   <th className="thPDV">Data da Venda</th>
                   <th className="thPDV">Operador</th>
+                  <th className="thPDV">Status</th>
                 </tr>
               </thead>
               <tbody>
                 {vendasRel.map((venda) => (
                   <tr key={venda.pedido}>
                     <td className="tdPDV">{venda.pedido}</td>
-                    <td className="tdPDV">{venda.valor_unit}</td>
+                    <td className="tdPDV">{venda.total}</td>
                     <td className="tdPDV">{venda.data_venda}</td>
                     <td className="tdPDV">{venda.operador}</td>
+                    <td className="tdPDV">{venda.status}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </Modal>
+
+          <Modal
+            isOpen={modalVendaLan}
+            onRequestClose={fecharVendaLan}
+            contentLabel="Modal Preço"
+            style={{
+              content: {
+                maxWidth: "30%",
+                maxHeight: "36%",
+                margin: "auto",
+                padding: 0,
+              },
+            }}
+          >
+            <div className="modal-mensagem modal-vendas">
+              <SetaFechar Click={fecharVendaLan} />
+              <h2>Pesquisar por vendas</h2>
+            </div>
+            <div className="kg flex-vendas">
+              <label>Data Inicial</label>
+              <input
+                type="date"
+                onChange={(e) => {
+                  setData_Inicial(e.target.value);
+                }}
+              />
+              <label>Data Final</label>
+              <input
+                type="date"
+                onChange={(e) => {
+                  setData_Final(e.target.value);
+                }}
+              />
+
+              <input
+                type="button"
+                value="Pesquisar Venda"
+                className="botao-add"
+                onClick={() => {
+                  relatorioVendas();
+                }}
+              />
+            </div>
+          </Modal>
+
+          <Modal
+            isOpen={modalDataCancelado}
+            onRequestClose={fecharDataCancelados}
+            style={{
+              content: {
+                maxWidth: "30%",
+                maxHeight: "36%",
+                margin: "auto",
+                padding: 0,
+              },
+            }}
+          >
+            <div className="modal-mensagem modal-vendas">
+              <SetaFechar Click={fecharDataCancelados} />
+              <h2>Pesquisar por cancelado</h2>
+            </div>
+            <div className="kg flex-vendas">
+              <label>Data Inicial</label>
+              <input
+                type="date"
+                onChange={(e) => {
+                  setData_Inicial(e.target.value);
+                }}
+              />
+              <label>Data Final</label>
+              <input
+                type="date"
+                onChange={(e) => {
+                  setData_Final(e.target.value);
+                }}
+              />
+              <input
+                type="button"
+                value="Pesquisar Venda"
+                className="botao-add"
+                onClick={() => {
+                  relatorioCancelados();
+                }}
+              />
+            </div>
+          </Modal>
+
+          <Modal
+            isOpen={vendasCanceladas}
+            onRequestClose={fecharVendasCanceladas}
+            style={{
+              content: {
+                minWidth: "70%",
+                minHeight: "60%",
+                margin: "auto",
+                padding: 0,
+              },
+            }}
+          >
+            <div className="modal-mensagem">
+              <SetaFechar Click={fecharVendasCanceladas} />
+              <h2>RELATÓRIO PEDIDOS CANCELADOS</h2>
+            </div>
+            <CabecalhoRel>
+              <h3>Açai copacabama - Ucsal</h3>
+              <h4>{data}</h4>
+              <CabecalhoFlex>
+                <p>{hora}</p>
+                <p>(ADM SYS)</p>
+                <Linha />
+                <p>System version 1.0.0</p>
+              </CabecalhoFlex>
+
+              <p style={{ fontSize: "22px" }}>RELATÓRIO PEDIDOS CANCELADOS</p>
+            </CabecalhoRel>
+            <table className="tabela_resumo">
+              <thead>
+                <tr>
+                  <th className="thPDV">Pedido</th>
+                  <th className="thPDV">Valor Total</th>
+                  <th className="thPDV">Data da Venda</th>
+                  <th className="thPDV">Operador</th>
+                  <th className="thPDV">Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {vendasCanceladasRel.map((venda) => (
+                  <tr key={venda.pedido}>
+                    <td className="tdPDV">{venda.pedido}</td>
+                    <td className="tdPDV">{venda.total}</td>
+                    <td className="tdPDV">{venda.data_venda}</td>
+                    <td className="tdPDV">{venda.operador}</td>
+                    <td className="tdPDV">{venda.status}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </Modal>
+
+          <Modal
+            isOpen={modalPedidoPagamento}
+            onRequestClose={fecharNPedidoCancelado}
+            contentLabel="Modal Preço"
+            style={{
+              content: {
+                maxWidth: "60%",
+                height: "15%",
+                margin: "auto",
+                padding: 0,
+              },
+            }}
+          >
+            <div className="modal-mensagem">
+              <SetaFechar Click={fecharNPedidoCancelado} />
+              <h2>Pesquisa por pedido</h2>
+            </div>
+            <div className="kg">
+              <label>Nº do Pedido</label>
+              <input
+                type="number"
+                onChange={(e) => {
+                  setPedido(e.target.value);
+                }}
+              />
+              <input
+                type="button"
+                value="Pesquisar Pedido"
+                className="botao-add"
+                onClick={() => {
+                  relatorioPagamento(pedido);
+                }}
+              />
+            </div>
+          </Modal>
+          <Modal
+            isOpen={pagamentoPedidoRel}
+            onRequestClose={fecharModalPagamento}
+            style={{
+              content: {
+                minWidth: "70%",
+                minHeight: "60%",
+                margin: "auto",
+                padding: 0,
+              },
+            }}
+          >
+            <div className="modal-mensagem">
+              <SetaFechar Click={fecharModalPagamento} />
+              <h2>RELATÓRIO DETALHADO DO PAGAMENTO POR PEDIDO</h2>
+            </div>
+            <CabecalhoRel>
+              <h3>Açai copacabama - Ucsal</h3>
+              <h4>{data}</h4>
+              <CabecalhoFlex>
+                <p>{hora}</p>
+                <p>(ADM SYS)</p>
+                <Linha />
+                <p>System version 1.0.0</p>
+              </CabecalhoFlex>
+
+              <p style={{ fontSize: "22px" }}>RELATÓRIO DETALHADO </p>
+            </CabecalhoRel>
+            <table className="tabela_resumo">
+              <thead>
+                <tr>
+                  <th className="thPDV">Operador</th>
+                  <th className="thPDV">Pagamento</th>
+                  <th className="thPDV">Pedido</th>
+                  <th className="thPDV">Recebido</th>
+                  <th className="thPDV">Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {pagamentoRel.map((pedido) => (
+                  <tr key={pedido.pedido}>
+                    <td className="tdPDV">{pedido.Operador}</td>
+                    <td className="tdPDV">{pedido.Pagamento}</td>
+                    <td className="tdPDV">{pedido.Pedido}</td>
+                    <td className="tdPDV">R$ {pedido.Recebido}</td>
+                    <td className="tdPDV">{pedido.status}</td>
                   </tr>
                 ))}
               </tbody>

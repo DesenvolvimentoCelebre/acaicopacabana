@@ -189,7 +189,7 @@ const Configuracao = () => {
                   <p>{val}</p>
                 </td>
                 <td>
-                  <p>Preço do kg - açai</p>
+                  <p>Produto por peso</p>
                 </td>
                 <td>
                   <p>

@@ -3,7 +3,7 @@ const {SerialPort} = require('serialport');
 const config = express.Router();
 
 const serialPort = new SerialPort({
-  path: 'COM1', 
+  path: 'COM3', 
   baudRate: 4800, 
   autoOpen: false, 
 });

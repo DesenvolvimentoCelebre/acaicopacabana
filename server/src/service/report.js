@@ -49,12 +49,15 @@ ON
 WHERE
 	pedno.data_fechamento BETWEEN ? AND ?
 GROUP BY 
-	(pedido)`;
+	pedno.pedido,
+    pedno.userno,
+    DATE_FORMAT(pedno.data_fechamento, "%d/%m/%Y"),
+    pedno.sta;`;
     const [results] = await pool.query(query, [data_inicial, data_final]);
     return { success: true, data: results };
   } catch (error) {
     console.error('Erro ao buscar vendas por intervalo de datas:', error);
-    return { success: false, error: 'Erro no sistema, contate o administrador', details: error };
+    return { success: false, error: ['Erro no sistema, contate o administrador', error], details: error };
   }
 }
 
@@ -81,7 +84,10 @@ async function findVendasPorIntervaloDatasCancelados (data_inicial, data_final) 
       pedno.data_fechamento BETWEEN ? AND ?
     AND pedno.sta = 0
     GROUP BY 
-      (pedido)
+      pedno.pedido,
+    pedno.userno,
+    DATE_FORMAT(pedno.data_fechamento, "%d/%m/%Y"),
+    pedno.sta;
     `;
     const [results] = await pool.query(query, [data_inicial, data_final]);
     return { success: true, data: results};

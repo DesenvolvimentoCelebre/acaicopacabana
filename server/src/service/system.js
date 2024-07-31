@@ -2,7 +2,18 @@ const pool = require('../database/connection');
 
 async function getcaixa() {
     try {
-        const query = `select s0 from cxlog where s0 = 0 and date = current_date() - interval 1 day`;
+        const query = `
+        SELECT 
+    CASE s0 
+        WHEN '0' THEN '0'
+        WHEN '1' THEN '1'
+        ELSE '0'
+    END AS s0
+FROM cxlog 
+WHERE date = CURRENT_DATE()
+ORDER BY time DESC
+LIMIT 1;
+`;
 
         const [results] = await pool.query(query);
 

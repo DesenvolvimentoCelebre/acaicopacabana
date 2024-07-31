@@ -1,10 +1,10 @@
 const pool  = require('../database/connection');
 
-async function getcaixa({s0, sd}) {
+async function getcaixa() {
     try {
       const query = `SELECT s0 FROM cxlog WHERE date =  CURDATE()`;
 
-      const [results] = await pool.query(query, values);
+      const [results] = await pool.query(query);
   
       if (results.length === 0) {
         return { success: true, message: "Não foi encontrado nenhum produto com esse nome" };

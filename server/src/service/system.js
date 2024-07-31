@@ -14,7 +14,7 @@ async function getcaixa() {
     } catch (error) {
       return { success: false, error: "Erro no servidor, por favor contatar o administrador", details: error };
     }
-  }
+}
 
 async function saldo() {
   try {
@@ -40,9 +40,27 @@ WHERE
     } catch (error) {
       return { success: false, error: "Erro no servidor, por favor contatar o administrador", details: error };
     }
+}
+
+async function abrirCaixa(s0, sd) {
+  try {
+    const {s0, sd} = s0;
+
+    const query = `INSERT INTO cxlog (s0, sd, date, time) VALUES (?,?,CURRETDATE(),CURRETTIME())`;
+    const values = [
+      s0,
+      sd
+    ];
+
+    await pool.query(query, values);
+    return { success: true, message: "Produto cadastrado com sucesso" };
+  } catch (error) {
+    return { success: false, error: "Erro ao cadastrar produto", details: error };
   }
+}
 
 module.exports = {
     getcaixa,
-    saldo
+    saldo,
+    abrirCaixa
 }

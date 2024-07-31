@@ -49,13 +49,16 @@ async function abrirCaixa(s0, sd) {
 async function fechamento() {
     try {
         const saldoQuery = `
-       SELECT 
-           COALESCE(
-               (SELECT SUM(sd) FROM cxlog WHERE s0 = 0 AND date = CURRENT_DATE - INTERVAL 1 DAY), 0
-           ) +
-           COALESCE(
-               (SELECT SUM(valor_unit) FROM pedno WHERE data_fechamento = CURRENT_DATE()), 0
-           ) AS saldo_fechamento
+        SELECT 
+            (SELECT COALESCE(SUM(sd), 0) 
+        FROM 
+            cxlog 
+        WHERE 
+        s0 = 0 AND date = CURRENT_DATE - INTERVAL 1 DAY) +
+        (SELECT COALESCE(SUM(pedno.valor_unit), 0) 
+        FROM pedno 
+        INNER JOIN pay ON pedno.pedido = pay.pedido 
+        WHERE pedno.data_fechamento = CURRENT_DATE AND pay.tipo = 0)
    `;
 
         const [saldoResult] = await pool.query(saldoQuery);

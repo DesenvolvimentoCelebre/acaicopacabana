@@ -4,15 +4,22 @@ async function getcaixa() {
     try {
         const query = `
         SELECT 
-    CASE s0 
-        WHEN '0' THEN '0'
-        WHEN '1' THEN '1'
-        ELSE '0'
-    END AS s0
-FROM cxlog 
-WHERE date = CURRENT_DATE()
-ORDER BY time DESC
-LIMIT 1;
+    COALESCE(
+        (
+            SELECT 
+                CASE s0 
+                    WHEN '0' THEN '0'
+                    WHEN '1' THEN '1'
+                    ELSE '0'
+                END AS s0
+            FROM cxlog 
+            WHERE date = CURRENT_DATE()
+            ORDER BY time DESC
+            LIMIT 1
+        ),
+        '0'
+    ) AS s0;
+
 `;
 
         const [results] = await pool.query(query);

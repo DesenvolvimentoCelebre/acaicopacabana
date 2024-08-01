@@ -62,7 +62,7 @@ system.post("/fechamento", async (req, res) => {
     }
 });
 
-system.post("/rdiario", async (req, res) => {
+system.get("/rdiario", async (req, res) => {
     try {
       const result = await relDiario();
       

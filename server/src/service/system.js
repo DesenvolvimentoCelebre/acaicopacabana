@@ -46,13 +46,18 @@ SELECT sd FROM cxlog WHERE s0 = 0 AND date = CURRENT_DATE() - INTERVAL 1 DAY and
 
 async function abrirCaixa(s0, sd, userno) {
     try {
+        console.log(`Tentando inserir: s0=${s0}, sd=${sd}, userno=${userno}`);
 
-        const query = `INSERT INTO cxlog (s0, sd, date, time, userno) VALUES (? ,?, CURRENT_DATE(), CURRENT_TIME(), ?)`;
+        const query = `INSERT INTO cxlog (s0, sd, date, time, userno) VALUES (?, ?, CURRENT_DATE(), CURRENT_TIME(), ?)`;
         const values = [s0, sd, userno];
 
-        await pool.query(query, values);
+        const [result] = await pool.query(query, values);
+        
+        console.log('Resultado da inserção:', result);
+        
         return { success: true, message: "Caixa aberto" };
     } catch (error) {
+        console.error("Erro ao abrir caixa:", error);
         return { success: false, error: "Erro ao abrir caixa", details: error };
     }
 }

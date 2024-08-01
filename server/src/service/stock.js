@@ -142,6 +142,7 @@ async function allProducts() {
       await pool.query(query, values);
       return { success: true, message: 'Produto atualizado com sucesso' };
     } catch (error) {
+      console.error(error)
       return { success: false, error: ['Erro interno do servidor'] };
     }
   }

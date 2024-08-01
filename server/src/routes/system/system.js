@@ -1,6 +1,6 @@
 const express = require("express");
 
-const { getcaixa, saldo, abrirCaixa, fechamento } = require('../../service/system');
+const { getcaixa, saldo, abrirCaixa, fechamento, relDiario } = require('../../service/system');
 const { errorMiddleware } = require('../../utils/intTelegram');
 
 const system = express.Router();

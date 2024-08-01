@@ -121,6 +121,7 @@ async function allProducts() {
     }
   }
 
+<<<<<<< HEAD
   async function productUpdate({ bit, quantidade, preco_custo, codigo_produto }) {
     try {
         let query = 'UPDATE produto SET bit = ?';
@@ -140,6 +141,33 @@ async function allProducts() {
         values.push(codigo_produto);
   
         await pool.query(query, values);
+=======
+  async function productUpdate({ bit, quantidade, codigo_produto, preco_custo }) {
+    try {
+        // Inicializa a consulta SQL e os valores
+        let query = 'UPDATE produto SET bit = ?';
+        const values = [bit];
+        
+        // Adiciona a condição para atualizar quantidade, se fornecida
+        if (quantidade !== undefined && quantidade !== null) {
+            query += ', quantidade = ?';
+            values.push(quantidade);
+        }
+
+        // Adiciona a condição para atualizar preco_custo, se fornecido
+        if (preco_custo !== undefined && preco_custo !== null) {
+            query += ', preco_custo = ?';
+            values.push(preco_custo);
+        }
+        
+        // Completa a consulta com a condição WHERE
+        query += ' WHERE codigo_produto = ?';
+        values.push(codigo_produto);
+
+        // Executa a consulta
+        await pool.query(query, values);
+        
+>>>>>>> 95497145d8ee9bc651005392d0ec800e96824e5c
         return { success: true, message: 'Produto atualizado com sucesso' };
     } catch (error) {
         return { success: false, error: ['Erro interno do servidor'] };

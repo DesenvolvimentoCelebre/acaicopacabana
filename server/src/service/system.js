@@ -1,26 +1,8 @@
 const pool = require('../database/connection');
 
-async function getcaixa() {
+async function getcaixa(userno) {
     try {
-        const query = `
-        SELECT 
-    COALESCE(
-        (
-            SELECT 
-                CASE s0 
-                    WHEN '0' THEN '0'
-                    WHEN '1' THEN '1'
-                    ELSE '0'
-                END AS s0
-            FROM cxlog 
-            WHERE date = CURRENT_DATE()
-            ORDER BY time DESC
-            LIMIT 1
-        ),
-        '0'
-    ) AS s0;
-
-`;
+        const query = `select s0 from cxlog where s0 = 0 and date = current_date() - interval 1 day`;
 
         const [results] = await pool.query(query);
 
@@ -30,16 +12,17 @@ async function getcaixa() {
             return { success: true, message: results };
         }
     } catch (error) {
+        console.error(error)
         return { success: false, error: "Erro no servidor, por favor contatar o administrador", details: error };
     }
 }
 
-async function saldo() {
+async function saldo(userno) {
     try {
         const query = `
-SELECT sd FROM cxlog WHERE s0 = 0 AND date = CURRENT_DATE() - INTERVAL 1 DAY `;
-
-        const [results] = await pool.query(query);
+SELECT sd FROM cxlog WHERE s0 = 0 AND date = CURRENT_DATE() - INTERVAL 1 DAY and userno = ? `;
+        const values = [userno]
+        const [results] = await pool.query(query, values);
 
         if (results.length === 0) {
             return { success: true, message: "Não foi encontrado nenhum produto com esse nome" };
@@ -53,45 +36,63 @@ SELECT sd FROM cxlog WHERE s0 = 0 AND date = CURRENT_DATE() - INTERVAL 1 DAY `;
 
 async function abrirCaixa(s0, sd, userno) {
     try {
-
-        const query = `INSERT INTO cxlog (s0, sd, date, time, userno) VALUES (? ,?, CURRENT_DATE(), CURRENT_TIME(), ?)`;
+        const query = `INSERT INTO cxlog (s0, sd, date, time, userno) VALUES (?, ?, CURRENT_DATE(), CURRENT_TIME(), ?)`;
         const values = [s0, sd, userno];
 
-        await pool.query(query, values);
+        const [result] = await pool.query(query, values);
+
+        const query = `INSERT INTO cxlog (s0, sd, date, time) VALUES (? ,?, CURRENT_DATE(), CURRENT_TIME())`;
+        const values = [s0, sd];
+
         return { success: true, message: "Caixa aberto" };
     } catch (error) {
+        console.error("Erro ao abrir caixa:", error);
         return { success: false, error: "Erro ao abrir caixa", details: error };
     }
 }
 
-async function fechamento(userno) {
+async function fechamento() {
     try {
+        const buscaUsuarioQuery = `
+            SELECT pedno.userno, usuario.id
+            FROM usuario
+            INNER JOIN pedno
+            ON pedno.userno = usuario.nome
+            WHERE usuario.id = ? 
+        `;
+
+        const [buscaUsuarioResult] = await pool.query(buscaUsuarioQuery, [usuarioId]);
+        if (buscaUsuarioResult.length === 0) {
+            throw new Error('Usuário não encontrado');
+        }
+
+        const userno = buscaUsuarioResult[0].userno;
+
         const saldoQuery = `
-        SELECT 
-            (SELECT COALESCE(SUM(sd), 0) 
-        FROM 
-            cxlog 
-        WHERE 
-        s0 = 0 AND date = CURRENT_DATE - INTERVAL 1 DAY) +
-        (SELECT COALESCE(SUM(pedno.valor_unit), 0) 
-        FROM pedno 
-        INNER JOIN pay ON pedno.pedido = pay.pedido 
-        WHERE pedno.data_fechamento = CURRENT_DATE AND pay.tipo = 0)
+       SELECT 
+           COALESCE(
+               (SELECT SUM(sd) FROM cxlog WHERE s0 = 0 AND date = CURRENT_DATE - INTERVAL 1 DAY), 0
+           ) +
+           COALESCE(
+               (SELECT SUM(valor_unit) FROM pedno WHERE data_fechamento = CURRENT_DATE()), 0
+           ) AS saldo_fechamento
    `;
 
-        const [saldoResult] = await pool.query(saldoQuery);
+        const [saldoResult] = await pool.query(saldoQuery, [userno]);
         const saldo_fechamento = saldoResult[0].saldo_fechamento;
 
         const insertQuery = `
-        INSERT INTO cxlog (s0, sd, date, time, userno)
-        VALUES (?, ?, CURRENT_DATE, CURRENT_TIME, ?)
-    `;
-
-    const values = [0, saldo_fechamento, userno];
-    await pool.query(insertQuery, values);
+       INSERT INTO cxlog (s0, sd, date, time)
+       VALUES (
+           0, 
+           ?,
+           CURRENT_DATE, 
+           CURRENT_TIME
+       )
+   `;
+        await pool.query(insertQuery, [saldo_fechamento]);
         return { success: true, message: ['Caixa Fechado com Sucesso'] }
     } catch (error) {
-        console.error(error)
         return { success: false, message: ['Erro ao fechar caixa', error] }
     }
 }
@@ -213,7 +214,7 @@ async function relDiario(userno) {
             SELECT pedno.userno, usuario.nome
             FROM usuario
             INNER JOIN pedno ON pedno.userno = usuario.nome
-            WHERE usuario.id = ?
+            WHERE usuario.id = 4 
         `;
         const [usuarioNomeResult] = await pool.query(usuarioNomeQuery, [userno]);
 
@@ -288,15 +289,6 @@ async function relDiario(userno) {
             message: ['Erro ao realizar fechamento', error.message]
         };
     }
-}
-
-
-module.exports = {
-    getcaixa,
-    saldo,
-    abrirCaixa,
-    fechamento,
-    relDiario
 }
 
 

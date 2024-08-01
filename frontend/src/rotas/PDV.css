@@ -647,9 +647,70 @@ nav {
 
 }
 
+.modal-dados,
+.modal-saldo {
+  display: flex;
+  justify-content: center;
+}
+
+.modal-saldo {
+  border-top: solid #fff 1px;
+  height: 60px;
+  color: #fff;
+}
+
+.modal-fechamento {
+  border-bottom: solid #fff 1px;
+  display: flex;
+  justify-content: center;
+}
+
+.modal-coluna {
+  border-bottom: solid #000000 1px;
+  background-color: #fff;
+  display: flex;
+  justify-content: flex-end;
+  padding-left: 10px;
+}
+
+.modal-coluna-col {
+  background-color: #d3c2e3;
+  color: #320a4e;
+  font-weight: bold;
+  display: flex;
+  justify-content: center;
+}
+
+.btn-col {
+  background-color: #fff;
+}
+
+.btn-col button {
+  background: #3d0e5c;
+  color: #fff;
+  margin: 25px 0;
+  cursor: pointer;
+  width: 160px;
+  height: 25px;
+  font-size: 11.5px;
+  border-radius: 20px;
+}
+
+.dados-btn {
+  background: #3d0e5c;
+}
+
 .container-modal {
   display: flex;
   flex-direction: column;
+}
+
+.dados-modal {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-around;
+  height: 60%;
 }
 
 .btn-finalizar:disabled {

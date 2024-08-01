@@ -7,8 +7,14 @@ import relatorio from "../assets/img/relatorio.png";
 import estoque from "../assets/img/estoque.png";
 import engrenagem from "../assets/img/engrenagem.png";
 import sair from "../assets/img/sair.png";
+import dinheiro from "../assets/img/saco-de-dinheiro.png";
 import { logout, reset } from "../slices/authSlice.js";
 import { useDispatch } from "react-redux";
+import Modal from "react-modal";
+import { useState, useEffect } from "react";
+import apiAcai from "../axios/config.js";
+import { toast } from "react-toastify";
+import SetaFechar from "../components/SetaFechar";
 
 const GlobalStyle = createGlobalStyle`
   * {
@@ -114,7 +120,72 @@ const SideBar = () => {
 
     navigate("/login");
   };
+  const [modalFechamentoCaixa, setModalFechamentoCaixa] = useState(false);
 
+  //const [saldoFechamento, setSaldoFechamento] = useState("");
+  const [saldoInicial, setSaldoInicial] = useState("");
+  const [fechamentoDinheiro, setFechamentoDinheiro] = useState("");
+  const [fechamentoPix, setFechamentoPix] = useState("");
+  const [fechamentoCredito, setFechamentoCredito] = useState("");
+  const [fechamentoDebito, setFechamentoDebito] = useState("");
+  const [totalVendas, setTotalVendas] = useState("");
+  const [modalCancelamento, setModalCancelamento] = useState(false);
+
+  const abrirModalCancelamento = () => {
+    setModalCancelamento(true);
+  };
+  const fecharModalCancelamento = () => {
+    setModalCancelamento(false);
+  };
+
+  const abrirModalFechamentoCaixa = () => {
+    setModalFechamentoCaixa(true);
+  };
+  const fecharModalFechamentoCaixa = () => {
+    setModalFechamentoCaixa(false);
+  };
+
+  useEffect(() => {
+    const carregarFechamentoCaixa = async () => {
+      try {
+        const res = await apiAcai.get("/rdiario");
+        setSaldoInicial(res.data.saldo_inicial);
+        setFechamentoDinheiro(
+          res.data.totalRecebidoPorTipo[0].total_valor_recebido
+        );
+        setFechamentoPix(res.data.totalRecebidoPorTipo[1].total_valor_recebido);
+        setFechamentoCredito(
+          res.data.totalRecebidoPorTipo[2].total_valor_recebido
+        );
+        setFechamentoDebito(
+          res.data.totalRecebidoPorTipo[3].total_valor_recebido
+        );
+        setTotalVendas(res.data.total_vendas);
+      } catch (error) {
+        console.log("Erro", error);
+      }
+    };
+    carregarFechamentoCaixa();
+  }, []);
+
+  const fechamentoCaixa = async (e) => {
+    e.preventDefault(e);
+
+    const usuarioFechamento = {
+      userno: user && user.id,
+    };
+
+    try {
+      const res = await apiAcai.post("/fechamento", usuarioFechamento);
+      if (res.status === 200) {
+        fecharModalCancelamento();
+        fecharModalFechamentoCaixa();
+        toast.success("Fecahmento do caixa realizada");
+      }
+    } catch (error) {
+      console.log("Erro", error);
+    }
+  };
   return (
     <>
       <GlobalStyle />
@@ -175,6 +246,11 @@ const SideBar = () => {
                   </NavLink>
                   <Paragraph>PDV</Paragraph>
                 </Box>
+                <Box onClick={abrirModalFechamentoCaixa}>
+                  <SmallImage src={dinheiro} alt="" />
+
+                  <Paragraph>Fechamento de caixa</Paragraph>
+                </Box>
                 <Box>
                   <NavLink>
                     <SmallImage
@@ -193,8 +269,86 @@ const SideBar = () => {
               </>
             )}
           </Container2>
+          <Modal
+            isOpen={modalFechamentoCaixa}
+            onRequestClose={fecharModalFechamentoCaixa}
+            contentLabel="Confirmar Pedido"
+            style={{
+              content: {
+                width: "30%",
+                height: "56%",
+                margin: "auto",
+                padding: 0,
+              },
+            }}
+          >
+            <div className="modal-mensagem modal-fechamento">
+              <h2>RELATÓRIO DIÁRIO</h2>
+            </div>
+            <div className="modal-mensagem modal-coluna">
+              <p>(+) SALDO INICIAL: R${saldoInicial}</p>
+            </div>
+            <div className="modal-mensagem modal-coluna">
+              <p>(+) ENTRADAS DO DIA</p>
+            </div>
+            <div className="modal-mensagem modal-coluna">
+              <p>Cartão de credito R${fechamentoCredito}</p>
+            </div>
+            <div className="modal-mensagem modal-coluna">
+              <p>Cartão de Débito/alimentação R${fechamentoDebito}</p>
+            </div>
+            <div className="modal-mensagem modal-coluna">
+              <p>Dinheiro R${fechamentoDinheiro}</p>
+            </div>
+            <div className="modal-mensagem modal-coluna">
+              <p>PIX R${fechamentoPix}</p>
+            </div>
+            <div className="modal-mensagem modal-coluna-col">
+              <p>FECHAMENTO DO DIA</p>
+            </div>
+            <div className="modal-mensagem modal-coluna">
+              <p>(+) TOTAL DE VENDA: R${totalVendas}</p>
+            </div>
+            <div className="modal-mensagem modal-coluna">
+              <p>(+) SALDO EM CAIXA</p>
+            </div>
+            <div className="modal-coluna-col btn-col">
+              <button onClick={abrirModalCancelamento}>
+                FECHAMENTO DO DIA
+              </button>
+            </div>
+          </Modal>
+          <Modal
+            isOpen={modalCancelamento}
+            onRequestClose={fecharModalCancelamento}
+            contentLabel="Confirmar Pedido"
+            style={{
+              content: {
+                width: "50%",
+                height: "120px",
+                margin: "auto",
+                padding: 0,
+              },
+            }}
+          >
+            <div className="modal-mensagem">
+              <SetaFechar Click={fecharModalCancelamento} />
+              <h2>Confirmação de fechamento</h2>
+            </div>
+            <div className="container-modal">
+              <h2>Deseja confirmar o fechamento do caixa?</h2>
+              <div className="btn-modal">
+                <button onClick={fechamentoCaixa} className="verde">
+                  Confirmar
+                </button>
+                <button onClick={fecharModalCancelamento} className="vermelho">
+                  Cancelar
+                </button>
+              </div>
+            </div>
+          </Modal>
           <Footer>
-            <p>Versão 1.0.0</p>
+            <p>Versão 1.0.1</p>
           </Footer>
         </SideBarClass>
         <MainContainer></MainContainer>

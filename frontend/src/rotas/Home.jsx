@@ -41,7 +41,7 @@ const Home = () => {
         console.log("Dados do Caixa:", dados);
         setDadosCaixa(dados);
 
-        if (dados === "0") {
+        if (dados === "0" || 0) {
           setModalDadosCaixa(true);
         }
       } catch (error) {

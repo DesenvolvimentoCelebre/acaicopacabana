@@ -37,7 +37,6 @@ system.get("/sd", async (req, res) => {
 
 system.post("/opc", async (req, res) => {
     try {
-<<<<<<< HEAD
       const {s0, sd, userno} = req.body
       const result = await abrirCaixa(s0, sd, userno);
       
@@ -46,16 +45,7 @@ system.post("/opc", async (req, res) => {
       } else {
         res.status(500).json(result);
       }
-=======
-        const { s0, sd, userno } = req.body
-        const result = await abrirCaixa(s0, sd, userno);
 
-        if (result.success) {
-            res.status(200).json(result);
-        } else {
-            res.status(500).json(result);
-        }
->>>>>>> 95497145d8ee9bc651005392d0ec800e96824e5c
     } catch (error) {
         res.status(500).json({ success: false, error: ["Erro interno do servidor", error] });
     }
@@ -83,24 +73,18 @@ system.post("/fechamento", async (req, res) => {
 
 system.get("/rdiario", async (req, res) => {
     try {
-<<<<<<< HEAD
-      const result = await relDiario();
+
+      const { userno } = req.body
+      const result = await relDiario(userno);
       
       if (result.success) {
         res.status(200).json(result);
       } else {
         res.status(500).json(result);
       }
-=======
-        const { userno } = req.body
-        const result = await fechamento(userno);
 
-        if (result.success) {
-            res.status(200).json(result);
-        } else {
-            res.status(500).json(result);
-        }
->>>>>>> 95497145d8ee9bc651005392d0ec800e96824e5c
+    
+
     } catch (error) {
         res.status(500).json({ success: false, error: ["Erro interno do servidor", error] });
     }

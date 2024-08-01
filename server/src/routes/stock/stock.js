@@ -69,11 +69,8 @@ stock.get("/busca", async (req, res) => {
 
 stock.put("/attestoque", async (req, res, next) => {
   try {
-<<<<<<< HEAD
-    const { codigo_produto, quantidade, bit } = req.body;
-=======
+
     const { codigo_produto, quantidade, bit, preco_custo } = req.body;
->>>>>>> 95497145d8ee9bc651005392d0ec800e96824e5c
     const result = await productUpdate({codigo_produto, quantidade, bit, preco_custo});
     if (result.success) {
       res.status(201).json({ success: true, message: 'Estoque atualizado com sucesso', details: result});

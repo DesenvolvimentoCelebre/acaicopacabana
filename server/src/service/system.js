@@ -64,7 +64,7 @@ async function abrirCaixa(s0, sd, userno) {
     }
 }
 
-async function fechamento() {
+async function fechamento(userno) {
     try {
         const saldoQuery = `
         SELECT 

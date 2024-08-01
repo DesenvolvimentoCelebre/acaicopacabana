@@ -96,8 +96,8 @@ async function fechamento() {
    await pool.query(insertQuery, values);
         return { success: true, message: ['Caixa Fechado com Sucesso'] }
     } catch (error) {
-        return { success: false, message: ['Erro ao fechar caixa', error] }
         console.error(error)
+        return { success: false, message: ['Erro ao fechar caixa', error] }
     }
 }
 

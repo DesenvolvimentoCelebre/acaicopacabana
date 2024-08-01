@@ -142,14 +142,14 @@ async function relDiario(userno) {
             WHERE pedno.data_fechamento = CURRENT_DATE AND pedno.userno = ?
             GROUP BY pay.tipo
         `;
-        const [totalRecebidoPorTipoResult] = await pool.query(totalRecebidoPorTipoQuery, [userno]);
+        const [totalRecebidoPorTipoResult] = await pool.query(totalRecebidoPorTipoQuery, usuarioNome);
 
         const totalVendasQuery = `
             SELECT COALESCE(SUM(pedno.valor_unit), 0) AS total_vendas
             FROM pedno
             WHERE pedno.data_fechamento = CURRENT_DATE AND pedno.userno = ?
         `;
-        const [totalVendasResult] = await pool.query(totalVendasQuery, [userno]);
+        const [totalVendasResult] = await pool.query(totalVendasQuery, usuarioNome);
         const total_vendas = totalVendasResult[0].total_vendas;
 
         const saldoFechamentoQuery = `
@@ -162,7 +162,7 @@ async function relDiario(userno) {
                 INNER JOIN pay ON pedno.pedido = pay.pedido 
                 WHERE pedno.data_fechamento = CURRENT_DATE AND pay.tipo = 0 AND pedno.userno = ?) AS saldo_fechamento
         `;
-        const [saldoFechamentoResult] = await pool.query(saldoFechamentoQuery, [userno]);
+        const [saldoFechamentoResult] = await pool.query(saldoFechamentoQuery, usuarioNome);
         const saldo_fechamento = saldoFechamentoResult[0].saldo_fechamento;
 
         return {

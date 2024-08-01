@@ -6,8 +6,7 @@ async function getcaixa(userno) {
         SELECT COALESCE(
                 (SELECT s0
                  FROM cxlog
-                 WHERE s0 = 0
-                   AND date = CURRENT_DATE()
+                   date = CURRENT_DATE()
                    AND userno = ?
                  LIMIT 1),
                 0
@@ -46,8 +45,6 @@ SELECT sd FROM cxlog WHERE s0 = 0 AND date = CURRENT_DATE() - INTERVAL 1 DAY and
 
 async function abrirCaixa(s0, sd, userno) {
     try {
-        console.log(`Tentando inserir: s0=${s0}, sd=${sd}, userno=${userno}`);
-
         const query = `INSERT INTO cxlog (s0, sd, date, time, userno) VALUES (?, ?, CURRENT_DATE(), CURRENT_TIME(), ?)`;
         const values = [s0, sd, userno];
 

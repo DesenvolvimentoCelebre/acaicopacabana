@@ -29,6 +29,7 @@ async function getcaixa(userno) {
             return { success: true, message: results };
         }
     } catch (error) {
+        console.error(error)
         return { success: false, error: "Erro no servidor, por favor contatar o administrador", details: error };
     }
 }

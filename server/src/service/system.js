@@ -7,7 +7,7 @@ async function getcaixa(userno) {
                 (SELECT s0
                  FROM cxlog
                  WHERE s0 = 0
-                   AND date = CURDATE() - INTERVAL 1 DAY
+                   AND date = CURRENT_DATE()
                    AND userno = ?
                  LIMIT 1),
                 0

@@ -7,7 +7,7 @@ async function getcaixa(userno) {
     (SELECT s0
      FROM cxlog
      WHERE date = CURRENT_DATE()
-       AND userno = '1'
+       AND userno = ?
      LIMIT 1),
     0
 ) AS s0;
@@ -110,15 +110,23 @@ async function fechamento(usuarioId) {
 
 async function relDiario(userno) {
     try {
+        // Consulta para obter o nome do usuário
         const usuarioNomeQuery = `
-            SELECT nome
+            SELECT pedno.userno, usuario.nome
             FROM usuario
-            WHERE id = ?
+            INNER JOIN pedno ON pedno.userno = usuario.nome
+            WHERE usuario.id = 4 
         `;
         const [usuarioNomeResult] = await pool.query(usuarioNomeQuery, [userno]);
+
+        if (usuarioNomeResult.length === 0) {
+            throw new Error("Usuário não encontrado.");
+        }
+
         const usuarioNome = usuarioNomeResult[0].nome;
 
-        const saldoInicialQuery = `
+        // Consulta para obter o saldo inicial
+       const saldoInicialQuery = `
             SELECT COALESCE(SUM(sd), 0) AS saldo_inicial
             FROM cxlog
             WHERE s0 = 0 AND date = CURRENT_DATE - INTERVAL 1 DAY AND userno = ?
@@ -126,6 +134,7 @@ async function relDiario(userno) {
         const [saldoInicialResult] = await pool.query(saldoInicialQuery, [userno]);
         const saldo_inicial = saldoInicialResult[0].saldo_inicial;
 
+        // Consulta para obter o total recebido por tipo
         const totalRecebidoPorTipoQuery = `
             SELECT
                 CASE
@@ -142,16 +151,18 @@ async function relDiario(userno) {
             WHERE pedno.data_fechamento = CURRENT_DATE AND pedno.userno = ?
             GROUP BY pay.tipo
         `;
-        const [totalRecebidoPorTipoResult] = await pool.query(totalRecebidoPorTipoQuery, usuarioNome);
+        const [totalRecebidoPorTipoResult] = await pool.query(totalRecebidoPorTipoQuery, [usuarioNome]);
 
+        // Consulta para obter o total de vendas
         const totalVendasQuery = `
             SELECT COALESCE(SUM(pedno.valor_unit), 0) AS total_vendas
             FROM pedno
             WHERE pedno.data_fechamento = CURRENT_DATE AND pedno.userno = ?
         `;
-        const [totalVendasResult] = await pool.query(totalVendasQuery, usuarioNome);
+        const [totalVendasResult] = await pool.query(totalVendasQuery, [usuarioNome]);
         const total_vendas = totalVendasResult[0].total_vendas;
 
+        // Consulta para obter o saldo de fechamento
         const saldoFechamentoQuery = `
             SELECT 
                 (SELECT COALESCE(SUM(sd), 0) 
@@ -162,13 +173,13 @@ async function relDiario(userno) {
                 INNER JOIN pay ON pedno.pedido = pay.pedido 
                 WHERE pedno.data_fechamento = CURRENT_DATE AND pay.tipo = 0 AND pedno.userno = ?) AS saldo_fechamento
         `;
-        const [saldoFechamentoResult] = await pool.query(saldoFechamentoQuery, usuarioNome);
+        const [saldoFechamentoResult] = await pool.query(saldoFechamentoQuery, [usuarioNome]);
         const saldo_fechamento = saldoFechamentoResult[0].saldo_fechamento;
 
         return {
             success: true,
-            usuarioNome,  
-            saldo_inicial,
+            usuarioNome,
+            saldo_inicial: saldo_inicial,
             totalRecebidoPorTipo: totalRecebidoPorTipoResult,
             total_vendas,
             saldo_fechamento

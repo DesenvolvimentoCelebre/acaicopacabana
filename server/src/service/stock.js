@@ -121,25 +121,31 @@ async function allProducts() {
     }
   }
 
-  async function productUpdate({ bit, quantidade, codigo_produto }) {
+  async function productUpdate({ bit, quantidade, preco_custo, codigo_produto }) {
     try {
-      let query = 'UPDATE produto SET bit = ?';
-      const values = [bit];
+        let query = 'UPDATE produto SET bit = ?';
+        const values = [bit];
   
-      if (quantidade && quantidade.trim() !== '') { 
-        query += ', quantidade = ?'; 
-        values.push(quantidade);
-      }
+        if (quantidade && quantidade.trim() !== '') {
+            query += ', quantidade = ?';
+            values.push(quantidade);
+        }
   
-      query += ' WHERE codigo_produto = ?';
-      values.push(codigo_produto);
+        if (preco_custo && preco_custo.trim() !== '') {
+            query += ', preco_custo = ?';
+            values.push(preco_custo);
+        }
   
-      await pool.query(query, values);
-      return { success: true, message: 'Produto atualizado com sucesso' };
+        query += ' WHERE codigo_produto = ?';
+        values.push(codigo_produto);
+  
+        await pool.query(query, values);
+        return { success: true, message: 'Produto atualizado com sucesso' };
     } catch (error) {
-      return { success: false, error: ['Erro interno do servidor'] };
+        return { success: false, error: ['Erro interno do servidor'] };
     }
-  }
+}
+
   
 
 module.exports = {

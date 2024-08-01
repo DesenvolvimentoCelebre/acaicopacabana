@@ -3,22 +3,15 @@ const pool = require('../database/connection');
 async function getcaixa(userno) {
     try {
         const query = `
-        SELECT IF(
-    EXISTS (
-        SELECT 1
-        FROM cxlog
-        WHERE s0 = 0
-          AND date = CURRENT_DATE()
-          AND userno = ?
-    ),
-    (SELECT s0
-     FROM cxlog
-     WHERE s0 = 0
-       AND date = CURRENT_DATE()
-       AND userno = ?
-     LIMIT 1),
-    0
-) AS result;
+        SELECT COALESCE(
+                (SELECT s0
+                 FROM cxlog
+                 WHERE s0 = 0
+                   AND date = CURDATE() - INTERVAL 1 DAY
+                   AND userno = ?
+                 LIMIT 1),
+                0
+            ) AS s0;
 `;
         const values = [userno]
         const [results] = await pool.query(query, values);

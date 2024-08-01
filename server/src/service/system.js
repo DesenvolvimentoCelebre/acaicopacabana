@@ -113,7 +113,7 @@ async function relDiario(userno) {
         const usuarioNomeQuery = `
             SELECT nome
             FROM usuario
-            WHERE userno = ?
+            WHERE id = ?
         `;
         const [usuarioNomeResult] = await pool.query(usuarioNomeQuery, [userno]);
         const usuarioNome = usuarioNomeResult[0].nome;

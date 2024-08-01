@@ -121,7 +121,7 @@ async function allProducts() {
     }
   }
 
-  async function productUpdate({ bit, quantidade, codigo_produto }) {
+  async function productUpdate({ bit, quantidade, codigo_produto, preco_custo }) {
     try {
       let query = 'UPDATE produto SET bit = ?';
       const values = [bit];
@@ -130,7 +130,12 @@ async function allProducts() {
         query += ', quantidade = ?'; 
         values.push(quantidade);
       }
-  
+      
+      if (preco_custo !== undefined && preco_custo !== null) {
+        query += ', preco_custo = ?';
+        values.push(preco_custo);
+    }
+
       query += ' WHERE codigo_produto = ?';
       values.push(codigo_produto);
   

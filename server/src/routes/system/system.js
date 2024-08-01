@@ -49,18 +49,23 @@ system.post("/opc", async (req, res) => {
 });
 
 system.post("/fechamento", async (req, res) => {
-    try {
-      const {userno} = req.body;
+  try {
+      const { userno } = req.body;
+      
+      if (!userno) {
+          return res.status(400).json({ success: false, error: ["userno é necessário"] });
+      }
+      
       const result = await fechamento(userno);
       
       if (result.success) {
-        res.status(200).json(result);
+          res.status(200).json(result);
       } else {
-        res.status(500).json(result);
+          res.status(500).json(result);
       }
-    } catch (error) {
-      res.status(500).json({ success: false, error: ["Erro interno do servidor", error]});
-    }
+  } catch (error) {
+      res.status(500).json({ success: false, error: ["Erro interno do servidor", error.message] });
+  }
 });
 
 system.get("/rdiario", async (req, res) => {

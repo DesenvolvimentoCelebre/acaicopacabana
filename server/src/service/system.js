@@ -92,8 +92,8 @@ async function fechamento() {
            ?
        )
    `;
-        const values = [userno];
-        await pool.query(insertQuery, [saldo_fechamento], values);
+   const values = [0, saldo_fechamento, userno];
+   await pool.query(insertQuery, values);
         return { success: true, message: ['Caixa Fechado com Sucesso'] }
     } catch (error) {
         return { success: false, message: ['Erro ao fechar caixa', error] }

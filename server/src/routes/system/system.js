@@ -67,16 +67,18 @@ system.post("/fechamento", async (req, res) => {
 
 system.get("/rdiario", async (req, res) => {
     try {
-      const result = await relDiario();
-      
-      if (result.success) {
-        res.status(200).json(result);
-      } else {
-        res.status(500).json(result);
-      }
+
+        const { userno } = req.query;
+        const result = await relDiario(userno);
+
+        if (result.success) {
+            res.status(200).json(result);
+        } else {
+            res.status(500).json(result);
+        }
     } catch (error) {
         console.error(error)
-      res.status(500).json({ success: false, error: ["Erro interno do servidor", error]});
+        res.status(500).json({ success: false, error: ["Erro interno do servidor", error] });
     }
 });
 

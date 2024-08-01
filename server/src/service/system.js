@@ -56,6 +56,7 @@ async function abrirCaixa(s0, sd, userno) {
 
         const query = `INSERT INTO cxlog (s0, sd, date, time, userno) VALUES (? ,?, CURRENT_DATE(), CURRENT_TIME(), ?)`;
         const values = [s0, sd, userno];
+        console.log(s0, sd, userno)
 
         await pool.query(query, values);
         return { success: true, message: "Caixa aberto" };

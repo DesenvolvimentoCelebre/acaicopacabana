@@ -85,7 +85,7 @@ async function fechamento() {
         const insertQuery = `
        INSERT INTO cxlog (s0, sd, date, time, userno)
        VALUES (
-           0, 
+           ?, 
            ?,
            CURRENT_DATE, 
            CURRENT_TIME,

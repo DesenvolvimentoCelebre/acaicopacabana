@@ -4,13 +4,13 @@ async function getcaixa(userno) {
     try {
         const query = `
         SELECT COALESCE(
-                (SELECT s0
-                 FROM cxlog
-                   date = CURRENT_DATE()
-                   AND userno = ?
-                 LIMIT 1),
-                0
-            ) AS s0;
+    (SELECT s0
+     FROM cxlog
+     WHERE date = CURRENT_DATE()
+       AND userno = '1'
+     LIMIT 1),
+    0
+) AS s0;
 `;
         const values = [userno]
         const [results] = await pool.query(query, values);
@@ -49,9 +49,9 @@ async function abrirCaixa(s0, sd, userno) {
         const values = [s0, sd, userno];
 
         const [result] = await pool.query(query, values);
-        
+
         console.log('Resultado da inserção:', result);
-        
+
         return { success: true, message: "Caixa aberto" };
     } catch (error) {
         console.error("Erro ao abrir caixa:", error);
@@ -165,9 +165,9 @@ async function relDiario() {
             saldo_fechamento
         };
     } catch (error) {
-        return { 
-            success: false, 
-            message: ['Erro ao realizar fechamento', error.message] 
+        return {
+            success: false,
+            message: ['Erro ao realizar fechamento', error.message]
         };
     }
 }

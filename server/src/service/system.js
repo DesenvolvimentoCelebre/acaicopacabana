@@ -111,8 +111,8 @@ async function relDiario() {
         const totalRecebidoPorTipoQuery = `
             SELECT
                 CASE
-                    WHEN pay.tipo = 0 THEN 'Dinheiro'
-                    WHEN pay.tipo = 1 THEN 'Pix'
+                    WHEN pay.tipo = 1 THEN 'Dinheiro'
+                    WHEN pay.tipo = 0 THEN 'Pix'
                     WHEN pay.tipo = 2 THEN 'Crédito'
                     WHEN pay.tipo = 3 THEN 'Débito'
                     WHEN pay.tipo = 4 THEN 'Cancelado'

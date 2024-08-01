@@ -41,7 +41,7 @@ const Home = () => {
         console.log("Dados do Caixa:", dados);
         setDadosCaixa(dados);
 
-        if (dados === "0" || 0) {
+        if (dados == "0" || 0) {
           setModalDadosCaixa(true);
         }
       } catch (error) {
@@ -74,7 +74,9 @@ const Home = () => {
         sd: saldoCaixa,
         userno: user && user.id,
       };
+
       const res = await apiAcai.post("/opc", usuarioCadastro);
+      console.log(usuarioCadastro);
       if (res.status === 200) {
         fecharModalDadosCaixa();
         toast.success("Abertura do caixa realizada");
@@ -88,7 +90,7 @@ const Home = () => {
       <GlobalStyle />
       <Modal
         isOpen={modalDadoCaixa}
-        onRequestClose={fecharModalDadosCaixa}
+        //onRequestClose={fecharModalDadosCaixa}
         contentLabel="Confirmar Pedido"
         style={{
           content: {

@@ -156,6 +156,7 @@ const Estoque = () => {
   const [isChecked, setIsChecked] = useState(false);
   const [modalQuantidade, setModalQuantidade] = useState("");
   const quantidadeRef = useRef(null);
+  const valorRef = useRef(null);
   const [img_produto, setImg_produto] = useState(null);
   const userData = JSON.parse(localStorage.getItem("user"));
   const { user } = userData || {};
@@ -209,7 +210,7 @@ const Estoque = () => {
     };
     carregandoBlue();
   }, []);
-  const valorModalAdd = (quantidade, codigo_produto, bit) => {
+  const valorModalAdd = (quantidade, codigo_produto, bit, preco_custo) => {
     if (parseInt(bit) === 1) {
       setIsChecked(true);
     } else {
@@ -219,6 +220,7 @@ const Estoque = () => {
     setQuantidade(quantidade);
     setModalQuantidade(quantidade);
     setCodigo_Produto(codigo_produto);
+    setPreco_Custo(preco_custo);
     setBit(bit);
     setMoldalAdd(true);
   };
@@ -259,8 +261,8 @@ const Estoque = () => {
       const produtoEditado = {
         codigo_produto,
         quantidade: modalQuantidade,
+        preco_custo: preco_custo,
         bit,
-        userno: user && user.id,
       };
       const res = await apiAcai.put("/attestoque", produtoEditado);
       if (res.status === 201) {
@@ -485,7 +487,8 @@ const Estoque = () => {
                           valorModalAdd(
                             produto.quantidade,
                             produto.codigo_produto,
-                            produto.bit
+                            produto.bit,
+                            produto.preco_custo
                           )
                         }
                         color="#46295a"
@@ -518,16 +521,30 @@ const Estoque = () => {
                             value={codigo_produto}
                             disabled
                           />
-                          <label>Adicionar</label>
+
+                          <label>Valor</label>
                           <input
                             ref={quantidadeRef}
+                            type="number"
+                            placeholder="Valor atualizado do produto"
+                            value={preco_custo}
+                            onChange={(e) => {
+                              setPreco_Custo(e.target.value);
+                              setTimeout(() => {
+                                quantidadeRef.current.focus();
+                              }, 0);
+                            }}
+                          />
+                          <label>Adicionar</label>
+                          <input
+                            ref={valorRef}
                             type="number"
                             placeholder="Quantidade de produto"
                             value={modalQuantidade}
                             onChange={(e) => {
                               setModalQuantidade(e.target.value);
                               setTimeout(() => {
-                                quantidadeRef.current.focus();
+                                valorRef.current.focus();
                               }, 0);
                             }}
                           />

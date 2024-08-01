@@ -36,7 +36,7 @@ const Home = () => {
   useEffect(() => {
     const carregarDadosDoCaixa = async () => {
       try {
-        const res = await apiAcai.get("/gcx");
+        const res = await apiAcai.get(`/gcx?userno=${user.id}`);
         const dados = res.data.message[0].s0;
         console.log("Dados do Caixa:", dados);
         setDadosCaixa(dados);

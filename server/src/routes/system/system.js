@@ -50,7 +50,8 @@ system.post("/opc", async (req, res) => {
 
 system.post("/fechamento", async (req, res) => {
     try {
-      const result = await fechamento();
+      const {userno} = req.body;
+      const result = await fechamento(userno);
       
       if (result.success) {
         res.status(200).json(result);

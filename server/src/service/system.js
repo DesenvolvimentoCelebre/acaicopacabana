@@ -56,7 +56,6 @@ async function abrirCaixa(s0, sd, userno) {
 
         const query = `INSERT INTO cxlog (s0, sd, date, time, userno) VALUES (? ,?, CURRENT_DATE(), CURRENT_TIME(), ?)`;
         const values = [s0, sd, userno];
-        console.log(s0, sd, userno)
 
         await pool.query(query, values);
         return { success: true, message: "Caixa aberto" };
@@ -84,15 +83,17 @@ async function fechamento() {
         const saldo_fechamento = saldoResult[0].saldo_fechamento;
 
         const insertQuery = `
-       INSERT INTO cxlog (s0, sd, date, time)
+       INSERT INTO cxlog (s0, sd, date, time, userno)
        VALUES (
            0, 
            ?,
            CURRENT_DATE, 
-           CURRENT_TIME
+           CURRENT_TIME,
+           ?
        )
    `;
-        await pool.query(insertQuery, [saldo_fechamento]);
+        const values = [userno];
+        await pool.query(insertQuery, [saldo_fechamento], values);
         return { success: true, message: ['Caixa Fechado com Sucesso'] }
     } catch (error) {
         return { success: false, message: ['Erro ao fechar caixa', error] }

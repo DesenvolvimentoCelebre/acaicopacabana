@@ -98,9 +98,75 @@ async function fechamento() {
     }
 }
 
+async function relDiario() {
+    try {
+        const saldoInicialQuery = `
+            SELECT COALESCE(SUM(sd), 0) AS saldo_inicial
+            FROM cxlog
+            WHERE s0 = 0 AND date = CURRENT_DATE - INTERVAL 1 DAY
+        `;
+        const [saldoInicialResult] = await pool.query(saldoInicialQuery);
+        const saldo_inicial = saldoInicialResult[0].saldo_inicial;
+
+        const totalRecebidoPorTipoQuery = `
+            SELECT
+                CASE
+                    WHEN pay.tipo = 0 THEN 'Dinheiro'
+                    WHEN pay.tipo = 1 THEN 'Pix'
+                    WHEN pay.tipo = 2 THEN 'Crédito'
+                    WHEN pay.tipo = 3 THEN 'Débito'
+                    WHEN pay.tipo = 4 THEN 'Cancelado'
+                    ELSE 'Desconhecido, entre contato com administrador'
+                END AS Tipo,
+                SUM(pay.valor_recebido) AS total_valor_recebido
+            FROM pay
+            INNER JOIN pedno ON pay.pedido = pedno.pedido
+            WHERE pedno.data_fechamento = CURRENT_DATE
+            GROUP BY pay.tipo
+        `;
+        const [totalRecebidoPorTipoResult] = await pool.query(totalRecebidoPorTipoQuery);
+
+        const totalVendasQuery = `
+            SELECT COALESCE(SUM(pedno.valor_unit), 0) AS total_vendas
+            FROM pedno
+            WHERE pedno.data_fechamento = CURRENT_DATE
+        `;
+        const [totalVendasResult] = await pool.query(totalVendasQuery);
+        const total_vendas = totalVendasResult[0].total_vendas;
+
+        const saldoFechamentoQuery = `
+            SELECT 
+                (SELECT COALESCE(SUM(sd), 0) 
+                FROM cxlog 
+                WHERE s0 = 0 AND date = CURRENT_DATE - INTERVAL 1 DAY) +
+                (SELECT COALESCE(SUM(pedno.valor_unit), 0)
+                FROM pedno 
+                INNER JOIN pay ON pedno.pedido = pay.pedido 
+                WHERE pedno.data_fechamento = CURRENT_DATE AND pay.tipo = 0) AS saldo_fechamento
+        `;
+        const [saldoFechamentoResult] = await pool.query(saldoFechamentoQuery);
+        const saldo_fechamento = saldoFechamentoResult[0].saldo_fechamento;
+
+        return {
+            success: true,
+            saldo_inicial,
+            totalRecebidoPorTipo: totalRecebidoPorTipoResult,
+            total_vendas,
+            saldo_fechamento
+        };
+    } catch (error) {
+        return { 
+            success: false, 
+            message: ['Erro ao realizar fechamento', error.message] 
+        };
+    }
+}
+
+
 module.exports = {
     getcaixa,
     saldo,
     abrirCaixa,
-    fechamento
+    fechamento,
+    relDiario
 }

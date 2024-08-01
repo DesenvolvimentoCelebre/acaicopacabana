@@ -1,6 +1,6 @@
 const express = require("express");
 
-const { getcaixa, saldo, abrirCaixa, fechamento } = require('../../service/system');
+const { getcaixa, saldo, abrirCaixa, fechamento, relDiario } = require('../../service/system');
 const { errorMiddleware } = require('../../utils/intTelegram');
 
 const system = express.Router();
@@ -51,6 +51,20 @@ system.post("/opc", async (req, res) => {
 system.post("/fechamento", async (req, res) => {
     try {
       const result = await fechamento();
+      
+      if (result.success) {
+        res.status(200).json(result);
+      } else {
+        res.status(500).json(result);
+      }
+    } catch (error) {
+      res.status(500).json({ success: false, error: ["Erro interno do servidor", error]});
+    }
+});
+
+system.post("/rdiario", async (req, res) => {
+    try {
+      const result = await relDiario();
       
       if (result.success) {
         res.status(200).json(result);

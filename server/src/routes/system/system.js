@@ -75,6 +75,7 @@ system.get("/rdiario", async (req, res) => {
         res.status(500).json(result);
       }
     } catch (error) {
+        console.error(error)
       res.status(500).json({ success: false, error: ["Erro interno do servidor", error]});
     }
 });

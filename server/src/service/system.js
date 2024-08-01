@@ -51,11 +51,11 @@ SELECT sd FROM cxlog WHERE s0 = 0 AND date = CURRENT_DATE() - INTERVAL 1 DAY `;
     }
 }
 
-async function abrirCaixa(s0, sd) {
+async function abrirCaixa(s0, sd, userno) {
     try {
 
-        const query = `INSERT INTO cxlog (s0, sd, date, time) VALUES (? ,?, CURRENT_DATE(), CURRENT_TIME())`;
-        const values = [s0, sd];
+        const query = `INSERT INTO cxlog (s0, sd, date, time, userno) VALUES (? ,?, CURRENT_DATE(), CURRENT_TIME(), ?)`;
+        const values = [s0, sd, userno];
 
         await pool.query(query, values);
         return { success: true, message: "Caixa aberto" };

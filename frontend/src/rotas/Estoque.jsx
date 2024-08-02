@@ -428,8 +428,9 @@ const Estoque = () => {
                   </Form1>
                 </Form>
                 <Form>
-                  <Form1>
+                  {/* <Form1>
                     <label>Imagem do Produto</label>
+                    
                     <input
                       className="img-produto"
                       type="file"
@@ -437,7 +438,8 @@ const Estoque = () => {
                       onChange={(e) => setImg_produto(e.target.files[0])}
                       required
                     />
-                  </Form1>
+                    
+                  </Form1> */}
                 </Form>
                 <ButaoEnvioProduto>
                   <input type="submit" value="Enviar produto" />

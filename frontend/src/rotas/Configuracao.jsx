@@ -215,7 +215,7 @@ const Configuracao = () => {
                     <div className="kg">
                       <label>Kg do Açai</label>
                       <input
-                        type="text"
+                        type="number"
                         onChange={(e) => {
                           setValor_Peso(e.target.value);
                         }}
@@ -265,7 +265,7 @@ const Configuracao = () => {
                           <div className="kg">
                             <label>ID</label>
                             <input
-                              type="text"
+                              type="number"
                               onChange={(e) => {
                                 setId(e.target.value);
                               }}
@@ -274,7 +274,7 @@ const Configuracao = () => {
                             />
                             <label>Quantidade do estoque max</label>
                             <input
-                              type="text"
+                              type="number"
                               onChange={(e) => {
                                 setVal(e.target.value);
                               }}
@@ -335,7 +335,7 @@ const Configuracao = () => {
                             />
                             <label>Quantidade do estoque minino</label>
                             <input
-                              type="text"
+                              type="number"
                               onChange={(e) => {
                                 setVal(e.target.value);
                               }}

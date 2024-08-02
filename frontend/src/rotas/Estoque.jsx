@@ -159,7 +159,6 @@ const Estoque = () => {
   const valorRef = useRef(null);
   const [img_produto, setImg_produto] = useState(null);
   const userData = JSON.parse(localStorage.getItem("user"));
-  const { user } = userData || {};
 
   useEffect(() => {
     const carregarEstoque = async () => {
@@ -304,7 +303,7 @@ const Estoque = () => {
     setModalAberto(false);
   };
   const cadastrarProduto = async (e) => {
-    e.preventDefault();
+    e.preventDefault(e);
     //console.log("Imagem:", img_produto);
     const formData = new FormData();
     formData.append("nome", nome);
@@ -315,14 +314,19 @@ const Estoque = () => {
     formData.append("tipo", 1);
 
     try {
-      const res = await apiAcai.post("/produto", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
+      const produtosEnviados = {
+        nome: nome,
+        categoria: categoria,
+        preco_custo: preco_custo,
+        quantidade: quantidade,
+        tipo: 1,
+      };
+      const res = await apiAcai.post("/produto", produtosEnviados);
+
       if (res.status === 201) {
+        console.log(res, nome, quantidade, preco_custo, categoria);
         toast.success(res.data.message);
-        window.location.reload();
+        //window.location.reload();
         fecharModal();
       }
     } catch (error) {

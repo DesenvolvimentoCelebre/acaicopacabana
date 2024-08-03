@@ -204,8 +204,9 @@ const PDV = () => {
         nome: nome,
         unino: parseFloat(unino),
         precoUnitario: parseFloat(precoUnitario),
-      };
 
+      };
+console.log("cliquei")
       setProdutos([...produtos, novoProduto]);
       setNome("");
       setProduto("");
@@ -479,7 +480,7 @@ const PDV = () => {
       const res = await apiAcai.get("/peso");
       setPesoBalanca(res.data.peso);
       setKgacai(res.data.peso);
-
+      //calculoKg()
       calculoBalanca();
     } catch (error) {
       console.log("Errooo", error);
@@ -489,6 +490,7 @@ const PDV = () => {
   const calculoBalanca = () => {
     let totalAcaiBalaca = pesoBalanca * precoacai;
     setPrecoUnitario(totalAcaiBalaca);
+ 
   };
 
   const carregandoEstoque = async (codigo_produto) => {
@@ -981,7 +983,7 @@ const PDV = () => {
                       className="botao-add"
                       onClick={() => {
                         carregandoBalanca();
-                        calculoKg();
+			//calculoKg();
                       }}
                     />
                     <input

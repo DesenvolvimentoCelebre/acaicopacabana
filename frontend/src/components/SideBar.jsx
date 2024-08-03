@@ -129,6 +129,7 @@ const SideBar = () => {
   const [fechamentoCredito, setFechamentoCredito] = useState("");
   const [fechamentoDebito, setFechamentoDebito] = useState("");
   const [totalVendas, setTotalVendas] = useState("");
+  const [totalFechamento, setTotalFechamento] = useState("");
   const [modalCancelamento, setModalCancelamento] = useState(false);
 
   const abrirModalCancelamento = () => {
@@ -149,16 +150,18 @@ const SideBar = () => {
     const carregarFechamentoCaixa = async () => {
       try {
         const res = await apiAcai.get("/rdiario");
+
         setSaldoInicial(res.data.saldo_inicial);
+	setTotalFechamento(res.data.saldo_fechamento);
         setFechamentoDinheiro(
-          res.data.totalRecebidoPorTipo[0].total_valor_recebido
+          res.data.total_dinheiro
         );
-        setFechamentoPix(res.data.totalRecebidoPorTipo[1].total_valor_recebido);
+        setFechamentoPix(res.data.totalRecebidoPorTipo[0].saldo)
         setFechamentoCredito(
-          res.data.totalRecebidoPorTipo[2].total_valor_recebido
+          res.data.totalRecebidoPorTipo[3].saldo
         );
         setFechamentoDebito(
-          res.data.totalRecebidoPorTipo[3].total_valor_recebido
+          res.data.totalRecebidoPorTipo[1].saldo
         );
         setTotalVendas(res.data.total_vendas);
       } catch (error) {
@@ -310,7 +313,7 @@ const SideBar = () => {
               <p>(+) TOTAL DE VENDA: R${totalVendas}</p>
             </div>
             <div className="modal-mensagem modal-coluna">
-              <p>(+) SALDO EM CAIXA</p>
+              <p>(+) SALDO EM CAIXA: R${totalFechamento}</p>
             </div>
             <div className="modal-coluna-col btn-col">
               <button onClick={abrirModalCancelamento}>

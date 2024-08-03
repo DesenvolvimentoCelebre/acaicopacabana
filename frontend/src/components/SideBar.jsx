@@ -130,6 +130,7 @@ const SideBar = () => {
   const [fechamentoDebito, setFechamentoDebito] = useState("");
   const [totalVendas, setTotalVendas] = useState("");
   const [totalFechamento, setTotalFechamento] = useState("");
+  const [usuarioId, setUsuarioId] = useState("");
   const [modalCancelamento, setModalCancelamento] = useState(false);
 
   const abrirModalCancelamento = () => {
@@ -149,8 +150,7 @@ const SideBar = () => {
   useEffect(() => {
     const carregarFechamentoCaixa = async () => {
       try {
-        const res = await apiAcai.get("/rdiario");
-
+        const res = await apiAcai.get(`/rdiario?userno=${user.id}`);
         setSaldoInicial(res.data.saldo_inicial);
 	setTotalFechamento(res.data.saldo_fechamento);
         setFechamentoDinheiro(
@@ -158,10 +158,10 @@ const SideBar = () => {
         );
         setFechamentoPix(res.data.totalRecebidoPorTipo[0].saldo)
         setFechamentoCredito(
-          res.data.totalRecebidoPorTipo[3].saldo
+          res.data.totalRecebidoPorTipo[2].saldo
         );
         setFechamentoDebito(
-          res.data.totalRecebidoPorTipo[1].saldo
+          res.data.totalRecebidoPorTipo[3].saldo
         );
         setTotalVendas(res.data.total_vendas);
       } catch (error) {

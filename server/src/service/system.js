@@ -59,6 +59,7 @@ async function abrirCaixa(s0, sd, userno) {
 
 async function fechamento(userno) {
     try {
+        // Consulta para obter as informações do usuário
         const buscaUsuarioQuery = `
             SELECT pedno.userno, usuario.id
             FROM usuario
@@ -72,25 +73,36 @@ async function fechamento(userno) {
             throw new Error('Usuário não encontrado');
         }
 
-        const userno = buscaUsuarioResult[0].userno;
+        // Extrai o userno do resultado
+        const usernoFromDB = buscaUsuarioResult[0].userno;
 
+        // Consulta para calcular o saldo de fechamento
         const saldoQuery = `
             SELECT 
                 COALESCE(
-                    (SELECT SUM(sd) FROM cxlog WHERE s0 = 0 AND date = CURRENT_DATE - INTERVAL 1 DAY and userno = ?), 0
+                    (SELECT SUM(sd) 
+                     FROM cxlog 
+                     WHERE s0 = 0 
+                       AND date = CURRENT_DATE - INTERVAL 1 DAY 
+                       AND userno = ?), 
+                    0
                 ) +
                 COALESCE(
                     (SELECT SUM(valor_unit) 
                      FROM pedno 
                      INNER JOIN pay
                      ON pedno.pedido = pay.pedido
-                     WHERE data_fechamento = CURRENT_DATE() AND userno = 1 AND pay.tipo = 1), 0
+                     WHERE pedno.data_fechamento = CURRENT_DATE() 
+                       AND pedno.userno = ? 
+                       AND pay.tipo = 1), 
+                    0
                 ) AS saldo_fechamento
         `;
 
-        const [saldoResult] = await pool.query(saldoQuery, [userno]);
+        const [saldoResult] = await pool.query(saldoQuery, [userno, usernoFromDB]);
         const saldo_fechamento = saldoResult[0].saldo_fechamento;
 
+        // Consulta para inserir o saldo de fechamento na tabela cxlog
         const insertQuery = `
             INSERT INTO cxlog (s0, sd, date, time, userno)
             VALUES (
@@ -102,13 +114,15 @@ async function fechamento(userno) {
             )
         `;
 
-        await pool.query(insertQuery, [saldo_fechamento, usuarioId]);
+        await pool.query(insertQuery, [saldo_fechamento, userno]);
 
         return { success: true, message: ['Caixa Fechado com Sucesso'] };
     } catch (error) {
+        console.error(error);
         return { success: false, message: ['Erro ao fechar caixa', error.message] };
     }
 }
+
 
 async function relDiario(userno) {
     try {
@@ -117,7 +131,7 @@ async function relDiario(userno) {
             SELECT pedno.userno, usuario.nome
             FROM usuario
             INNER JOIN pedno ON pedno.userno = usuario.nome
-            WHERE usuario.id = 4 
+            WHERE usuario.id =  ?
         `;
         const [usuarioNomeResult] = await pool.query(usuarioNomeQuery, [userno]);
 
@@ -128,43 +142,64 @@ async function relDiario(userno) {
         const usuarioNome = usuarioNomeResult[0].nome;
 
         // Consulta para obter o saldo inicial
-       const saldoInicialQuery = `
+        const saldoInicialQuery = `
             SELECT COALESCE(SUM(sd), 0) AS saldo_inicial
             FROM cxlog
-            WHERE s0 = 0 AND date = CURRENT_DATE - INTERVAL 1 DAY AND userno = 4
+            WHERE s0 = 0 AND date = CURRENT_DATE - INTERVAL 1 DAY AND userno =  ?
         `;
         const [saldoInicialResult] = await pool.query(saldoInicialQuery, [userno]);
         const saldo_inicial = saldoInicialResult[0].saldo_inicial;
 
         // Consulta para obter o total recebido por tipo
         const totalRecebidoPorTipoQuery = `
-            SELECT
-                CASE
-                    WHEN pay.tipo = 1 THEN 'Dinheiro'
-                    WHEN pay.tipo = 0 THEN 'Pix'
-                    WHEN pay.tipo = 2 THEN 'Crédito'
-                    WHEN pay.tipo = 3 THEN 'Débito'
-                    WHEN pay.tipo = 4 THEN 'Cancelado'
-                    ELSE 'Desconhecido, entre em contato com o administrador'
-                END AS Tipo,
-                SUM(pay.valor_recebido) AS saldo
-            FROM pay
-            INNER JOIN pedno ON pay.pedido = pedno.pedido
-            WHERE pedno.data_fechamento = CURRENT_DATE AND pedno.userno = ? and pedno.sta = 1
-            GROUP BY pay.tipo
+            WITH PaymentTypes AS (
+    SELECT 1 AS tipo, 'Dinheiro' AS descricao
+    UNION ALL
+    SELECT 0, 'Pix'
+    UNION ALL
+    SELECT 2, 'Crédito'
+    UNION ALL
+    SELECT 3, 'Débito'
+),
+
+PayData AS (
+    SELECT
+        pay.tipo,
+        COALESCE(SUM(pay.valor_recebido), 0) AS saldo
+    FROM pay
+    INNER JOIN pedno ON pay.pedido = pedno.pedido
+    WHERE pedno.data_fechamento = CURRENT_DATE
+      AND pedno.userno = ?
+      AND pedno.sta = 1
+    GROUP BY pay.tipo
+)
+
+SELECT 
+    pt.descricao AS Tipo,
+    COALESCE(pd.saldo, 0) AS saldo
+FROM PaymentTypes pt
+LEFT JOIN PayData pd ON pt.tipo = pd.tipo
+ORDER BY pt.tipo;
         `;
         const [totalRecebidoPorTipoResult] = await pool.query(totalRecebidoPorTipoQuery, [usuarioNome]);
 
         // Consulta para obter o total de vendas
         const totalVendasQuery = `
-            SELECT COALESCE(SUM(pedno.valor_unit), 0) AS total_vendas
-            FROM pedno
-            WHERE pedno.data_fechamento = CURRENT_DATE AND pedno.userno = ? AND pedno.sta = 1
+            SELECT 
+	SUM(pay.valor_recebido) as total_vendas
+FROM 
+	pay
+INNER JOIN
+	pedno
+ON
+	pay.pedido = pedno.pedido
+WHERE
+	pedno.data_fechamento = CURRENT_DATE() AND pedno.sta = 1 and pedno.userno = ?
         `;
         const [totalVendasResult] = await pool.query(totalVendasQuery, [usuarioNome]);
         const total_vendas = totalVendasResult[0].total_vendas;
-	
-	// Consulta para obter o total de dinheiro
+
+        // Consulta para obter o total de dinheiro
         const totalDinheiroQuery = `
             SELECT COALESCE(SUM(pedno.valor_unit), 0) AS total_dinheiro
             FROM pedno
@@ -175,32 +210,33 @@ async function relDiario(userno) {
         const [totalDinheiroResult] = await pool.query(totalDinheiroQuery, [usuarioNome]);
         const total_dinheiro = totalDinheiroResult[0].total_dinheiro;
 
-      
-	
-	// Consulta para obter saldo diário do valor
+
+
+        // Consulta para obter saldo diário do valor
 
         const saldoFechamento = {
             total_dinheiro: Number(total_dinheiro),
             saldo_inicial: Number(saldo_inicial)
-          };
-          
+        };
 
-          const sdpuro = saldoFechamento.total_dinheiro + saldoFechamento.saldo_inicial;
-	  const saldo_fechamento = sdpuro.toFixed(2);
+
+        const sdpuro = saldoFechamento.total_dinheiro + saldoFechamento.saldo_inicial;
+        const saldo_fechamento = sdpuro.toFixed(2);
 
         return {
             success: true,
             usuarioNome,
             saldo_inicial,
             totalRecebidoPorTipo: totalRecebidoPorTipoResult,
-            total_vendas,
-	    total_dinheiro,
+            total_vendas: Number(total_vendas),
+            total_dinheiro,
             saldo_fechamento
         };
     } catch (error) {
+console.error(error)
         return {
             success: false,
-            message: ['Erro ao realizar fechamento', error.message]
+            message: ['Erro ao realizar fechamento', error]
         };
     }
 }

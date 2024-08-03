@@ -74,7 +74,7 @@ system.post("/fechamento", async (req, res) => {
 system.get("/rdiario", async (req, res) => {
     try {
 
-      const { userno } = req.body
+      const { userno } = req.query
       const result = await relDiario(userno);
       
       if (result.success) {

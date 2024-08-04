@@ -139,11 +139,9 @@ async function allProducts() {
     } catch (error) {
       return { success: false, error: ['Erro interno do servidor'] };
     }
-<<<<<<< Updated upstream
+
   }
-  
-=======
-}
+
 
 async function deleteProduto(id) {
   try {
@@ -165,7 +163,7 @@ async function deleteProduto(id) {
     }
   } 
 }
->>>>>>> Stashed changes
+
 
 module.exports = {
   stockList,

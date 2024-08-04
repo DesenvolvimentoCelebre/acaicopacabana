@@ -1,6 +1,6 @@
 const express = require("express");
 
-const { stockList, registerProduct, allProducts, serachProductByName, productUpdate } = require('../../service/stock');
+const { stockList, registerProduct, allProducts, serachProductByName, productUpdate, deleteProduto } = require('../../service/stock');
 const { errorMiddleware } = require('../../utils/intTelegram');
 
 const stock = express.Router();
@@ -82,6 +82,25 @@ stock.put("/attestoque", async (req, res, next) => {
     next(new Error(`Erro ao atualizar estoque, ${error}`))
   }
 });
+
+stock.delete("/deleteestoque", async (req, res, next) => {
+  try {
+
+    const { id } = req.body;
+    const result = await productDelete(id);
+
+    if (result.success) {
+      res.status(200).json({ success: true, message: 'Estoque deletado com sucesso'})
+    } else {
+      res.status(500).json({ success: false, error: [' Erro ao deleter produto']})
+    }
+  } catch (erro) {
+    return {
+      success: false,
+      error: "Erro interno do servidor"
+    }
+  }
+})
 
 stock.use(errorMiddleware)
 

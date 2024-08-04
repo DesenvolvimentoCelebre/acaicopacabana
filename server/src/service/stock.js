@@ -139,13 +139,39 @@ async function allProducts() {
     } catch (error) {
       return { success: false, error: ['Erro interno do servidor'] };
     }
+<<<<<<< Updated upstream
   }
   
+=======
+}
+
+async function deleteProduto(id) {
+  try {
+    const query = `DELETE FROM produto WHERE id = ?`
+    const values = [id]
+
+    const [results] = await pool.query(query, values);
+
+    if (results.length === 0) {
+      return {
+        success: false,
+        erro: ['Erro ao excluir produto']
+      }
+    }
+  } catch (error) {
+    return {
+      success: false,
+      erro: ['Erro ao excluir produto', error]
+    }
+  } 
+}
+>>>>>>> Stashed changes
 
 module.exports = {
   stockList,
   registerProduct,
   allProducts,
   serachProductByName,
-  productUpdate
+  productUpdate,
+  deleteProduto
 };

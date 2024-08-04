@@ -145,7 +145,7 @@ async function allProducts() {
 
 async function deleteProduto(id) {
   try {
-    const query = `DELETE FROM produto WHERE id = ?`
+    const query = `DELETE FROM produto WHERE codigo_produto = ?`
     const values = [id]
 
     const [results] = await pool.query(query, values);

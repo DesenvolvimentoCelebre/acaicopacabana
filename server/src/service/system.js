@@ -237,7 +237,7 @@ WHERE
       total_vendas: Number(total_vendas),
       total_dinheiro,
       saldo_fechamento,
-      total_sangria
+      total_sangria: [totalSangria]
     };
   } catch (error) {
     console.error(error)

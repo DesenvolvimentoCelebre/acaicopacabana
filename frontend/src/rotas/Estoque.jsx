@@ -7,6 +7,7 @@ import Modal from "react-modal";
 import { toast } from "react-toastify";
 import { HiOutlinePencilSquare } from "react-icons/hi2";
 import SetaFechar from "../components/SetaFechar";
+import { MdDelete } from "react-icons/md";
 import Switch from "react-switch";
 const GlobalStyle = createGlobalStyle`
   * {
@@ -156,8 +157,18 @@ const Estoque = () => {
   const [isChecked, setIsChecked] = useState(false);
   const [modalQuantidade, setModalQuantidade] = useState("");
   const quantidadeRef = useRef(null);
-  const [img_produto, setImg_produto] = useState(null);
+  const valorRef = useRef(null);
+  const [deletarProduto, setDeletarProduto] = useState("");
+  const [modalConfirmacao, setModalConfirmacao] = useState(false);
+  //const [img_produto, setImg_produto] = useState(null);
+  //const userData = JSON.parse(localStorage.getItem("user"));
 
+  const abrirModalConfirmacao = () => {
+    setModalConfirmacao(true);
+  };
+  const fecharModalConfirmacao = () => {
+    setModalConfirmacao(false);
+  };
   useEffect(() => {
     const carregarEstoque = async () => {
       try {
@@ -207,7 +218,7 @@ const Estoque = () => {
     };
     carregandoBlue();
   }, []);
-  const valorModalAdd = (quantidade, codigo_produto, bit) => {
+  const valorModalAdd = (quantidade, codigo_produto, bit, preco_custo) => {
     if (parseInt(bit) === 1) {
       setIsChecked(true);
     } else {
@@ -217,6 +228,7 @@ const Estoque = () => {
     setQuantidade(quantidade);
     setModalQuantidade(quantidade);
     setCodigo_Produto(codigo_produto);
+    setPreco_Custo(preco_custo);
     setBit(bit);
     setMoldalAdd(true);
   };
@@ -257,6 +269,7 @@ const Estoque = () => {
       const produtoEditado = {
         codigo_produto,
         quantidade: modalQuantidade,
+        preco_custo: preco_custo,
         bit,
       };
       const res = await apiAcai.put("/attestoque", produtoEditado);
@@ -279,7 +292,7 @@ const Estoque = () => {
     margin: auto;
     background: ${({ quantidade }) => {
       const red = parseInt(estoqueRed);
-      const yellow = parseInt(estoqueYellow);
+      //const yellow = parseInt(estoqueYellow);
       const blue = parseInt(estoqueBlue);
       if (quantidade <= red) {
         return "red";
@@ -299,7 +312,7 @@ const Estoque = () => {
     setModalAberto(false);
   };
   const cadastrarProduto = async (e) => {
-    e.preventDefault();
+    e.preventDefault(e);
     //console.log("Imagem:", img_produto);
     const formData = new FormData();
     formData.append("nome", nome);
@@ -310,14 +323,19 @@ const Estoque = () => {
     formData.append("tipo", 1);
 
     try {
-      const res = await apiAcai.post("/produto", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
+      const produtosEnviados = {
+        nome: nome,
+        categoria: categoria,
+        preco_custo: preco_custo,
+        quantidade: quantidade,
+        tipo: 1,
+      };
+      const res = await apiAcai.post("/produto", produtosEnviados);
+
       if (res.status === 201) {
+        console.log(res, nome, quantidade, preco_custo, categoria);
         toast.success(res.data.message);
-        window.location.reload();
+        //window.location.reload();
         fecharModal();
       }
     } catch (error) {
@@ -339,6 +357,31 @@ const Estoque = () => {
     setBit(checked ? 1 : 0);
   };
 
+  const botaoDeleteProduto = async (codigo_produto) => {
+    try {
+      setDeletarProduto(codigo_produto);
+      const produtoDelete = {
+        id: codigo_produto,
+      };
+      const token = localStorage.getItem("token");
+      const res = await apiAcai.delete(
+        "/dell",
+        { data: produtoDelete },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      if (res.status === 200 && res.data.success) {
+        toast.success("Produto deletado com sucesso");
+        setModalConfirmacao(false);
+        window.location.reload();
+      }
+    } catch (error) {
+      toast.error("Por favor entrar em contato com admistrador do sistema");
+    }
+  };
   return (
     <>
       <GlobalStyle />
@@ -418,9 +461,11 @@ const Estoque = () => {
                     />
                   </Form1>
                 </Form>
+                {/*
                 <Form>
                   <Form1>
                     <label>Imagem do Produto</label>
+                    
                     <input
                       className="img-produto"
                       type="file"
@@ -428,8 +473,10 @@ const Estoque = () => {
                       onChange={(e) => setImg_produto(e.target.files[0])}
                       required
                     />
-                  </Form1>
+                    
+                  </Form1> 
                 </Form>
+                */}
                 <ButaoEnvioProduto>
                   <input type="submit" value="Enviar produto" />
                 </ButaoEnvioProduto>
@@ -447,6 +494,7 @@ const Estoque = () => {
                 <th>Preço</th>
                 <th>Adicionar Estoque</th>
                 <th>Ativo/Inativo</th>
+                <th>Exluir Produdo</th>
               </tr>
             </thead>
             {!filteredEstoque || filteredEstoque.length === 0 ? (
@@ -482,7 +530,8 @@ const Estoque = () => {
                           valorModalAdd(
                             produto.quantidade,
                             produto.codigo_produto,
-                            produto.bit
+                            produto.bit,
+                            produto.preco_custo
                           )
                         }
                         color="#46295a"
@@ -515,16 +564,30 @@ const Estoque = () => {
                             value={codigo_produto}
                             disabled
                           />
-                          <label>Adicionar</label>
+
+                          <label>Valor</label>
                           <input
                             ref={quantidadeRef}
+                            type="number"
+                            placeholder="Valor atualizado do produto"
+                            value={preco_custo}
+                            onChange={(e) => {
+                              setPreco_Custo(e.target.value);
+                              setTimeout(() => {
+                                quantidadeRef.current.focus();
+                              }, 0);
+                            }}
+                          />
+                          <label>Adicionar</label>
+                          <input
+                            ref={valorRef}
                             type="number"
                             placeholder="Quantidade de produto"
                             value={modalQuantidade}
                             onChange={(e) => {
                               setModalQuantidade(e.target.value);
                               setTimeout(() => {
-                                quantidadeRef.current.focus();
+                                valorRef.current.focus();
                               }, 0);
                             }}
                           />
@@ -551,9 +614,57 @@ const Estoque = () => {
                             }}
                           />
                         </div>
+                        <div className="kg kg-estoque"></div>
                       </Modal>
                     </td>
                     <td>{produto.bit === 0 ? "Ativo" : "Inativo"}</td>
+                    <td>
+                      <span style={{ cursor: "pointer" }}>
+                        <MdDelete
+                          color="#46295a"
+                          onClick={() =>
+                            abrirModalConfirmacao(produto.codigo_produto)
+                          }
+                        />
+                      </span>
+                      <Modal
+                        isOpen={modalConfirmacao}
+                        onRequestClose={fecharModalConfirmacao}
+                        contentLabel="Confirmar Pedido"
+                        style={{
+                          content: {
+                            width: "70%",
+                            height: "120px",
+                            margin: "auto",
+                            padding: 0,
+                          },
+                        }}
+                      >
+                        <div className="modal-mensagem">
+                          <SetaFechar Click={fecharModalConfirmacao} />
+                          <h2>Confirmação de exlusão</h2>
+                        </div>
+                        <div className="container-modal">
+                          <h2>Deseja confirmar a exclusão do produto?</h2>
+                          <div className="btn-modal">
+                            <button
+                              onClick={() =>
+                                botaoDeleteProduto(produto.codigo_produto)
+                              }
+                              className="verde"
+                            >
+                              Confirmar
+                            </button>
+                            <button
+                              onClick={fecharModalConfirmacao}
+                              className="vermelho"
+                            >
+                              Cancelar
+                            </button>
+                          </div>
+                        </div>
+                      </Modal>
+                    </td>
                   </tr>
                 </tbody>
               ))

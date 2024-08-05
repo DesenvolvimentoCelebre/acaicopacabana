@@ -73,8 +73,8 @@ const PDV = () => {
 
   const customStyles = {
     content: {
-      width: windowSize.width <= 900 ? "85%" : "80%",
-      height: windowSize.width <= 900 ? "20%" : "80%",
+      width: windowSize.width <= 900 ? "75%" : "80%",
+      height: windowSize.width <= 900 ? "20%" : "20%",
       margin: "auto",
       padding: 0,
       border: "1px solid #46295A",
@@ -205,7 +205,7 @@ const PDV = () => {
         unino: parseFloat(unino),
         precoUnitario: parseFloat(precoUnitario),
       };
-
+      console.log("cliquei");
       setProdutos([...produtos, novoProduto]);
       setNome("");
       setProduto("");
@@ -258,7 +258,7 @@ const PDV = () => {
   };
 
   const botaoCancelar = async (e) => {
-    e.preventDefault();
+    e.preventDefault(e);
     if (produtos.length === 0) {
       toast.error("Impossível cancelar o pedido, nenhum produto adicionado.");
       fecharModalCancelamento();
@@ -462,18 +462,16 @@ const PDV = () => {
       console.log(error);
     }
   };
-  const calculoKg = (evento) => {
-    if (evento.key == "Enter") {
-      let totalAcai = 0;
-      let totalUnino = 0;
-      totalAcai += (kgacai / 1000) * precoacai;
-      totalUnino += kgacai / 1000;
-      setPrecoUnitario(totalAcai);
-      setUnino(totalUnino);
-      setInsersaoManual(false);
-      setModalKgAcaiCel(false);
-      setModalAdicionarProdudoCel(true);
-    }
+  const calculoKg = () => {
+    let totalAcai = 0;
+    let totalUnino = 0;
+    totalAcai += (kgacai / 1000) * precoacai;
+    totalUnino += kgacai / 1000;
+    setPrecoUnitario(totalAcai);
+    setUnino(totalUnino);
+    setInsersaoManual(false);
+    setModalKgAcaiCel(false);
+    //setModalAdicionarProdudoCel(true);
   };
 
   const carregandoBalanca = async () => {
@@ -481,7 +479,7 @@ const PDV = () => {
       const res = await apiAcai.get("/peso");
       setPesoBalanca(res.data.peso);
       setKgacai(res.data.peso);
-
+      //calculoKg()
       calculoBalanca();
     } catch (error) {
       console.log("Errooo", error);
@@ -625,7 +623,7 @@ const PDV = () => {
                               <td className="tdPDV">
                                 R$
                                 {parseInt(produto.id) === 1
-                                  ? `$${produto.precoUnitario}`
+                                  ? `${produto.precoUnitario}`
                                   : `${produto.precoUnitario * produto.unino}`}
                               </td>
                             </tr>
@@ -684,18 +682,18 @@ const PDV = () => {
                         <p>DINHEIRO</p>
                       </div>
                     </div>
-                    <div
-                      className="container-box"
-                      onClick={() => abrirModalPreco_Recebido(2)}
-                    >
-                      <div className="box carta">
+                    <div className="container-box">
+                      <div
+                        className="box"
+                        onClick={() => abrirModalPreco_Recebido(2)}
+                      >
                         <img src={cartao} alt="" />
                         <p>
                           CARTÃO DE <br /> CRÉDITO
                         </p>
                       </div>
                       <div
-                        className="box carta"
+                        className="box"
                         onClick={() => abrirModalPreco_Recebido(3)}
                       >
                         <img src={cartao} alt="" />
@@ -722,11 +720,43 @@ const PDV = () => {
                       </button>
                       <button
                         className="btn-cancelar-pagamento"
-                        onClick={botaoCancelar}
+                        onClick={abrirModalCancelamento}
                       >
                         Cancelar
                       </button>
                     </div>
+                  </div>
+                </div>
+              </Modal>
+              <Modal
+                isOpen={modalCancelamento}
+                onRequestClose={fecharModalCancelamento}
+                contentLabel="Confirmar Pedido"
+                style={{
+                  content: {
+                    width: "50%",
+                    height: "120px",
+                    margin: "auto",
+                    padding: 0,
+                  },
+                }}
+              >
+                <div className="modal-mensagem">
+                  <SetaFechar Click={fecharModalCancelamento} />
+                  <h2>Confirmação de cancelamento</h2>
+                </div>
+                <div className="container-modal">
+                  <h2>Deseja cancelar o pedido?</h2>
+                  <div className="btn-modal">
+                    <button onClick={botaoCancelar} className="verde">
+                      Confirmar
+                    </button>
+                    <button
+                      onClick={fecharModalCancelamento}
+                      className="vermelho"
+                    >
+                      Cancelar
+                    </button>
                   </div>
                 </div>
               </Modal>
@@ -943,15 +973,24 @@ const PDV = () => {
                       onChange={(e) => {
                         setKgacai(e.target.value);
                       }}
-                      onKeyPress={calculoKg}
                       value={kgacai}
+                      disabled={disabled}
                     />
                     <input
                       type="button"
-                      value="Lançar peso"
+                      value="Carregar balança"
                       className="botao-add"
                       onClick={() => {
                         carregandoBalanca();
+                        //calculoKg();
+                      }}
+                    />
+                    <input
+                      type="button"
+                      value="Lançar Grama"
+                      className="botao-add"
+                      onClick={() => {
+                        calculoKg();
                       }}
                     />
                     <input
@@ -1181,7 +1220,7 @@ const PDV = () => {
                   onChange={(e) => {
                     setKgacai(e.target.value);
                   }}
-                  onKeyPress={calculoKg}
+                  onClick={calculoKg}
                 />
               </div>
             </Modal>
@@ -1361,18 +1400,18 @@ const PDV = () => {
                   <p>DINHEIRO</p>
                 </div>
               </div>
-              <div
-                className="container-box"
-                onClick={() => abrirModalPreco_Recebido(2)}
-              >
-                <div className="box-cel-p carta-cel">
+              <div className="container-box">
+                <div
+                  className="box-cel-p"
+                  onClick={() => abrirModalPreco_Recebido(2)}
+                >
                   <img src={cartao} alt="" />
                   <p>
                     CARTÃO DE <br /> CRÉDITO
                   </p>
                 </div>
                 <div
-                  className="box-cel-p carta-cel"
+                  className="box-cel-p"
                   onClick={() => abrirModalPreco_Recebido(3)}
                 >
                   <img src={cartao} alt="" />

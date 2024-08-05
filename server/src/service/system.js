@@ -223,6 +223,12 @@ WHERE
     const sdpuro = saldoFechamento.total_dinheiro + saldoFechamento.saldo_inicial;
     const saldo_fechamento = sdpuro.toFixed(2);
 
+// Busca por sangrias no dia 
+    const buscaSangria = `SELECT sdret FROM s_log WHERE date = current_date and user_cx = ?`;
+
+     const [totalSangria] = await pool.query(buscaSangria, [userno]);
+     const total_sangria = totalSangria[0].sdret;
+
     return {
       success: true,
       usuarioNome,
@@ -230,7 +236,8 @@ WHERE
       totalRecebidoPorTipo: totalRecebidoPorTipoResult,
       total_vendas: Number(total_vendas),
       total_dinheiro,
-      saldo_fechamento
+      saldo_fechamento,
+      total_sangria
     };
   } catch (error) {
     console.error(error)

@@ -89,6 +89,5 @@ async function authlib(senha, pedido, operador_liberacao) {
 
 module.exports = {
   loginUser,
-  authlib,
-  buscaUsuario
+  authlib
 };

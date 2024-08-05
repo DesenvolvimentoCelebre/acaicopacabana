@@ -56,7 +56,7 @@ async function authlib(senha, pedido, operador_liberacao) {
     connection = await pool.getConnection();
     await connection.beginTransaction();
 
-    const [rows] = await connection.query('SELECT senha FROM usuario WHERE lib = 1');
+    const [rows] = await connection.query('SELECT senha FROM usuario');
     if (rows.length === 0) {
       await connection.rollback();
       connection.release();
@@ -89,5 +89,6 @@ async function authlib(senha, pedido, operador_liberacao) {
 
 module.exports = {
   loginUser,
-  authlib
+  authlib,
+  buscaUsuario
 };

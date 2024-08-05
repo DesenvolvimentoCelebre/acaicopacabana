@@ -224,7 +224,7 @@ WHERE
     const saldo_fechamento = sdpuro.toFixed(2);
 
 // Busca por sangrias no dia 
-    const buscaSangria = `SELECT sdret as sangria FROM s_log WHERE date = current_date and user_cx = ?`;
+    const buscaSangria = `SELECT sdret as sangria FROM s_log WHERE date = current_date`;
 
      const [totalSangria] = await pool.query(buscaSangria, [userno]);
      const total_sangria = totalSangria[0].sangria;

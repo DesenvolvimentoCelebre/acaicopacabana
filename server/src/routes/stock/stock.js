@@ -83,11 +83,11 @@ stock.put("/attestoque", async (req, res, next) => {
   }
 });
 
-stock.delete("/deleteestoque", async (req, res, next) => {
+stock.delete("/dell", async (req, res, next) => {
   try {
 
     const { id } = req.body;
-    const result = await productDelete(id);
+    const result = await deleteProduto(id);
 
     if (result.success) {
       res.status(200).json({ success: true, message: 'Estoque deletado com sucesso'})

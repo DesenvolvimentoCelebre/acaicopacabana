@@ -155,6 +155,11 @@ async function deleteProduto(id) {
         success: false,
         erro: ['Erro ao excluir produto']
       }
+    } else {
+      return {
+        success: true,
+        message: 'Produto excluído com sucesso'
+      }
     }
   } catch (error) {
     return {

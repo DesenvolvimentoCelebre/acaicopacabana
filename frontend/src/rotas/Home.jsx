@@ -85,9 +85,10 @@ const Home = () => {
       };
 
       const res = await apiAcai.post("/opc", abrirCaixa);
-      console.log(usuarioCadastro);
+
       if (res.status === 200) {
         fecharModalDadosCaixa();
+        fecharModalValorIncial();
         toast.success("Abertura do caixa realizada");
       }
     } catch (error) {

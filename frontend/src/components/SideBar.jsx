@@ -8,6 +8,7 @@ import estoque from "../assets/img/estoque.png";
 import engrenagem from "../assets/img/engrenagem.png";
 import sair from "../assets/img/sair.png";
 import dinheiro from "../assets/img/saco-de-dinheiro.png";
+import sangia from "../assets/img/sangria.png";
 import { logout, reset } from "../slices/authSlice.js";
 import { useDispatch } from "react-redux";
 import Modal from "react-modal";
@@ -130,8 +131,16 @@ const SideBar = () => {
   const [fechamentoDebito, setFechamentoDebito] = useState("");
   const [totalVendas, setTotalVendas] = useState("");
   const [totalFechamento, setTotalFechamento] = useState("");
-  const [usuarioId, setUsuarioId] = useState("");
+  //const [usuarioId, setUsuarioId] = useState("");
   const [modalCancelamento, setModalCancelamento] = useState(false);
+  const [valorSangria, setValorSangria] = useState(false);
+
+  const abrirModalSangria = () => {
+    setValorSangria(true);
+  };
+  const fecharModalSangria = () => {
+    setValorSangria(false);
+  };
 
   const abrirModalCancelamento = () => {
     setModalCancelamento(true);
@@ -217,6 +226,12 @@ const SideBar = () => {
                 <Box onClick={abrirModalFechamentoCaixa}>
                   <SmallImage src={dinheiro} alt="" />
                   <Paragraph>Fechamento de caixa</Paragraph>
+                </Box>
+                <Box>
+                  <NavLink onClick={abrirModalSangria}>
+                    <SmallImage src={sangia} alt="" />
+                  </NavLink>
+                  <Paragraph>Sangria</Paragraph>
                 </Box>
                 <Box>
                   <NavLink to="/usuarios">
@@ -345,6 +360,40 @@ const SideBar = () => {
                   Cancelar
                 </button>
               </div>
+            </div>
+          </Modal>
+          <Modal
+            isOpen={valorSangria}
+            contentLabel="Modal Produto Específico"
+            style={{
+              content: {
+                width: "60%",
+                height: "120px",
+                margin: "auto",
+                padding: 0,
+              },
+            }}
+          >
+            <div className="modal-mensagem modal-dados">
+              <h2>SANGRIA</h2>
+            </div>
+            <div className="kg">
+              <label>Digite o valor que deseja retirar do caixa</label>
+              <input
+                type="number"
+                //onChange={(e) => {
+                //setSaldoIncial(e.target.value);
+                //}}
+                //value={saldoIncial}
+              />
+              <input
+                type="button"
+                value="Enviar"
+                className="botao-add"
+                //onClick={(e) => {
+                //confirmarAberturaCaixa(e);
+                //}}
+              />
             </div>
           </Modal>
           <Footer>

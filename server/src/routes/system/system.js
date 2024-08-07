@@ -1,6 +1,6 @@
 const express = require("express");
 
-const { getcaixa, saldo, abrirCaixa, fechamento, relDiario } = require('../../service/system');
+const { getcaixa, saldo, abrirCaixa, fechamento, relDiario, getOperador } = require('../../service/system');
 const { errorMiddleware } = require('../../utils/intTelegram');
 
 const system = express.Router();
@@ -90,22 +90,19 @@ system.get("/rdiario", async (req, res) => {
     }
 });
 
-system.get("/rdiario", async (req, res) => {
+system.get("/sangria", async (req, res) => {
     try {
+        const results = await getOperador();
 
-        const { userno } = req.query;
-        const result = await relDiario(userno);
-
-        if (result.success) {
-            res.status(200).json(result);
+        if (results.success) {
+            res.status(200).json(results);
         } else {
-            res.status(500).json(result);
+            res.status(500).json(results)
         }
     } catch (error) {
-        console.error(error)
-        res.status(500).json({ success: false, error: ["Erro interno do servidor", error] });
+        res.status(500).json({ success: false, error: ["Erro interno do servidor"]})
     }
-});
+})
 
 system.use(errorMiddleware)
 

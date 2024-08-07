@@ -250,8 +250,13 @@ WHERE
   }
 }
 
-async function getOperador(user_cx) {
+async function getOperador() {
   try {
+
+    const getCaixa = `SELECT * FROM cxlog WHERE s0 = 1 and date = CURRENT_DATE`;
+
+    const [resultsUser] = await pool.query(getCaixa);
+    const user = resultsUser[0].userno;
     const query = `
     WITH PaymentTypes AS (
 SELECT 1 AS tipo, 'Dinheiro' AS descricao
@@ -283,7 +288,7 @@ LEFT JOIN PayData pd ON pt.tipo = pd.tipo
 ORDER BY pt.tipo;
   `;
 
-  const [results] = await pool.query(query);
+  const [results] = await pool.query(query, [user]);
 
   if (results.length === 0) {
     return {

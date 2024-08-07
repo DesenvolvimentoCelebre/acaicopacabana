@@ -298,7 +298,7 @@ ORDER BY pt.tipo;
   } else {
     return {
       success: true,
-      message: [' Sangria realizada com sucesso']
+      message: [results]
     }
   }
   } catch (error) {

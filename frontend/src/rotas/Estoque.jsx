@@ -79,6 +79,7 @@ const ModalCadastroProduto = styled.div`
 `;
 const Form = styled.div`
   display: flex;
+  align-items: center;
 
   input,
   label {
@@ -132,6 +133,7 @@ const SelectEstilizado = styled.select`
   color: #46295a;
   font-weight: 700;
   font-size: 20px;
+  margin-right: 25px;
 `;
 
 const OptionEstilizado = styled.option`
@@ -218,7 +220,13 @@ const Estoque = () => {
     };
     carregandoBlue();
   }, []);
-  const valorModalAdd = (quantidade, codigo_produto, bit, preco_custo) => {
+  const valorModalAdd = (
+    quantidade,
+    codigo_produto,
+    bit,
+    preco_custo,
+    nome
+  ) => {
     if (parseInt(bit) === 1) {
       setIsChecked(true);
     } else {
@@ -229,6 +237,8 @@ const Estoque = () => {
     setModalQuantidade(quantidade);
     setCodigo_Produto(codigo_produto);
     setPreco_Custo(preco_custo);
+    setNome(nome);
+    console.log(nome);
     setBit(bit);
     setMoldalAdd(true);
   };
@@ -391,7 +401,7 @@ const Estoque = () => {
           <NavBar>
             <InputPesquisa
               type="search"
-              placeholder="Digite o nome do item"
+              placeholder="Digite o nome do produto"
               value={pesquisa}
               onChange={handlePesquisaChange}
             />
@@ -403,7 +413,7 @@ const Estoque = () => {
                 content: {
                   borderRadius: "15px",
                   width: "70%",
-                  height: "65%",
+                  height: "40%",
                   margin: "auto",
                   padding: 0,
                   display: "flex",
@@ -451,10 +461,14 @@ const Estoque = () => {
                     />
                   </Form1>
                   <Form1>
-                    <label>Quantidade</label>
+                    <label>{categoria === 0 ? "Quilo" : "Quantidade"}</label>
                     <input
                       type="number"
-                      placeholder="Quantidade de produto"
+                      placeholder={`${
+                        categoria === 0
+                          ? "Quantidade em quilos"
+                          : "Quantidade de produto"
+                      }`}
                       value={quantidade}
                       onChange={(e) => setQuantidade(e.target.value)}
                       required
@@ -478,7 +492,7 @@ const Estoque = () => {
                 </Form>
                 */}
                 <ButaoEnvioProduto>
-                  <input type="submit" value="Enviar produto" />
+                  <input type="submit" value="Adicionar produto" />
                 </ButaoEnvioProduto>
               </form>
             </Modal>
@@ -486,15 +500,15 @@ const Estoque = () => {
           <Tabela>
             <thead>
               <tr>
-                <th>Numero do Produto</th>
+                <th>Número do Produto</th>
                 <th>Produto</th>
                 <th>Categoria</th>
                 <th>Status</th>
                 <th>Estoque</th>
                 <th>Preço</th>
-                <th>Adicionar Estoque</th>
+                <th>Editar Estoque</th>
                 <th>Ativo/Inativo</th>
-                <th>Exluir Produdo</th>
+                <th>Excluir Produdo</th>
               </tr>
             </thead>
             {!filteredEstoque || filteredEstoque.length === 0 ? (
@@ -531,7 +545,8 @@ const Estoque = () => {
                             produto.quantidade,
                             produto.codigo_produto,
                             produto.bit,
-                            produto.preco_custo
+                            produto.preco_custo,
+                            produto.nome
                           )
                         }
                         color="#46295a"
@@ -543,77 +558,116 @@ const Estoque = () => {
                         onRequestClose={fecharModalAdd}
                         style={{
                           content: {
-                            width: "70%",
-                            height: "120px",
+                            width: "40%",
+                            height: "48%",
                             margin: "auto",
                             padding: 0,
                           },
                         }}
                       >
-                        <div className="modal-mensagem">
+                        <div className="modal-mensagem margin-msg">
                           <SetaFechar Click={fecharModalAdd} />
                           <h2>Adicionar Estoque</h2>
                         </div>
-                        <div className="kg kg-estoque">
-                          <label>Codigo</label>
-                          <input
-                            type="number"
-                            onChange={(e) => {
-                              setCodigo_Produto(e.target.value);
-                            }}
-                            value={codigo_produto}
-                            disabled
-                          />
+                        <Form>
+                          <Form1>
+                            <label>Código</label>
+                            <input
+                              type="number"
+                              onChange={(e) => {
+                                setCodigo_Produto(e.target.value);
+                              }}
+                              value={codigo_produto}
+                              disabled
+                            />
+                          </Form1>
+                          <Form1>
+                            <label>Nome</label>
+                            <input
+                              type="text"
+                              onChange={(e) => {
+                                setNome(e.target.value);
+                              }}
+                              value={nome}
+                            />
+                          </Form1>
+                        </Form>
+                        <Form>
+                          <Form1>
+                            <label>Valor</label>
+                            <input
+                              ref={quantidadeRef}
+                              type="number"
+                              placeholder="Valor do produto"
+                              value={preco_custo}
+                              onChange={(e) => {
+                                setPreco_Custo(e.target.value);
+                                setTimeout(() => {
+                                  quantidadeRef.current.focus();
+                                }, 0);
+                              }}
+                            />
+                          </Form1>
+                          <Form1>
+                            <label>Adicionar</label>
+                            <input
+                              ref={valorRef}
+                              type="number"
+                              placeholder="Quantidade de produto"
+                              value={modalQuantidade}
+                              onChange={(e) => {
+                                setModalQuantidade(e.target.value);
+                                setTimeout(() => {
+                                  valorRef.current.focus();
+                                }, 0);
+                              }}
+                            />
+                          </Form1>
+                        </Form>
+                        <Form>
+                          <Form1>
+                            <label>Categoria</label>
+                            <SelectEstilizado
+                              value={categoria}
+                              onChange={(e) =>
+                                setCategoria(parseInt(e.target.value))
+                              }
+                            >
+                              <OptionEstilizado value={0}>
+                                Quilo
+                              </OptionEstilizado>
+                              <OptionEstilizado value={1}>
+                                Quantidade
+                              </OptionEstilizado>
+                            </SelectEstilizado>
+                          </Form1>
+                          <Form1>
+                            <label>Ativar/Inativar</label>
 
-                          <label>Valor</label>
+                            <Switch
+                              onChange={handleSwitchChange}
+                              checked={isChecked}
+                              onColor="#46295a"
+                              onHandleColor="#593471"
+                              handleDiameter={30}
+                              uncheckedIcon={false}
+                              checkedIcon={false}
+                              boxShadow="0px 1px 5px rgba(0, 0, 0, 0.6)"
+                              activeBoxShadow="0px 0px 1px 10px rgba(0, 0, 0, 0.2)"
+                              height={20}
+                              width={48}
+                            />
+                          </Form1>
+                        </Form>
+                        <ButaoEnvioProduto>
                           <input
-                            ref={quantidadeRef}
-                            type="number"
-                            placeholder="Valor atualizado do produto"
-                            value={preco_custo}
-                            onChange={(e) => {
-                              setPreco_Custo(e.target.value);
-                              setTimeout(() => {
-                                quantidadeRef.current.focus();
-                              }, 0);
-                            }}
-                          />
-                          <label>Adicionar</label>
-                          <input
-                            ref={valorRef}
-                            type="number"
-                            placeholder="Quantidade de produto"
-                            value={modalQuantidade}
-                            onChange={(e) => {
-                              setModalQuantidade(e.target.value);
-                              setTimeout(() => {
-                                valorRef.current.focus();
-                              }, 0);
-                            }}
-                          />
-                          <label>Ativar/Inativar</label>
-                          <Switch
-                            onChange={handleSwitchChange}
-                            checked={isChecked}
-                            onColor="#46295a"
-                            onHandleColor="#593471"
-                            handleDiameter={30}
-                            uncheckedIcon={false}
-                            checkedIcon={false}
-                            boxShadow="0px 1px 5px rgba(0, 0, 0, 0.6)"
-                            activeBoxShadow="0px 0px 1px 10px rgba(0, 0, 0, 0.2)"
-                            height={20}
-                            width={48}
-                          />
-                          <input
-                            type="button"
+                            type="submit"
                             value="Salvar"
-                            className="botao-add"
                             onClick={(e) => {
                               adicionarEstoque(e);
                             }}
                           />
-                        </div>
+                        </ButaoEnvioProduto>
                         <div className="kg kg-estoque"></div>
                       </Modal>
                     </td>

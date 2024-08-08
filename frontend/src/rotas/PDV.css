@@ -557,6 +557,11 @@ nav {
   align-items: flex-end;
 }
 
+.margin-msg {
+  margin-bottom: 15px;
+
+}
+
 .input-pagamento input {
   height: 40px;
   width: 400px;

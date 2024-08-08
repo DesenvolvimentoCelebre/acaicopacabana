@@ -967,7 +967,7 @@ const PDV = () => {
                     <h2>Produto por peso</h2>
                   </div>
                   <div className="kg">
-                    <label>Lançar grama</label>
+                    <label>Lançar Quilograma</label>
                     <input
                       type="number"
                       onChange={(e) => {
@@ -978,7 +978,7 @@ const PDV = () => {
                     />
                     <input
                       type="button"
-                      value="Carregar balança"
+                      value="Ler balança"
                       className="botao-add"
                       onClick={() => {
                         carregandoBalanca();
@@ -987,7 +987,7 @@ const PDV = () => {
                     />
                     <input
                       type="button"
-                      value="Lançar Grama"
+                      value="Lançar Peso"
                       className="botao-add"
                       onClick={() => {
                         calculoKg();
@@ -1076,12 +1076,12 @@ const PDV = () => {
                   <input
                     className="botao-add btn-pdv"
                     type="button"
-                    value="+   Adicionar Produto"
+                    value="+   Inserir Produto"
                     onClick={adicionarProduto}
                   />
                   <input
                     type="button"
-                    value="+   Limpar Produtos"
+                    value="  Limpar Produtos"
                     className="botao-add btn-pdv "
                     onClick={botaoLimpar}
                   />
@@ -1092,7 +1092,7 @@ const PDV = () => {
           <table className="tabela_pdv">
             <thead>
               <tr>
-                <th className="thPDV">ITEM</th>
+                <th className="thPDV">PRODUTO</th>
                 <th className="thPDV">QTD</th>
                 <th className="thPDV">VALOR</th>
               </tr>

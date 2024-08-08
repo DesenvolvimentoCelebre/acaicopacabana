@@ -367,8 +367,8 @@ const SideBar = () => {
             contentLabel="Modal Produto Específico"
             style={{
               content: {
-                width: "60%",
-                height: "120px",
+                width: "30%",
+                height: "37%",
                 margin: "auto",
                 padding: 0,
               },
@@ -378,7 +378,23 @@ const SideBar = () => {
               <h2>SANGRIA</h2>
             </div>
             <div className="kg">
-              <label>Digite o valor que deseja retirar do caixa</label>
+              <label>Operador do caixa</label>
+              <input
+                type="text"
+                //onChange={(e) => {
+                //setSaldoIncial(e.target.value);
+                //}}
+                //value={saldoIncial}
+              />
+              <label>Saldo</label>
+              <input
+                type="text"
+                //onChange={(e) => {
+                //setSaldoIncial(e.target.value);
+                //}}
+                //value={saldoIncial}
+              />
+              <label>Valor que será retirado</label>
               <input
                 type="number"
                 //onChange={(e) => {
@@ -397,7 +413,7 @@ const SideBar = () => {
             </div>
           </Modal>
           <Footer>
-            <p>Versão 1.0.1</p>
+            <p>Versão 1.0.2</p>
           </Footer>
         </SideBarClass>
         <MainContainer></MainContainer>

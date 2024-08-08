@@ -250,11 +250,70 @@ WHERE
   }
 }
 
+async function getOperador() {
+  try {
+
+    const getCaixa = `SELECT * FROM cxlog WHERE s0 = 1 and date = CURRENT_DATE`;
+
+    const [resultsUser] = await pool.query(getCaixa);
+    const user = resultsUser[0].userno;
+    const query = `
+    WITH PaymentTypes AS (
+SELECT 1 AS tipo, 'Dinheiro' AS descricao
+UNION ALL
+SELECT 0, 'Pix'
+UNION ALL
+SELECT 2, 'Crédito'
+UNION ALL
+SELECT 3, 'Débito'
+),
+
+PayData AS (
+SELECT
+  pay.tipo,
+  COALESCE(SUM(pay.valor_recebido), 0) AS saldo
+FROM pay
+INNER JOIN pedno ON pay.pedido = pedno.pedido
+WHERE pedno.data_fechamento = CURRENT_DATE
+AND pedno.userno = ?
+AND pedno.sta = 1
+GROUP BY pay.tipo
+)
+
+SELECT 
+pt.descricao AS Tipo,
+COALESCE(pd.saldo, 0) AS saldo
+FROM PaymentTypes pt
+LEFT JOIN PayData pd ON pt.tipo = pd.tipo
+ORDER BY pt.tipo;
+  `;
+
+  const [results] = await pool.query(query, [user]);
+
+  if (results.length === 0) {
+    return {
+      success: false,
+      errors: ['Erro ao realizar sangria']
+    }
+  } else {
+    return {
+      success: true,
+      message: [results]
+    }
+  }
+  } catch (error) {
+    return {
+      success: false,
+      errors: ['Erro ao realizar sangria']
+    }
+  }
+}
 
 module.exports = {
   getcaixa,
   saldo,
   abrirCaixa,
   fechamento,
-  relDiario
+  relDiario,
+  getOperador
 }

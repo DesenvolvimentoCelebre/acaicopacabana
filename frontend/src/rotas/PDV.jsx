@@ -287,6 +287,7 @@ const PDV = () => {
             tipo: item.tipo,
             status: 1,
             valor_recebido: item.valor_recebido,
+            valor_total: valorTotal(),
           })),
         },
       };
@@ -622,7 +623,7 @@ const PDV = () => {
                               <td className="tdPDV">{produto.unino}</td>
                               <td className="tdPDV">
                                 R$
-                                {parseInt(produto.id) === 1
+                                {parseFloat(produto.id) === 1
                                   ? `${produto.precoUnitario}`
                                   : `${produto.precoUnitario * produto.unino}`}
                               </td>
@@ -820,7 +821,7 @@ const PDV = () => {
                           <td className="tdPDV">{produto.nome}</td>
                           <td className="tdPDV">
                             R$
-                            {parseInt(produto.id) === 1
+                            {parseFloat(produto.id) === 1
                               ? `${produto.precoUnitario}`
                               : `${produto.precoUnitario * produto.unino}`}
                           </td>
@@ -1104,7 +1105,7 @@ const PDV = () => {
                   <td className="tdPDV">{produto.unino}</td>
                   <td className="tdPDV pdvFlex">
                     R$
-                    {parseInt(produto.id) === 1
+                    {parseFloat(produto.id) === 1
                       ? `${produto.precoUnitario}`
                       : `${produto.precoUnitario * produto.unino}`}
                     <IoIosCloseCircle

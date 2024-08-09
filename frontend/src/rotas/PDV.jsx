@@ -287,7 +287,7 @@ const PDV = () => {
             tipo: item.tipo,
             status: 1,
             valor_recebido: item.valor_recebido,
-            valor_total: valorTotal(),
+            valor_pedido: valorTotal(),
           })),
         },
       };
@@ -350,7 +350,7 @@ const PDV = () => {
             tipo: item.tipo,
             status: 0,
             valor_recebido: item.valor_recebido,
-            valor_total: valorTotal(),
+            valor_pedido: valorTotal(),
           })),
         },
       };

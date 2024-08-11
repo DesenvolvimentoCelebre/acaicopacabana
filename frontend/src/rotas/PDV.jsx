@@ -334,6 +334,7 @@ const PDV = () => {
     fecharModalConfirmacao();
 
     try {
+      let acumuladorValor = 0;
       const inserirNovoPedido = {
         pedido: {
           produtos: produtos.map((item) => ({
@@ -345,14 +346,20 @@ const PDV = () => {
             sta: 1,
             userno: user && user.nome,
           })),
-          pagamentos: pagamentos.map((item) => ({
-            pedido: proximoPedido.message,
-            tipo: item.tipo,
-            status: 0,
-            valor_recebido: item.valor_recebido,
-            valor_pedido: valorTotal(),
-            bit3: item.valor_recebido - valorTotal(),
-          })),
+          pagamentos: pagamentos.map((item, index) => {
+            let valorAnterior = index === 0 ? valorTotal() : acumuladorValor;
+            let bit3 = item.valor_recebido - valorAnterior;
+            acumuladorValor += item.valor_recebido;
+
+            return {
+              pedido: proximoPedido.message,
+              tipo: item.tipo,
+              status: 0,
+              valor_recebido: item.valor_recebido,
+              valor_pedido: valorTotal(),
+              bit3: bit3,
+            };
+          }),
         },
       };
 

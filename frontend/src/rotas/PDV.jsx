@@ -351,6 +351,7 @@ const PDV = () => {
             status: 0,
             valor_recebido: item.valor_recebido,
             valor_pedido: valorTotal(),
+            bit3: item.valor_recebido - valorTotal(),
           })),
         },
       };

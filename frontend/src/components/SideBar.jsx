@@ -134,6 +134,8 @@ const SideBar = () => {
   //const [usuarioId, setUsuarioId] = useState("");
   const [modalCancelamento, setModalCancelamento] = useState(false);
   const [valorSangria, setValorSangria] = useState(false);
+  const [valorRetirado, setValorRetirado] = useState("");
+  const [motivo, setMotivo] = useState("");
 
   const abrirModalSangria = () => {
     setValorSangria(true);
@@ -183,6 +185,27 @@ const SideBar = () => {
 
     try {
       const res = await apiAcai.post("/fechamento", usuarioFechamento);
+      if (res.status === 200) {
+        fecharModalCancelamento();
+        fecharModalFechamentoCaixa();
+        toast.success("Fecahmento do caixa realizada");
+      }
+    } catch (error) {
+      console.log("Erro", error);
+    }
+  };
+
+  const envioSangria = async (e) => {
+    e.preventDefault(e);
+
+    const usuarioSangria = {
+      user_cx: user && user.id,
+      sdret: valorRetirado,
+      motivo: motivo,
+    };
+
+    try {
+      const res = await apiAcai.post("/sangria", usuarioSangria);
       if (res.status === 200) {
         fecharModalCancelamento();
         fecharModalFechamentoCaixa();
@@ -368,7 +391,7 @@ const SideBar = () => {
             style={{
               content: {
                 width: "30%",
-                height: "37%",
+                height: "45%",
                 margin: "auto",
                 padding: 0,
               },
@@ -400,18 +423,26 @@ const SideBar = () => {
               <label>Valor que será retirado</label>
               <input
                 type="number"
-                //onChange={(e) => {
-                //setSaldoIncial(e.target.value);
-                //}}
-                //value={saldoIncial}
+                onChange={(e) => {
+                  setValorRetirado(e.target.value);
+                }}
+                value={valorRetirado}
+              />
+              <label>Motivo</label>
+              <input
+                type="text"
+                onChange={(e) => {
+                  setMotivo(e.target.value);
+                }}
+                value={motivo}
               />
               <input
                 type="button"
                 value="Enviar"
                 className="botao-add botao-caixa"
-                //onClick={(e) => {
-                //confirmarAberturaCaixa(e);
-                //}}
+                onClick={(e) => {
+                  envioSangria(e);
+                }}
               />
             </div>
           </Modal>

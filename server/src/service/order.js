@@ -34,13 +34,15 @@ async function createOrder(order) {
     }
 
     for (const pagamento of order.pagamentos) {
-      const sqlpay = `INSERT INTO pay (pedido, tipo, valor_recebido, status) VALUES (?,?,?,?)`;
+      const sqlpay = `INSERT INTO pay (pedido, tipo, valor_recebido, status, valor_pedido, bit3) VALUES (?,?,?,?,?,?)`;
       const values2 = [
         pagamento.pedido,
         pagamento.tipo,
         pagamento.valor_recebido,
-        pagamento.status
-      ];
+        pagamento.status,
+        pagamento.valor_pedido,
+        pagamento.bit3
+        ];
 
       await connection.query(sqlpay, values2);
     }

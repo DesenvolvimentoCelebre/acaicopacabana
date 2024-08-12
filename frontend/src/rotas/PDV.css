@@ -451,6 +451,12 @@ nav {
   }
 }
 
+.kg-sangria {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
 
 .kg-estoque {
   display: flex;
@@ -461,6 +467,7 @@ nav {
 .kg input {
   border: 1px solid #46295A;
   height: 29px;
+  width: 50%;
   padding-left: 10px;
   border-radius: 20px;
   margin-left: 10px;

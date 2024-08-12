@@ -347,9 +347,9 @@ const PDV = () => {
             userno: user && user.nome,
           })),
           pagamentos: pagamentos.map((item, index) => {
-            let valorAnterior = index === 0 ? valorTotal() : acumuladorValor;
-            let bit3 = item.valor_recebido - valorAnterior;
+            //let valorAnterior = index === 0 ? valorTotal() : acumuladorValor;
             acumuladorValor += item.valor_recebido;
+            let bit3 = valorTotal() - acumuladorValor;
 
             return {
               pedido: proximoPedido.message,

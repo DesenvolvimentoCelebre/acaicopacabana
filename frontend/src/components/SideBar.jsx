@@ -374,17 +374,19 @@ const SideBar = () => {
               },
             }}
           >
-            <div className="modal-mensagem modal-dados">
+            <div className="modal-mensagem">
+              <SetaFechar Click={fecharModalSangria} />
               <h2>SANGRIA</h2>
             </div>
-            <div className="kg">
+            <div className="kg kg-sangria">
               <label>Operador do caixa</label>
               <input
                 type="text"
                 //onChange={(e) => {
                 //setSaldoIncial(e.target.value);
                 //}}
-                //value={saldoIncial}
+                value={user && user.nome}
+                disabled
               />
               <label>Saldo</label>
               <input
@@ -392,7 +394,8 @@ const SideBar = () => {
                 //onChange={(e) => {
                 //setSaldoIncial(e.target.value);
                 //}}
-                //value={saldoIncial}
+                value={totalFechamento}
+                disabled
               />
               <label>Valor que será retirado</label>
               <input
@@ -405,7 +408,7 @@ const SideBar = () => {
               <input
                 type="button"
                 value="Enviar"
-                className="botao-add"
+                className="botao-add botao-caixa"
                 //onClick={(e) => {
                 //confirmarAberturaCaixa(e);
                 //}}

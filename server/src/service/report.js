@@ -32,7 +32,7 @@ async function findVendasPorIntervaloDatas(data_inicial, data_final) {
     const query = `
     SELECT
 	pedno.pedido,
-	SUM(pedno.valor_unit) as total,
+	pay.valor_pedido as total,
 	userno as operador,
 	DATE_FORMAT(pedno.data_fechamento, "%d/%m/%Y") as data_venda,
 CASE
@@ -46,6 +46,10 @@ INNER JOIN
 	produto
 ON
 	pedno.prodno = produto.codigo_produto
+INNER JOIN
+  pay
+ON
+  pedno.pedido = pay.pedido
 WHERE
 	pedno.data_fechamento BETWEEN ? AND ?
 GROUP BY 
@@ -66,7 +70,7 @@ async function findVendasPorIntervaloDatasCancelados (data_inicial, data_final) 
     const query = `
     SELECT
       pedno.pedido,
-      SUM(pedno.valor_unit) as total,
+      pay.valor_pedido as total,
       userno as operador,
       DATE_FORMAT(pedno.data_fechamento, "%d/%m/%Y") as data_venda,
     CASE
@@ -80,6 +84,10 @@ async function findVendasPorIntervaloDatasCancelados (data_inicial, data_final) 
       produto
     ON
       pedno.prodno = produto.codigo_produto
+    INNER JOIN
+      pay
+    ON
+      pedno.pedido = pay.pedido
     WHERE
       pedno.data_fechamento BETWEEN ? AND ?
     AND pedno.sta = 0
@@ -104,8 +112,8 @@ async function detailsPagamento (pedido) {
     pedidos.pedido as Pedido,
     pay.valor_recebido as Recebido,
   CASE
-    WHEN pay.tipo = 0 THEN 'Dinheiro'
-    WHEN pay.tipo = 1 THEN 'Pix'
+    WHEN pay.tipo = 0 THEN 'Pix'
+    WHEN pay.tipo = 1 THEN 'Dinheiro'
     WHEN pay.tipo = 2 THEN 'Crédito'
     WHEN pay.tipo = 3 THEN 'Débito'
     WHEN pay.tipo = 4 THEN 'Cancelado'

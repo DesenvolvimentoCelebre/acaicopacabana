@@ -136,6 +136,7 @@ const SideBar = () => {
   const [valorSangria, setValorSangria] = useState(false);
   const [valorRetirado, setValorRetirado] = useState("");
   const [motivo, setMotivo] = useState("");
+  const [sangria, setSangria] = useState("");
 
   const abrirModalSangria = () => {
     setValorSangria(true);
@@ -176,6 +177,18 @@ const SideBar = () => {
     carregarFechamentoCaixa();
   }, []);
 
+  useEffect(() => {
+    const carregarFechamentoCaixa = async () => {
+      try {
+        const res = await apiAcai.get(`/sds?userno=${user.id}`);
+        setSangria(res.data.sangria);
+      } catch (error) {
+        console.log("Erro", error);
+      }
+    };
+    carregarFechamentoCaixa();
+  }, []);
+
   const fechamentoCaixa = async (e) => {
     e.preventDefault(e);
 
@@ -207,9 +220,10 @@ const SideBar = () => {
     try {
       const res = await apiAcai.post("/sangria", usuarioSangria);
       if (res.status === 200) {
-        fecharModalCancelamento();
-        fecharModalFechamentoCaixa();
-        toast.success("Fecahmento do caixa realizada");
+        fecharModalSangria();
+        toast.success("Sangria realizada com sucesso");
+        setMotivo("");
+        setValorRetirado("");
       }
     } catch (error) {
       console.log("Erro", error);
@@ -417,7 +431,7 @@ const SideBar = () => {
                 //onChange={(e) => {
                 //setSaldoIncial(e.target.value);
                 //}}
-                value={totalFechamento}
+                value={sangria}
                 disabled
               />
               <label>Valor que será retirado</label>

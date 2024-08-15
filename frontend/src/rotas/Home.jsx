@@ -56,6 +56,7 @@ const Home = () => {
       try {
         const res = await apiAcai.get(`/gcx?userno=${user.id}`);
         const dados = res.data.message[0].s0;
+
         console.log("Dados do Caixa:", dados);
         setDadosCaixa(dados);
 
@@ -75,6 +76,7 @@ const Home = () => {
         const res = await apiAcai.get(`/sd?userno=${user.id}`);
 
         const dados = res.data.message[0].sd;
+
         setSaldoCaixa(dados);
       } catch (error) {
         console.log("Erro", error);

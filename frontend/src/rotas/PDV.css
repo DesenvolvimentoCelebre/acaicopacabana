@@ -573,6 +573,10 @@ nav {
 
 }
 
+.red {
+  color: red;
+}
+
 .input-pagamento input {
   height: 40px;
   width: 400px;

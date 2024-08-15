@@ -219,19 +219,23 @@ const SideBar = () => {
 
     try {
       const res = await apiAcai.post("/sangria", usuarioSangria);
+
       if (res.status === 200) {
         window.location.reload();
+        console.log(res.data);
         fecharModalSangria();
         toast.success("Sangria realizada com sucesso");
         setMotivo("");
         setValorRetirado("");
       }
-      // if (res.status === 500){
-      //   toast.success(error);
-      // }
     } catch (error) {
-      toast.success(error);
-      console.log("Erro", error);
+      if (error.response && error.response.status === 500) {
+        console.log("Erro 500:", error.response.data.error[0]);
+        toast.error(error.response.data.error);
+      } else {
+        console.log("Erro:", error);
+        toast.error("Erro ao realizar a sangria. Tente novamente.");
+      }
     }
   };
   return (
@@ -303,6 +307,12 @@ const SideBar = () => {
                   <Paragraph>Fechamento de caixa</Paragraph>
                 </Box>
                 <Box>
+                  <NavLink onClick={abrirModalSangria}>
+                    <SmallImage src={sangia} alt="" />
+                  </NavLink>
+                  <Paragraph>Sangria</Paragraph>
+                </Box>
+                <Box>
                   <NavLink>
                     <SmallImage
                       src={sair}
@@ -315,12 +325,7 @@ const SideBar = () => {
                       }}
                     />
                   </NavLink>
-                  <Box>
-                    <NavLink onClick={abrirModalSangria}>
-                      <SmallImage src={sangia} alt="" />
-                    </NavLink>
-                    <Paragraph>Sangria</Paragraph>
-                  </Box>
+
                   <Paragraph>SAIR</Paragraph>
                 </Box>
               </>
@@ -333,7 +338,7 @@ const SideBar = () => {
             style={{
               content: {
                 width: "30%",
-                height: "59%",
+                height: "63%",
                 margin: "auto",
                 padding: 0,
               },
@@ -369,6 +374,9 @@ const SideBar = () => {
             <div className="modal-mensagem modal-coluna">
               <p>(+) SALDO EM CAIXA: R${totalFechamento}</p>
             </div>
+            <div className="modal-mensagem modal-coluna">
+              <p className="red">(-) TOTAL SANGRIA: R${totalFechamento}</p>
+            </div>
             <div className="modal-coluna-col btn-col">
               <button onClick={abrirModalCancelamento}>
                 FECHAMENTO DO DIA
@@ -397,7 +405,7 @@ const SideBar = () => {
               <div className="btn-modal">
                 <button
                   onClick={(e) => {
-                    envioSangria(e);
+                    botaoLogout(e);
                     fechamentoCaixa(e);
                   }}
                   className="verde"

@@ -129,6 +129,7 @@ const SideBar = () => {
   const [fechamentoPix, setFechamentoPix] = useState("");
   const [fechamentoCredito, setFechamentoCredito] = useState("");
   const [fechamentoDebito, setFechamentoDebito] = useState("");
+  const [fechamentoSangria, setFechamanetoSangria] = useState("");
   const [totalVendas, setTotalVendas] = useState("");
   const [totalFechamento, setTotalFechamento] = useState("");
   //const [usuarioId, setUsuarioId] = useState("");
@@ -166,6 +167,7 @@ const SideBar = () => {
         setSaldoInicial(res.data.saldo_inicial);
         setTotalFechamento(res.data.saldo_fechamento);
         setFechamentoDinheiro(res.data.total_dinheiro);
+        setFechamanetoSangria(res.data.total_sangria);
         setFechamentoPix(res.data.totalRecebidoPorTipo[0].saldo);
         setFechamentoCredito(res.data.totalRecebidoPorTipo[2].saldo);
         setFechamentoDebito(res.data.totalRecebidoPorTipo[3].saldo);
@@ -375,7 +377,7 @@ const SideBar = () => {
               <p>(+) SALDO EM CAIXA: R${totalFechamento}</p>
             </div>
             <div className="modal-mensagem modal-coluna">
-              <p className="red">(-) TOTAL SANGRIA: R${totalFechamento}</p>
+              <p className="red">(-) TOTAL SANGRIA: R${fechamentoSangria}</p>
             </div>
             <div className="modal-coluna-col btn-col">
               <button onClick={abrirModalCancelamento}>
@@ -424,7 +426,7 @@ const SideBar = () => {
             style={{
               content: {
                 width: "30%",
-                height: "45%",
+                height: "50%",
                 margin: "auto",
                 padding: 0,
               },

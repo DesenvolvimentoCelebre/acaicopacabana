@@ -133,7 +133,12 @@ const Home = () => {
             <input
               type="number"
               onChange={(e) => {
-                setSaldoIncial(e.target.value);
+                const value = e.target.value;
+                if (value >= 0) {
+                  setSaldoIncial(value);
+                } else {
+                  toast.error("O valor não pode ser negativo");
+                }
               }}
               value={saldoIncial}
             />

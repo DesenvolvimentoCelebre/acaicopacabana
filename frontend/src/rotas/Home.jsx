@@ -27,17 +27,26 @@ const Home = () => {
   const [modalDadoCaixa, setModalDadosCaixa] = useState(false);
   const [saldoCaixa, setSaldoCaixa] = useState(null);
   const [saldoIncial, setSaldoIncial] = useState("");
+  const [dataHora, setDataHora] = useState(new Date());
 
   const [valorSaldoIncial, setValorSaldoIncial] = useState(false);
+  useEffect(() => {
+    const tempo = setInterval(() => setDataHora(new Date()), 1000);
 
+    return () => {
+      clearInterval(tempo);
+    };
+  }, []);
+
+  const data = dataHora.toLocaleDateString();
   const userData = JSON.parse(localStorage.getItem("user"));
   const { user } = userData || {};
   const fecharModalValorIncial = () => {
     setValorSaldoIncial(false);
   };
-  const abrirModalValorIncial = () => {
-    setValorSaldoIncial(true);
-  };
+  // const abrirModalValorIncial = () => {
+  //   setValorSaldoIncial(true);
+  // };
   const fecharModalDadosCaixa = () => {
     setModalDadosCaixa(false);
   };
@@ -76,6 +85,7 @@ const Home = () => {
 
   const confirmarAberturaCaixa = async (e) => {
     e.preventDefault(e);
+    window.location.reload(e);
 
     try {
       const abrirCaixa = {
@@ -116,18 +126,24 @@ const Home = () => {
         </div>
         <div className="modal-mensagem modal-saldo">R${saldoCaixa}</div>
         <div className="dados-modal">
-          <h2>
-            O caixa será aberto com o valor inicial de R$
-            {saldoCaixa}, confirma?
-          </h2>
+          <h2>Digite a baixo o valor da abertura do caixa na data de {data}</h2>
+          <div className="kg">
+            <input
+              type="number"
+              onChange={(e) => {
+                setSaldoIncial(e.target.value);
+              }}
+              value={saldoIncial}
+            />
+          </div>
           <div className="btn-modal">
-            <button className="dados-btn" onClick={abrirModalValorIncial}>
+            <button className="dados-btn" onClick={confirmarAberturaCaixa}>
               Confirmar
             </button>
           </div>
         </div>
       </Modal>
-      <Modal
+      {/* <Modal
         isOpen={valorSaldoIncial}
         contentLabel="Modal Produto Específico"
         style={{
@@ -143,7 +159,7 @@ const Home = () => {
           <h2>Inserir saldo de abertura</h2>
         </div>
         <div className="kg">
-          <label>Digite o saldo incial do caixa</label>
+          <label>Digite a baixo o valor da abertura do caixa desta data</label>
           <input
             type="number"
             onChange={(e) => {
@@ -160,7 +176,7 @@ const Home = () => {
             }}
           />
         </div>
-      </Modal>
+      </Modal> */}
       <Flex>
         <SideBar></SideBar>
         <Fundo src={imgFundo}></Fundo>

@@ -220,12 +220,17 @@ const SideBar = () => {
     try {
       const res = await apiAcai.post("/sangria", usuarioSangria);
       if (res.status === 200) {
+        window.location.reload();
         fecharModalSangria();
         toast.success("Sangria realizada com sucesso");
         setMotivo("");
         setValorRetirado("");
       }
+      // if (res.status === 500){
+      //   toast.success(error);
+      // }
     } catch (error) {
+      toast.success(error);
       console.log("Erro", error);
     }
   };
@@ -263,12 +268,6 @@ const SideBar = () => {
                 <Box onClick={abrirModalFechamentoCaixa}>
                   <SmallImage src={dinheiro} alt="" />
                   <Paragraph>Fechamento de caixa</Paragraph>
-                </Box>
-                <Box>
-                  <NavLink onClick={abrirModalSangria}>
-                    <SmallImage src={sangia} alt="" />
-                  </NavLink>
-                  <Paragraph>Sangria</Paragraph>
                 </Box>
                 <Box>
                   <NavLink to="/usuarios">
@@ -316,6 +315,12 @@ const SideBar = () => {
                       }}
                     />
                   </NavLink>
+                  <Box>
+                    <NavLink onClick={abrirModalSangria}>
+                      <SmallImage src={sangia} alt="" />
+                    </NavLink>
+                    <Paragraph>Sangria</Paragraph>
+                  </Box>
                   <Paragraph>SAIR</Paragraph>
                 </Box>
               </>
@@ -390,7 +395,13 @@ const SideBar = () => {
             <div className="container-modal">
               <h2>Deseja confirmar o fechamento do caixa?</h2>
               <div className="btn-modal">
-                <button onClick={fechamentoCaixa} className="verde">
+                <button
+                  onClick={(e) => {
+                    envioSangria(e);
+                    fechamentoCaixa(e);
+                  }}
+                  className="verde"
+                >
                   Confirmar
                 </button>
                 <button onClick={fecharModalCancelamento} className="vermelho">
@@ -444,6 +455,7 @@ const SideBar = () => {
               />
               <label>Motivo</label>
               <input
+                required
                 type="text"
                 onChange={(e) => {
                   setMotivo(e.target.value);

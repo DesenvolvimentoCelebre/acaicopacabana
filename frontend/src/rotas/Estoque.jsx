@@ -225,7 +225,8 @@ const Estoque = () => {
     codigo_produto,
     bit,
     preco_custo,
-    nome
+    nome,
+    categoria
   ) => {
     if (parseInt(bit) === 1) {
       setIsChecked(true);
@@ -237,6 +238,7 @@ const Estoque = () => {
     setModalQuantidade(quantidade);
     setCodigo_Produto(codigo_produto);
     setPreco_Custo(preco_custo);
+    setCategoria(categoria);
     setNome(nome);
     console.log(nome);
     setBit(bit);
@@ -281,6 +283,8 @@ const Estoque = () => {
         quantidade: modalQuantidade,
         preco_custo: preco_custo,
         bit,
+        nome,
+        categoria,
       };
       const res = await apiAcai.put("/attestoque", produtoEditado);
       if (res.status === 201) {
@@ -546,7 +550,8 @@ const Estoque = () => {
                             produto.codigo_produto,
                             produto.bit,
                             produto.preco_custo,
-                            produto.nome
+                            produto.nome,
+                            produto.categoria
                           )
                         }
                         color="#46295a"

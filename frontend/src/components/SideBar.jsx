@@ -232,10 +232,8 @@ const SideBar = () => {
       }
     } catch (error) {
       if (error.response && error.response.status === 500) {
-        console.log("Erro 500:", error.response.data.error[0]);
-        toast.error(error.response.data.error);
+        toast.error(error.response.data.error[0]);
       } else {
-        console.log("Erro:", error);
         toast.error("Erro ao realizar a sangria. Tente novamente.");
       }
     }

@@ -1,6 +1,6 @@
 const express = require("express");
 
-const { getcaixa, saldo, abrirCaixa, fechamento, relDiario, getOperador } = require('../../service/system');
+const { getcaixa, saldo, abrirCaixa, fechamento, relDiario, getOperador, sangria, ssd } = require('../../service/system');
 const { errorMiddleware } = require('../../utils/intTelegram');
 
 const system = express.Router();
@@ -102,6 +102,44 @@ system.get("/sangria", async (req, res) => {
     } catch (error) {
         res.status(500).json({ success: false, error: ["Erro interno do servidor"]})
     }
+})
+
+system.post("/sangria", async (req, res) => {
+  try {
+    const {user_cx, sdret, motivo} = req.body;
+    const results = await sangria(user_cx, sdret, motivo);
+    
+    if (results.success) {
+      res.status(200).json(results)
+    } else {
+      res.status(500).json(results)    
+    }
+  } catch (error) {
+      return {
+        success: false,
+        error: ['Erro no servidor, contate o administrador']
+      }
+    }
+})
+
+system.get("/sds", async (req, res) => {
+  try {
+    const {userno} = req.query;
+    const results = await ssd(userno);
+  
+    if (results.success) {
+      res.status(200).json(results)
+    } else {
+      res.status(500).json(results)
+    }
+
+  } catch (error) {
+    return {
+      success: false,
+      error: ['Erro ao puxar saldo']
+    }
+  }
+  
 })
 
 system.use(errorMiddleware)

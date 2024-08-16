@@ -143,12 +143,12 @@ async function relDiario(userno) {
 
     // Consulta para obter o saldo inicial
     const saldoInicialQuery = `
-            SELECT COALESCE(SUM(sd), 0) AS saldo_inicial
-            FROM cxlog
-            WHERE s0 = 0 AND date = CURRENT_DATE - INTERVAL 1 DAY AND userno =  ?
-        `;
-    const [saldoInicialResult] = await pool.query(saldoInicialQuery, [userno]);
-    const saldo_inicial = saldoInicialResult[0].saldo_inicial;
+    SELECT sd AS saldo_inicial FROM cxlog WHERE userno = ? AND date = CURRENT_DATE`;
+    
+    const [SaldoInicial] = await pool.query(saldoInicialQuery, [userno]);
+    
+    const saldo_inicial = SaldoInicial[0].saldo_inicial;
+    
 
     // Consulta para obter o total recebido por tipo
     const totalRecebidoPorTipoQuery = `
@@ -231,10 +231,22 @@ WHERE
      const [totalSangria] = await pool.query(buscaSangria, [userno]);
      const total_sangria = totalSangria[0].sangria;
 
+
+// novo saldo inicial - teste
+
+const sd_sg = {
+  sd_inicial: Number(saldo_inicial),
+  sg_dia: Number(total_sangria)
+}
+
+const newsaldo = sd_sg.sd_inicial + sd_sg.sg_dia
+const rdiario_saldoinicial = parseFloat(newsaldo.toFixed(2));
+
+
     return {
       success: true,
       usuarioNome,
-      saldo_inicial,
+      rdiario_saldoinicial,
       totalRecebidoPorTipo: totalRecebidoPorTipoResult,
       total_vendas: Number(total_vendas),
       total_dinheiro,
@@ -309,11 +321,144 @@ ORDER BY pt.tipo;
   }
 }
 
+async function sangria (user_cx, sdret, motivo){
+  try {
+    
+    // Busca do usuário por nome
+    const buscaUser = `SELECT usuario FROM usuario where id = ?`
+    const [buscauser] = await pool.query(buscaUser, [user_cx]);
+    const usuario = buscauser[0].usuario;
+    
+    const saldoinicial = `SELECT sd FROM cxlog WHERE userno = ? AND date = CURRENT_DATE`;
+    const [SaldoInicial] = await pool.query(saldoinicial, [user_cx]);
+    
+    const saldo_inicial = SaldoInicial[0].sd;
+    
+    
+    const vendasdia = `SELECT sum(pay.valor_recebido) as recebido from pay
+                      inner join 
+                      pedidos
+                      on pay.pedido = pedidos.pedido
+                      where pedidos.data_fechamento = CURRENT_DATE and pay.tipo = 1 AND bit4 = 0 and pedidos.userno = ?`;
+                      
+    const [Vendasdia] = await pool.query(vendasdia, [usuario]);
+    const v_dia = Vendasdia[0].recebido;
+   
+    
+    const trocodia = `SELECT sum(pay.bit3) as troco from pay
+                      inner join 
+                      pedidos
+                      on pay.pedido = pedidos.pedido
+                      where pedidos.data_fechamento = CURRENT_DATE and pay.tipo = 1 and bit4 = 0 and pedidos.userno = ?`;
+                      
+    const [Trocodia] = await pool.query(trocodia, [usuario]);
+    const t_dia = Trocodia[0].troco;
+   
+    
+    const si_sv = {
+      saldo_inicial: Number(saldo_inicial),
+      v_dia: Number(v_dia),
+      t_dia: Number(t_dia)
+    };
+    
+    console.log(si_sv)
+    
+    const sg = si_sv.v_dia + si_sv.t_dia + si_sv.saldo_inicial;
+    const saldo_completo = parseFloat(sg.toFixed(2));
+    
+    
+    const querySangria = `INSERT INTO s_log (sd_old, sdret, user_cx, motivo, date, time) VALUES (?,?,?,?, CURRENT_DATE, CURRENT_TIME)`;
+    const valuesSangria = [saldo_completo, sdret, user_cx, motivo];
+    
+    if (sdret == 0) {
+      return {
+        success: false,
+        error: ['Não é possível realizar uma sangria no valor de R$ 0,00']
+      } 
+    } else if (motivo == 0 || motivo === null || motivo === "") {
+      return {
+          success: false,
+          error: ['Por favor insira o motivo da sangria']
+      }
+    } else if (saldo_completo < sdret ) {
+      return {
+        success: false,
+        error: ['Saldo insuficiente']
+      }
+    }
+    
+    const [sangria] = await pool.query(querySangria, valuesSangria);
+    
+    return {
+      success: true,
+      message: ['Sangria realizada com sucesso']
+    };
+    
+  } catch (error) {
+    console.error(error);
+    return {
+      success: false,
+      error: ['Erro no servidor, por favor contate o administrador', error]
+    };
+  }
+}
+
+
+async function ssd(userno) {
+  try {
+    const sinicial = `SELECT sd FROM cxlog WHERE s0 = 1 and date = current_date and userno = ?`;
+    const [SInicial] = await pool.query(sinicial, [userno]);
+    
+    const s_inicial = SInicial[0].sd;
+    
+    const vendasdia = `SELECT sum(pay.valor_recebido) as recebido from pay
+                      inner join 
+                      pedidos
+                      on pay.pedido = pedidos.pedido
+                      where pedidos.data_fechamento = CURRENT_DATE and pay.tipo = 1 AND bit4 = 0`;
+                      
+    const [Vendasdia] = await pool.query(vendasdia);
+    const v_dia = Vendasdia[0].recebido;
+    
+    const trocodia = `SELECT sum(pay.bit3) as troco from pay
+                      inner join 
+                      pedidos
+                      on pay.pedido = pedidos.pedido
+                      where pedidos.data_fechamento = CURRENT_DATE and pay.tipo = 1 and bit4 = 0`;
+                      
+    const [Trocodia] = await pool.query(trocodia);
+    const t_dia = Trocodia[0].troco;
+    
+    const si_sv = {
+      s_inicial: Number(s_inicial),
+      v_dia: Number(v_dia),
+      t_dia: Number(t_dia)
+    };
+    
+    const sg = si_sv.v_dia + si_sv.t_dia + si_sv.s_inicial;
+    const sangria = sg.toFixed(2);
+    
+    return {
+      success: true,
+      sangria
+    };
+    
+  } catch (error) {
+    return {
+      success: false,
+      message: ['Erro ao puxar saldo', error]
+    };
+  }
+}
+
+
 module.exports = {
   getcaixa,
   saldo,
   abrirCaixa,
   fechamento,
   relDiario,
-  getOperador
+  getOperador,
+  sangria,
+  ssd
 }

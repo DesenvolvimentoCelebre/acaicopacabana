@@ -116,7 +116,7 @@ async function allProducts() {
     } catch (error) {
       return {
         success: false,
-        error: ['Erro no servidor, por favor entrar em contato com o administrador']
+        error: ['Erro no servidor, por favor entrar em contato com o administrador', error]
       }
     }
   }

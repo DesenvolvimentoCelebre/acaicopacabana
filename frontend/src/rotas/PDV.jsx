@@ -271,6 +271,7 @@ const PDV = () => {
     }
 
     try {
+      let acumuladorValor = 0;
       const cancelarPedido = {
         pedido: {
           produtos: produtos.map((item) => ({
@@ -282,13 +283,21 @@ const PDV = () => {
             sta: 0,
             userno: user && user.nome,
           })),
-          pagamentos: pagamentos.map((item) => ({
-            pedido: proximoPedido.message,
-            tipo: item.tipo,
-            status: 1,
-            valor_recebido: item.valor_recebido,
-            valor_pedido: valorTotal(),
-          })),
+
+          pagamentos: pagamentos.map((item) => {
+            //let valorAnterior = index === 0 ? valorTotal() : acumuladorValor;
+            acumuladorValor += item.valor_recebido;
+            let bit3 = valorTotal() - acumuladorValor;
+
+            return {
+              pedido: proximoPedido.message,
+              tipo: item.tipo,
+              status: 0,
+              valor_recebido: item.valor_recebido,
+              valor_pedido: valorTotal(),
+              bit3: bit3,
+            };
+          }),
         },
       };
 
@@ -326,15 +335,36 @@ const PDV = () => {
 
   const botaoEnvio = async (e) => {
     e.preventDefault();
+
     if (produtos.length === 0) {
       toast.error("Impossível finalizar o pedido, nenhum produto adicionado.");
       fecharModalConfirmacao();
       return;
     }
+
     fecharModalConfirmacao();
 
     try {
       let acumuladorValor = 0;
+
+      const pagamentosOrdenados = pagamentos
+        .map((item, index) => {
+          acumuladorValor += item.valor_recebido;
+          let bit3 = valorTotal() - acumuladorValor;
+
+          return {
+            pedido: proximoPedido.message,
+            tipo: item.tipo,
+            status: 0,
+            valor_recebido: item.valor_recebido,
+            valor_pedido: valorTotal(),
+            bit3: bit3,
+          };
+        })
+        .sort((a, b) => {
+          return a.tipo === 0 ? 1 : b.tipo === 0 ? -1 : 0;
+        });
+
       const inserirNovoPedido = {
         pedido: {
           produtos: produtos.map((item) => ({
@@ -346,23 +376,9 @@ const PDV = () => {
             sta: 1,
             userno: user && user.nome,
           })),
-          pagamentos: pagamentos.map((item, index) => {
-            //let valorAnterior = index === 0 ? valorTotal() : acumuladorValor;
-            acumuladorValor += item.valor_recebido;
-            let bit3 = valorTotal() - acumuladorValor;
-
-            return {
-              pedido: proximoPedido.message,
-              tipo: item.tipo,
-              status: 0,
-              valor_recebido: item.valor_recebido,
-              valor_pedido: valorTotal(),
-              bit3: bit3,
-            };
-          }),
+          pagamentos: pagamentosOrdenados,
         },
       };
-
       const res = await apiAcai.post("/ped", inserirNovoPedido);
 
       if (res.status === 200) {

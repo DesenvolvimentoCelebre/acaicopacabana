@@ -199,23 +199,46 @@ WHERE
     const [totalVendasResult] = await pool.query(totalVendasQuery, [usuarioNome]);
     const total_vendas = totalVendasResult[0].total_vendas;
 
-    // Consulta para obter o total de dinheiro
-    const totalDinheiroQuery = `
-            SELECT COALESCE(SUM(pedno.valor_unit), 0) AS total_dinheiro
-            FROM pedno
-            INNER JOIN pay
-            ON pedno.pedido = pay.pedido
-            WHERE pedno.data_fechamento = CURRENT_DATE AND pedno.userno = ? and pay.tipo = 1
-        `;
-    const [totalDinheiroResult] = await pool.query(totalDinheiroQuery, [usuarioNome]);
-    const total_dinheiro = totalDinheiroResult[0].total_dinheiro;
+    // --> Consulta para obter o total de dinheiro -- Recebido
+    const valorrecebido = `
+            SELECT sum(valor_recebido) AS recebido
+            FROM pay
+            INNER JOIN pedidos
+            ON pay.pedido = pedidos.pedido
+            WHERE pedidos.data_fechamento = CURRENT_DATE AND pay.tipo = 1 AND pedidos.userno = ?`
+            
+    const [ValorRecebido] = await pool.query(valorrecebido, [usuarioNome]);
+    const Valorrecebido = ValorRecebido[0].recebido;
+                    
+  // --> Consulta para obter o total de dinheiro -- Troco
+    const valortroco = `
+            SELECT sum(bit3) AS troco
+            FROM pay
+            INNER JOIN pedidos
+            ON pay.pedido = pedidos.pedido
+            WHERE pedidos.data_fechamento = CURRENT_DATE AND pay.tipo = 1 AND pedidos.userno = ?`
+            
+    const [ValorTroco] = await pool.query(valortroco, [usuarioNome]);
+    const Valortroco = ValorTroco[0].troco
+                       // ------->>>>>>>> Teste de resultado <<<<<<<<<<<----------//  
+    console.log("recebido: ", Valorrecebido);
+    console.log("troco: ", Valortroco);
+    console.log("operador: ", [usuarioNome]);
+  
+    const saldodinheiro = {
+      recebido: Number(Valorrecebido),
+      troco: Number(Valortroco)
+    }  
+    
+    const rdiarioSaldoDinheiro = saldodinheiro.recebido + saldodinheiro.troco
+    
+    console.log(rdiarioSaldoDinheiro);
 
-
-
+// ------------------------------------------------------------------------------------------------//
     // Consulta para obter saldo diário do valor
 
     const saldoFechamento = {
-      total_dinheiro: Number(total_dinheiro),
+//      total_dinheiro: Number(total_dinheiro),
       saldo_inicial: Number(saldo_inicial)
     };
 
@@ -249,7 +272,7 @@ const rdiario_saldoinicial = parseFloat(newsaldo.toFixed(2));
       rdiario_saldoinicial,
       totalRecebidoPorTipo: totalRecebidoPorTipoResult,
       total_vendas: Number(total_vendas),
-      total_dinheiro,
+      rdiarioSaldoDinheiro,
       saldo_fechamento,
       total_sangria
     };

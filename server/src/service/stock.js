@@ -123,32 +123,33 @@ async function allProducts() {
 
   async function productUpdate({ bit, quantidade, codigo_produto, categoria, nome }) {
     try {
-      let query = 'UPDATE produto SET bit = ?';
-      const values = [bit];
-  
-      if (quantidade && quantidade.trim() !== '') { 
-        query += ', quantidade = ?'; 
-        values.push(quantidade);
-      }
-      if (categoria && categoria.trim() !== '') { 
-        query += ', categoria = ?'; 
-        values.push(categoria);
-      }
-      if (nome && nome.trim() !== '') { 
-        query += ', nome = ?'; 
-        values.push(nome);
-      }
-  
-      query += ' WHERE codigo_produto = ?';
-      values.push(codigo_produto);
-  
-      await pool.query(query, values);
-      return { success: true, message: 'Produto atualizado com sucesso' };
-    } catch (error) {
-      return { success: false, error: ['Erro interno do servidor'] };
-    }
+        let query = 'UPDATE produto SET bit = ?';
+        const values = [bit];
 
-  }
+        if (quantidade && String(quantidade).trim() !== '') { 
+            query += ', quantidade = ?'; 
+            values.push(quantidade);
+        }
+        if (categoria && String(categoria).trim() !== '') { 
+            query += ', categoria = ?'; 
+            values.push(categoria);
+        }
+        if (nome && String(nome).trim() !== '') { 
+            query += ', nome = ?'; 
+            values.push(nome);
+        }
+
+        query += ' WHERE codigo_produto = ?';
+        values.push(codigo_produto);
+
+        await pool.query(query, values);
+        return { success: true, message: 'Produto atualizado com sucesso' };
+    } catch (error) {
+        console.error(error);
+        return { success: false, error: ['Erro interno do servidor', error] };
+    }
+}
+
 
 
 async function deleteProduto(id) {

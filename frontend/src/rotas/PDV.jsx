@@ -347,30 +347,49 @@ const PDV = () => {
     try {
       let acumuladorValor = 0;
 
-      const pagamentosComBit3 = pagamentos.map((item, index) => {
-        acumuladorValor += item.valor_recebido;
-        let bit3 = acumuladorValor - valorTotal();
+      let pagamentosComBit3;
 
-        return {
-          pedido: proximoPedido.message,
-          tipo: item.tipo,
-          status: 0,
-          valor_recebido: item.valor_recebido,
-          valor_pedido: valorTotal(),
-          bit3: bit3,
-        };
-      });
+      if (pagamentos.length === 1 && pagamentos[0].tipo === 1) {
+        acumuladorValor += pagamentos[0].valor_recebido;
+        const bit3 = acumuladorValor - valorTotal();
 
-      const somaBit3ExcetoTipo1 = pagamentosComBit3
-        .filter((item) => item.tipo !== 1)
-        .reduce((acumulador, item) => acumulador + item.bit3, 0);
+        pagamentosComBit3 = [
+          {
+            pedido: proximoPedido.message,
+            tipo: pagamentos[0].tipo,
+            status: 0,
+            valor_recebido: pagamentos[0].valor_recebido,
+            valor_pedido: valorTotal(),
+            bit3: bit3,
+            bit4: bit3,
+          },
+        ];
+      } else {
+        pagamentosComBit3 = pagamentos.map((item, index) => {
+          acumuladorValor += item.valor_recebido;
+          let bit3 = acumuladorValor - valorTotal();
 
-      const pagamentosComBit3EBit4 = pagamentosComBit3.map((item) => ({
-        ...item,
-        bit4: item.valor_recebido - somaBit3ExcetoTipo1,
-      }));
+          return {
+            pedido: proximoPedido.message,
+            tipo: item.tipo,
+            status: 0,
+            valor_recebido: item.valor_recebido,
+            valor_pedido: valorTotal(),
+            bit3: bit3,
+          };
+        });
 
-      const pagamentosOrdenados = pagamentosComBit3EBit4.sort((a, b) => {
+        const somaBit3ExcetoTipo1 = pagamentosComBit3
+          .filter((item) => item.tipo !== 1)
+          .reduce((acumulador, item) => acumulador + item.bit3, 0);
+
+        pagamentosComBit3 = pagamentosComBit3.map((item) => ({
+          ...item,
+          bit4: item.valor_recebido - somaBit3ExcetoTipo1,
+        }));
+      }
+
+      const pagamentosOrdenados = pagamentosComBit3.sort((a, b) => {
         return a.tipo === 1 ? 1 : b.tipo === 1 ? -1 : 0;
       });
 
@@ -388,6 +407,7 @@ const PDV = () => {
           pagamentos: pagamentosOrdenados,
         },
       };
+
       const res = await apiAcai.post("/ped", inserirNovoPedido);
 
       if (res.status === 200) {
@@ -395,8 +415,10 @@ const PDV = () => {
         navigate("/");
       }
     } catch (error) {
-      if (error.response.status === 500) {
-        console.log("Erro ao inserir produto no banco de dados");
+      if (error.response && error.response.status === 500) {
+        console.error("Erro ao inserir produto no banco de dados");
+      } else {
+        console.error("Erro inesperado:", error);
       }
     }
   };

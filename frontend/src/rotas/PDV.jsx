@@ -347,23 +347,32 @@ const PDV = () => {
     try {
       let acumuladorValor = 0;
 
-      const pagamentosOrdenados = pagamentos
-        .map((item, index) => {
-          acumuladorValor += item.valor_recebido;
-          let bit3 = valorTotal() - acumuladorValor;
+      const pagamentosComBit3 = pagamentos.map((item, index) => {
+        acumuladorValor += item.valor_recebido;
+        let bit3 = acumuladorValor - valorTotal();
 
-          return {
-            pedido: proximoPedido.message,
-            tipo: item.tipo,
-            status: 0,
-            valor_recebido: item.valor_recebido,
-            valor_pedido: valorTotal(),
-            bit3: bit3,
-          };
-        })
-        .sort((a, b) => {
-          return a.tipo === 0 ? 1 : b.tipo === 0 ? -1 : 0;
-        });
+        return {
+          pedido: proximoPedido.message,
+          tipo: item.tipo,
+          status: 0,
+          valor_recebido: item.valor_recebido,
+          valor_pedido: valorTotal(),
+          bit3: bit3,
+        };
+      });
+
+      const somaBit3ExcetoTipo1 = pagamentosComBit3
+        .filter((item) => item.tipo !== 1)
+        .reduce((acumulador, item) => acumulador + item.bit3, 0);
+
+      const pagamentosComBit3EBit4 = pagamentosComBit3.map((item) => ({
+        ...item,
+        bit4: item.valor_recebido - somaBit3ExcetoTipo1,
+      }));
+
+      const pagamentosOrdenados = pagamentosComBit3EBit4.sort((a, b) => {
+        return a.tipo === 1 ? 1 : b.tipo === 1 ? -1 : 0;
+      });
 
       const inserirNovoPedido = {
         pedido: {

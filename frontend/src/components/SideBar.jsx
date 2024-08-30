@@ -165,7 +165,7 @@ const SideBar = () => {
       try {
         const res = await apiAcai.get(`/rdiario?userno=${user.id}`);
         setSaldoInicial(res.data.rdiario_saldoinicial);
-        setTotalFechamento(res.data.saldo_fechamento);
+        setTotalFechamento(res.data.rdiario_saldoinicial);
         setFechamentoDinheiro(res.data.total_dinheiro);
         setFechamanetoSangria(res.data.total_sangria);
         setFechamentoPix(res.data.totalRecebidoPorTipo[0].saldo);

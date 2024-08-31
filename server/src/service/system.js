@@ -185,21 +185,31 @@ ORDER BY pt.tipo;
 
     // Consulta para obter o total de vendas
     const totalVendasQuery = `
-            SELECT 
-	SUM(pay.valor_recebido) as total_vendas
+SELECT 
+	sum(pedidos.total_vendas) as total_vendas
+FROM (
+  SELECT 
+	pay.valor_pedido as total_vendas
 FROM 
 	pay
 INNER JOIN
-	pedno
+	pedidos
 ON
-	pay.pedido = pedno.pedido
+	pay.pedido = pedidos.pedido
+INNER JOIN
+  pedno
+ON
+  pay.pedido = pedno.pedido
 WHERE
-	pedno.data_fechamento = CURRENT_DATE() AND pedno.sta = 1 and pedno.userno = ?
+	pedno.data_fechamento = CURRENT_DATE() AND pedno.sta = 1 AND pedno.userno = ?
+GROUP BY
+  pedidos.pedido
+  ) as pedidos
         `;
     const [totalVendasResult] = await pool.query(totalVendasQuery, [usuarioNome]);
     const total_vendas = totalVendasResult[0].total_vendas;
 
-    // --> Consulta para obter o total de dinheiro -- Recebido
+    // --> Consulta para obter o total de dinheiro -- Recebido (entrada no caixa)
     const valorrecebido = `
             SELECT sum(valor_recebido) AS recebido
             FROM pay
@@ -212,7 +222,7 @@ WHERE
                     
   // --> Consulta para obter o total de dinheiro -- Troco
     const valortroco = `
-            SELECT sum(bit3) AS troco
+            SELECT sum(bit4) AS troco
             FROM pay
             INNER JOIN pedidos
             ON pay.pedido = pedidos.pedido
@@ -235,17 +245,7 @@ WHERE
     console.log(rdiarioSaldoDinheiro);
 
 // ------------------------------------------------------------------------------------------------//
-    // Consulta para obter saldo diário do valor
-
-    const saldoFechamento = {
-//      total_dinheiro: Number(total_dinheiro),
-      saldo_inicial: Number(saldo_inicial)
-    };
-
-
-    const sdpuro = saldoFechamento.total_dinheiro + saldoFechamento.saldo_inicial;
-    const saldo_fechamento = sdpuro.toFixed(2);
-
+   
 // Busca por sangrias no dia 
     const buscaSangria = `SELECT COALESCE(SUM(sdret), 0) AS sangria
       FROM s_log
@@ -273,7 +273,6 @@ const rdiario_saldoinicial = parseFloat(newsaldo.toFixed(2));
       totalRecebidoPorTipo: totalRecebidoPorTipoResult,
       total_vendas: Number(total_vendas),
       rdiarioSaldoDinheiro,
-      saldo_fechamento,
       total_sangria
     };
   } catch (error) {

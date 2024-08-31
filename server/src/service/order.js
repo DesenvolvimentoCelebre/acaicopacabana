@@ -34,14 +34,15 @@ async function createOrder(order) {
     }
 
     for (const pagamento of order.pagamentos) {
-      const sqlpay = `INSERT INTO pay (pedido, tipo, valor_recebido, status, valor_pedido, bit3) VALUES (?,?,?,?,?,?)`;
+      const sqlpay = `INSERT INTO pay (pedido, tipo, valor_recebido, status, valor_pedido, bit3, bit4) VALUES (?,?,?,?,?,?,?)`;
       const values2 = [
         pagamento.pedido,
         pagamento.tipo,
         pagamento.valor_recebido,
         pagamento.status,
         pagamento.valor_pedido,
-        pagamento.bit3
+        pagamento.bit3,
+        pagamento.bit4
         ];
 
       await connection.query(sqlpay, values2);
@@ -74,8 +75,12 @@ async function infoNextOrder() {
     `;
     const [results] = await pool.query(innerJoinQuery);
     const valor = results[0].acai_valor;
+    
+    const querylockvalue = "SELECT t1  AS `lock` FROM sys WHERE id = 6";
+    const [resultlockvalue] = await pool.query(querylockvalue); 
+    const lockvalue = resultlockvalue[0].lock;
 
-    return { success: true, message: proximoProdNo, valor: valor };
+    return { success: true, message: proximoProdNo, valor: valor, pp: lockvalue };
   } catch (error) {
     return { success: false, error: "Erro ao buscar próximo número do pedido", details: error };
   }

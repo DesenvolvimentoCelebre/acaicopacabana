@@ -376,23 +376,33 @@ const PDV = () => {
             valor_recebido: item.valor_recebido,
             valor_pedido: valorTotal(),
             bit3: bit3,
+            bit4: valorTroco(),
           };
         });
 
-        const somaBit3ExcetoTipo1 = pagamentosComBit3
-          .filter((item) => item.tipo !== 1)
-          .reduce((acumulador, item) => acumulador + item.bit3, 0);
+        // const somaBit3ExcetoTipo1 = pagamentosComBit3
+        //   .filter((item) => item.tipo !== 1)
+        //   .reduce((acumulador, item) => acumulador + item.bit3, 0);
 
-        pagamentosComBit3 = pagamentosComBit3.map((item) => ({
-          ...item,
-          bit4: item.valor_recebido - somaBit3ExcetoTipo1,
-        }));
+        // pagamentosComBit3 = pagamentosComBit3.map((item) => {
+        //   if (item.tipo === 1) {
+        //     return { ...item, bit4: item.valor_recebido };
+        //   } else {
+        //     return { ...item, bit4: item.valor_recebido - somaBit3ExcetoTipo1 };
+        //   }
+        // });
       }
+      const ultimoItemPagamento =
+        pagamentosComBit3[pagamentosComBit3.length - 1];
+      console.log("pagbit3", pagamentosComBit3);
+      let pagamentosOrdenados = pagamentosComBit3;
 
-      const pagamentosOrdenados = pagamentosComBit3.sort((a, b) => {
-        return a.tipo === 1 ? 1 : b.tipo === 1 ? -1 : 0;
-      });
-
+      if (ultimoItemPagamento.tipo !== 1) {
+        pagamentosOrdenados = pagamentosComBit3.sort((a, b) => {
+          return a.tipo === 1 ? 1 : b.tipo === 1 ? -1 : 0;
+        });
+      }
+      console.log(pagamentosOrdenados);
       const inserirNovoPedido = {
         pedido: {
           produtos: produtos.map((item) => ({

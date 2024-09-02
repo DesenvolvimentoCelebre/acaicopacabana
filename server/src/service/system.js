@@ -231,18 +231,19 @@ GROUP BY
     const [ValorTroco] = await pool.query(valortroco, [usuarioNome]);
     const Valortroco = ValorTroco[0].troco
                        // ------->>>>>>>> Teste de resultado <<<<<<<<<<<----------//  
-    console.log("recebido: ", Valorrecebido);
-    console.log("troco: ", Valortroco);
-    console.log("operador: ", [usuarioNome]);
-  
+    
+    // Consoles dos valores
+      console.log("Valor recebido em dinheiro", Valorrecebido);
+      console.log("Valor de trocos no dia troco", Valortroco);
+    //
+    
     const saldodinheiro = {
       recebido: Number(Valorrecebido),
       troco: Number(Valortroco)
     }  
     
     const rdiarioSaldoDinheiro = saldodinheiro.recebido + saldodinheiro.troco
-    
-    console.log(rdiarioSaldoDinheiro);
+
 
 // ------------------------------------------------------------------------------------------------//
    

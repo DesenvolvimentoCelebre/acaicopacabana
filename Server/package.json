@@ -1,0 +1,26 @@
+{
+  "name": "acaicopacabana",
+  "version": "1.0.3",
+  "description": "Software acaicopacabana ",
+  "main": "server.js",
+  "scripts": {
+    "test": "jest",
+    "build": "tsc",
+    "prod": "dist/server.js"
+  },
+  "author": "Célebre",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/jest": "^29.5.12",
+    "@types/node": "^22.5.2",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.2.5",
+    "typescript": "^5.5.4"
+  },
+  "dependencies": {
+    "@types/express": "^4.17.21",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "mysql2": "^3.11.0"
+  }
+}

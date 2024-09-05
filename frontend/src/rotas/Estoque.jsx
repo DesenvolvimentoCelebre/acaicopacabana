@@ -162,6 +162,7 @@ const Estoque = () => {
   const valorRef = useRef(null);
   const [deletarProduto, setDeletarProduto] = useState("");
   const [modalConfirmacao, setModalConfirmacao] = useState(false);
+  const [enviando, setEnviando] = useState(false);
   //const [img_produto, setImg_produto] = useState(null);
   //const userData = JSON.parse(localStorage.getItem("user"));
 
@@ -278,6 +279,7 @@ const Estoque = () => {
     console.log("clique");
     e.preventDefault();
     try {
+      setEnviando(true);
       const produtoEditado = {
         codigo_produto,
         quantidade: modalQuantidade,
@@ -294,6 +296,8 @@ const Estoque = () => {
       }
     } catch (error) {
       console.log(error);
+    } finally {
+      setEnviando(false);
     }
   };
   const fecharModalAdd = () => {
@@ -337,6 +341,7 @@ const Estoque = () => {
     formData.append("tipo", 1);
 
     try {
+      setEnviando(true);
       const produtosEnviados = {
         nome: nome,
         categoria: categoria,
@@ -354,6 +359,8 @@ const Estoque = () => {
       }
     } catch (error) {
       console.log("Erro", error);
+    } finally {
+      setEnviando(false);
     }
   };
   const handlePesquisaChange = (e) => {
@@ -417,7 +424,7 @@ const Estoque = () => {
                 content: {
                   borderRadius: "15px",
                   width: "70%",
-                  height: "40%",
+                  height: "45%",
                   margin: "auto",
                   padding: 0,
                   display: "flex",
@@ -496,7 +503,15 @@ const Estoque = () => {
                 </Form>
                 */}
                 <ButaoEnvioProduto>
-                  <input type="submit" value="Adicionar produto" />
+                  {enviando ? (
+                    "Aguarde..."
+                  ) : (
+                    <input
+                      type="submit"
+                      value="Adicionar produto"
+                      disabled={enviando}
+                    />
+                  )}
                 </ButaoEnvioProduto>
               </form>
             </Modal>
@@ -564,7 +579,7 @@ const Estoque = () => {
                         style={{
                           content: {
                             width: "40%",
-                            height: "48%",
+                            height: "55%",
                             margin: "auto",
                             padding: 0,
                           },
@@ -665,13 +680,18 @@ const Estoque = () => {
                           </Form1>
                         </Form>
                         <ButaoEnvioProduto>
-                          <input
-                            type="submit"
-                            value="Salvar"
-                            onClick={(e) => {
-                              adicionarEstoque(e);
-                            }}
-                          />
+                          {enviando ? (
+                            "Aguarde..."
+                          ) : (
+                            <input
+                              type="submit"
+                              value="Salvar"
+                              disabled={enviando}
+                              onClick={(e) => {
+                                adicionarEstoque(e);
+                              }}
+                            />
+                          )}
                         </ButaoEnvioProduto>
                         <div className="kg kg-estoque"></div>
                       </Modal>

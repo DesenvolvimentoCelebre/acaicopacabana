@@ -138,6 +138,7 @@ const SideBar = () => {
   const [valorRetirado, setValorRetirado] = useState("");
   const [motivo, setMotivo] = useState("");
   const [sangria, setSangria] = useState("");
+  const [enviando, setEnviando] = useState(false);
 
   const abrirModalSangria = () => {
     setValorSangria(true);
@@ -211,8 +212,9 @@ const SideBar = () => {
   };
 
   const envioSangria = async (e) => {
-    e.preventDefault(e);
+    e.preventDefault();
 
+    setEnviando(true);
     const usuarioSangria = {
       user_cx: user && user.id,
       sdret: valorRetirado,
@@ -223,12 +225,11 @@ const SideBar = () => {
       const res = await apiAcai.post("/sangria", usuarioSangria);
 
       if (res.status === 200) {
-        window.location.reload();
-        console.log(res.data);
         fecharModalSangria();
         toast.success("Sangria realizada com sucesso");
         setMotivo("");
         setValorRetirado("");
+        window.location.reload();
       }
     } catch (error) {
       if (error.response && error.response.status === 500) {
@@ -236,6 +237,8 @@ const SideBar = () => {
       } else {
         toast.error("Erro ao realizar a sangria. Tente novamente.");
       }
+    } finally {
+      setEnviando(false);
     }
   };
   return (
@@ -470,14 +473,19 @@ const SideBar = () => {
                 }}
                 value={motivo}
               />
-              <input
-                type="button"
-                value="Enviar"
-                className="botao-add botao-caixa"
-                onClick={(e) => {
-                  envioSangria(e);
-                }}
-              />
+              {enviando ? (
+                "Aguarde..."
+              ) : (
+                <input
+                  type="button"
+                  value="Enviar"
+                  disabled={enviando}
+                  className="botao-add botao-caixa"
+                  onClick={(e) => {
+                    envioSangria(e);
+                  }}
+                />
+              )}
             </div>
           </Modal>
           <Footer>

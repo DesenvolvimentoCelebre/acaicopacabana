@@ -87,7 +87,6 @@ const Home = () => {
 
   const confirmarAberturaCaixa = async (e) => {
     e.preventDefault(e);
-    window.location.reload(e);
 
     try {
       const abrirCaixa = {
@@ -97,6 +96,7 @@ const Home = () => {
       };
 
       const res = await apiAcai.post("/opc", abrirCaixa);
+      window.location.reload(e);
 
       if (res.status === 200) {
         fecharModalDadosCaixa();

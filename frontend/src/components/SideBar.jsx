@@ -165,8 +165,8 @@ const SideBar = () => {
       try {
         const res = await apiAcai.get(`/rdiario?userno=${user.id}`);
         setSaldoInicial(res.data.rdiario_saldoinicial);
-        setTotalFechamento(res.data.rdiario_saldoinicial);
-        setFechamentoDinheiro(res.data.total_dinheiro);
+        setTotalFechamento(res.data.caixaDia);
+        setFechamentoDinheiro(res.data.saldoDinheiro);
         setFechamanetoSangria(res.data.total_sangria);
         setFechamentoPix(res.data.totalRecebidoPorTipo[0].saldo);
         setFechamentoCredito(res.data.totalRecebidoPorTipo[2].saldo);
@@ -182,8 +182,8 @@ const SideBar = () => {
   useEffect(() => {
     const carregarFechamentoCaixa = async () => {
       try {
-        const res = await apiAcai.get(`/sds?userno=${user.id}`);
-        setSangria(res.data.sangria);
+        const res = await apiAcai.get(`/rdiario?userno=${user.id}`);
+        setSangria(res.data.caixaDia);
       } catch (error) {
         console.log("Erro", error);
       }

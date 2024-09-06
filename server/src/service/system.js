@@ -220,6 +220,16 @@ GROUP BY
     const [ValorRecebido] = await pool.query(valorrecebido, [usuarioNome]);
     const Valorrecebido = ValorRecebido[0].recebido;
                     
+    const valorrecebidoS = `
+            SELECT sum(valor_recebido) AS recebido
+            FROM pay
+            INNER JOIN pedidos
+            ON pay.pedido = pedidos.pedido
+            WHERE pedidos.data_fechamento = CURRENT_DATE AND pay.tipo = 1 AND pedidos.userno = ? AND pedidos.bit1 != 1`
+            
+    const [ValorRecebidoS] = await pool.query(valorrecebidoS, [usuarioNome]);
+    const ValorrecebidoS = ValorRecebidoS[0].recebido;
+                    
   // --> Consulta para obter o total de dinheiro -- Troco
     const valortroco = `
             SELECT sum(bit4) AS troco
@@ -231,40 +241,81 @@ GROUP BY
     const [ValorTroco] = await pool.query(valortroco, [usuarioNome]);
     const Valortroco = ValorTroco[0].troco
                        // ------->>>>>>>> Teste de resultado <<<<<<<<<<<----------//  
+    const valortrocoS = `
+            SELECT sum(bit4) AS troco
+            FROM pay
+            INNER JOIN pedidos
+            ON pay.pedido = pedidos.pedido
+            WHERE pedidos.data_fechamento = CURRENT_DATE AND pay.tipo = 1 AND pedidos.userno = ? AND pedidos.bit1 != 1`
+            
+    const [ValorTrocoS] = await pool.query(valortrocoS, [usuarioNome]);
+    const ValortrocoS = ValorTrocoS[0].troco
     
-    // Consoles dos valores
-      console.log("Valor recebido em dinheiro", Valorrecebido);
-      console.log("Valor de trocos no dia troco", Valortroco);
-    //
+    // sangria
+    
+    const querySangria = `
+      SELECT sdret AS sangria
+FROM s_log
+WHERE user_cx = ? AND date = CURRENT_DATE
+
+UNION ALL
+
+SELECT 0
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM s_log
+    WHERE user_cx = ? AND date = CURRENT_DATE
+);
+    `;
+    const [resultSangria] = await pool.query(querySangria, [userno, userno]);
+    const sangria = resultSangria[0].sangria;
+                       // ------->>>>>>>> Teste de resultado <<<<<<<<<<<----------//  
+    
+    
+    // novo saldo inicial 
+    const sdinicial = "SELECT sd_old as sdinicial FROM s_log WHERE user_cx = ? AND date = current_date";
+    const [SdinicialTrue] = await pool.query(sdinicial, [userno]);
+    const sdinicialFalse = "SELECT sd as sdinicial FROM cxlog WHERE date = current_date AND s0 = 1 AND userno = ?"
+    const [SdinicialFalse] = await pool.query(sdinicialFalse, [userno]);
+    
+    let rdiario_saldoinicial
+    
+    if (SdinicialTrue.length > 0) {
+      rdiario_saldoinicial = SdinicialTrue[0].sdinicial
+    } else {
+      rdiario_saldoinicial = SdinicialFalse[0].sdinicial
+    }
+    
+
+    
+    
+     const caixaDoDia = {
+       recebido: Number(Valorrecebido),
+       troco: Number(Valortroco),
+       sangria: Number(sangria),
+       rdiario_saldoinicial: Number(rdiario_saldoinicial)
+     };
+     
+     const caixadia = caixaDoDia.recebido + caixaDoDia.rdiario_saldoinicial - caixaDoDia.troco - caixaDoDia.sangria 
+     const caixaDia = parseFloat(caixadia.toFixed(2));
+                      // ------->>>>>>>> Teste de resultado <<<<<<<<<<<----------//
+                      
+     console.log("recebido: ", caixaDoDia.recebido);
+     console.log("troco: ", caixaDoDia.troco);
+     console.log("sangria: ", caixaDoDia.sangria);
+     console.log("Resultado do dia: ", caixaDia);
+     console.log("novo teste de troco: ", ValortrocoS)
+     console.log("Usuário logado: ", usuarioNome)
     
     const saldodinheiro = {
       recebido: Number(Valorrecebido),
       troco: Number(Valortroco)
     }  
     
-    const rdiarioSaldoDinheiro = saldodinheiro.recebido + saldodinheiro.troco
-
-
-// ------------------------------------------------------------------------------------------------//
-   
-// Busca por sangrias no dia 
-    const buscaSangria = `SELECT COALESCE(SUM(sdret), 0) AS sangria
-      FROM s_log
-      WHERE date = CURRENT_DATE AND user_cx = ?`;
-
-     const [totalSangria] = await pool.query(buscaSangria, [userno]);
-     const total_sangria = totalSangria[0].sangria;
+    const rdiarioSaldoDinheiro = saldodinheiro.recebido - saldodinheiro.troco
 
 
 // novo saldo inicial - teste
-
-const sd_sg = {
-  sd_inicial: Number(saldo_inicial),
-  sg_dia: Number(total_sangria)
-}
-
-const newsaldo = sd_sg.sd_inicial + sd_sg.sg_dia
-const rdiario_saldoinicial = parseFloat(newsaldo.toFixed(2));
 
 
     return {
@@ -274,7 +325,8 @@ const rdiario_saldoinicial = parseFloat(newsaldo.toFixed(2));
       totalRecebidoPorTipo: totalRecebidoPorTipoResult,
       total_vendas: Number(total_vendas),
       rdiarioSaldoDinheiro,
-      total_sangria
+      caixaDia,
+      sangria
     };
   } catch (error) {
     console.error(error)
@@ -358,40 +410,9 @@ async function sangria (user_cx, sdret, motivo){
     const saldo_inicial = SaldoInicial[0].sd;
     
     
-    const vendasdia = `SELECT sum(pay.valor_recebido) as recebido from pay
-                      inner join 
-                      pedidos
-                      on pay.pedido = pedidos.pedido
-                      where pedidos.data_fechamento = CURRENT_DATE and pay.tipo = 1 AND bit4 = 0 and pedidos.userno = ?`;
-                      
-    const [Vendasdia] = await pool.query(vendasdia, [usuario]);
-    const v_dia = Vendasdia[0].recebido;
-   
-    
-    const trocodia = `SELECT sum(pay.bit3) as troco from pay
-                      inner join 
-                      pedidos
-                      on pay.pedido = pedidos.pedido
-                      where pedidos.data_fechamento = CURRENT_DATE and pay.tipo = 1 and bit4 = 0 and pedidos.userno = ?`;
-                      
-    const [Trocodia] = await pool.query(trocodia, [usuario]);
-    const t_dia = Trocodia[0].troco;
-   
-    
-    const si_sv = {
-      saldo_inicial: Number(saldo_inicial),
-      v_dia: Number(v_dia),
-      t_dia: Number(t_dia)
-    };
-    
-    console.log(si_sv)
-    
-    const sg = si_sv.v_dia + si_sv.t_dia + si_sv.saldo_inicial;
-    const saldo_completo = parseFloat(sg.toFixed(2));
-    
     
     const querySangria = `INSERT INTO s_log (sd_old, sdret, user_cx, motivo, date, time) VALUES (?,?,?,?, CURRENT_DATE, CURRENT_TIME)`;
-    const valuesSangria = [saldo_completo, sdret, user_cx, motivo];
+    const valuesSangria = [saldo_inicial, sdret, user_cx, motivo];
     
     if (sdret == 0) {
       return {
@@ -403,7 +424,7 @@ async function sangria (user_cx, sdret, motivo){
           success: false,
           error: ['Por favor insira o motivo da sangria']
       }
-    } else if (saldo_completo < sdret ) {
+    } else if (saldo_inicial < sdret ) {
       return {
         success: false,
         error: ['Saldo insuficiente']

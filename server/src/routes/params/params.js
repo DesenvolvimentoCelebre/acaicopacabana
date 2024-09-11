@@ -2,7 +2,7 @@ const express = require("express");
 
 const params = express.Router();
 
-const { updateAcaiPrice, getConfigById, valueAcai, taxCoupon } = require('../../service/params');
+const { updateAcaiPrice, getConfigById, valueAcai, taxCoupon, lock } = require('../../service/params');
 const { errorMiddleware } = require('../../utils/intTelegram')
 const passport = require('passport');
 
@@ -101,6 +101,17 @@ params.get("/empresa", async (req, res, next) => {
     next(new Error(`Erro ao puxar informações da empresa, ${err}`))
   }
 })
+
+params.get("/lock", async (req, res) => {
+        const result = await lock();
+
+        if (result.success){
+                res.status(200).json(result)
+        } else {
+                res.status(500).json(result)
+          }
+})
+
 
 params.use(errorMiddleware);
 

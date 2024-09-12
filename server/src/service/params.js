@@ -47,25 +47,38 @@ async function taxCoupon(id) {
 
 async function lock() {
   try {
-        const query = "SELECT t1 AS pp FROM sys WHERE id = 6";
-        const [result] = await pool.query(query);
+	const query = "SELECT t1 AS pp FROM sys WHERE id = 6";
+	const [result] = await pool.query(query);
 
-        return {
-                success: result
-        }
+	return {
+		success: result
+	}
   } catch (error) {
-        return {
-                success: false,
-                error: error
-        }
+	return {
+		success: false,
+		error: error
+	}
 }
 }
 
+async function unlock(pp) {
+  try {	
+	const query = "UPDATE sys SET t1 = ? WHERE id = 6";
+	const [result] = await pool.query(query, [pp]);
+
+	return { success: true}
+  } catch (error) {    
+	return {
+	success: false
+	} 
+    }
+}
 
 module.exports = {
   updateAcaiPrice,
   getConfigById,
   valueAcai,
   taxCoupon,
-  lock
+  lock,
+  unlock
 };

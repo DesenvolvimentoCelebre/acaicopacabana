@@ -2,7 +2,7 @@ const express = require("express");
 
 const params = express.Router();
 
-const { updateAcaiPrice, getConfigById, valueAcai, taxCoupon, lock } = require('../../service/params');
+const { updateAcaiPrice, getConfigById, valueAcai, taxCoupon, lock, unlock } = require('../../service/params');
 const { errorMiddleware } = require('../../utils/intTelegram')
 const passport = require('passport');
 
@@ -103,15 +103,25 @@ params.get("/empresa", async (req, res, next) => {
 })
 
 params.get("/lock", async (req, res) => {
-        const result = await lock();
+	const result = await lock();
 
-        if (result.success){
-                res.status(200).json(result)
-        } else {
-                res.status(500).json(result)
-          }
+	if (result.success){
+		res.status(200).json(result)
+	} else {
+		res.status(500).json(result)
+	  }
 })
 
+params.put("/lock", async (req, res) => {
+	const {pp} = req.body;
+	const result = await unlock(pp)
+
+	if (result.success) {
+	  res.status(200).json(result)
+	} else {
+	  res.status(500).json(result)
+	}
+})
 
 params.use(errorMiddleware);
 

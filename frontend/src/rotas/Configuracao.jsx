@@ -73,8 +73,9 @@ const Configuracao = () => {
   const [modalBlue, setModalBlue] = useState("");
   const [isChecked, setIsChecked] = useState(false);
 
-  const abrirModalStatus = () => {
+  const abrirModalStatus = (pp) => {
     setModalStatus(true);
+    setPp(pp);
   };
   const fecharModalStatus = () => {
     setModalStatus(false);

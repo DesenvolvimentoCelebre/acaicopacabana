@@ -51,6 +51,7 @@ const PDV = () => {
   const [tabAtiva, setTabAtiva] = useState("produto");
   const [modalFinalizarPedidoCel, setModalFinalizarPedidoCel] = useState(false);
   const [modalKgAcaiCel, setModalKgAcaiCel] = useState(false);
+  const [pp, setPp] = useState("");
 
   const userData = JSON.parse(localStorage.getItem("user"));
 
@@ -320,7 +321,9 @@ const PDV = () => {
         pedido: proximoPedido.message,
         senha,
       };
+
       const res = await apiAcai.post("/liberacao", usuarioCadastro);
+
       if (res.status === 200) {
         setDisabled(false);
         setSenha("");
@@ -597,6 +600,26 @@ const PDV = () => {
       carregandoEstoque(e.target.value);
     }
   };
+  useEffect(() => {
+    const carregandoLoock = async () => {
+      try {
+        const resLock = await apiAcai.get("/lock");
+        const ppValue = resLock.data.success[0].pp;
+        console.log("aqui", ppValue);
+        if (ppValue === 1) {
+          setDisabled(false);
+          console.log("aqui eu");
+        } else {
+          setDisabled(true);
+          console.log("aqui nao");
+        }
+      } catch (error) {
+        console.log("vixe", error);
+      }
+    };
+
+    carregandoLoock();
+  }, []);
 
   return (
     <>

@@ -203,7 +203,7 @@ const Configuracao = () => {
 
       if (res.status === 200) {
         fecharModalStatus(e);
-
+        window.location.reload();
         toast.success("Alteração realizada");
       }
     } catch (error) {
@@ -407,7 +407,7 @@ const Configuracao = () => {
               <tr>
                 <td>4</td>
                 <td>
-                  <p>{pp === 0 ? "Inativo" : "Ativo"}</p>
+                  <p>{pp === 1 ? "Inativo" : "Ativo"}</p>
                 </td>
                 <td>
                   <p>Desativa/ativar venda manual</p>
@@ -431,7 +431,7 @@ const Configuracao = () => {
                   >
                     <div className="modal-mensagem">
                       <SetaFechar Click={fecharModalStatus} />
-                      <h2>Ativar/Inativar venda manual</h2>
+                      <h2>Ativar/Inativar bloqueio de inserção manual</h2>
                     </div>
                     <div className="kg">
                       <label>Ativar/inativar</label>

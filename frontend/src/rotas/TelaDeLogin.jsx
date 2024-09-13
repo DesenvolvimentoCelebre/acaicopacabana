@@ -206,8 +206,8 @@ const TelaDeLogin = () => {
               }}
             >
               <p style={{ fontSize: "22px" }}>
-                Sua licença expira em {diasFaltando} , faça a renovação e não
-                fique sem seu sistema.
+                Sua licença expira em {diasFaltando} dias, faça a renovação e
+                não fique sem seu sistema.
               </p>
             </div>
           </Draggable>

@@ -607,14 +607,12 @@ const PDV = () => {
         const ppValue = resLock.data.success[0].pp;
         console.log("aqui", ppValue);
         if (ppValue === 1) {
-          setDisabled(false);
-          console.log("aqui eu");
-        } else {
           setDisabled(true);
-          console.log("aqui nao");
+        } else {
+          setDisabled(false);
         }
       } catch (error) {
-        console.log("vixe", error);
+        console.log("Ocorreu um erro", error);
       }
     };
 

@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 import Modal from "react-modal";
 import { toast } from "react-toastify";
 import SetaFechar from "../components/SetaFechar";
+import Switch from "react-switch";
 
 const GlobalStyle = createGlobalStyle`
   * {
@@ -58,15 +59,26 @@ const Tabela = styled.table`
 `;
 
 const Configuracao = () => {
+  const [pp, setPp] = useState("");
   const [val, setVal] = useState("");
   const [modalPreco, setModalPreco] = useState(false);
+  const [modalStatus, setModalStatus] = useState(false);
   const [valor_peso, setValor_Peso] = useState("");
   const [id, setId] = useState("");
+  //const [id, setId] = useState("");
   const [estoqueRed, setEstoqueRed] = useState([]);
   const [estoqueBlue, setEstoqueBlue] = useState([]);
+  //const [status, setStatus] = useState([]);
   const [modalRed, setModalRed] = useState("");
   const [modalBlue, setModalBlue] = useState("");
+  const [isChecked, setIsChecked] = useState(false);
 
+  const abrirModalStatus = () => {
+    setModalStatus(true);
+  };
+  const fecharModalStatus = () => {
+    setModalStatus(false);
+  };
   const abrirModal = (id, val) => {
     setModalPreco(true);
     setId(id);
@@ -166,6 +178,41 @@ const Configuracao = () => {
     } catch (error) {
       console.error(error);
     }
+  };
+  useEffect(() => {
+    const carregandoStatus = async () => {
+      try {
+        const res = await apiAcai.get("/lock");
+        setPp(res.data.success[0].pp);
+        console.log(res.data.success[0].pp);
+      } catch (error) {
+        console.log("Erro", error);
+      }
+    };
+    carregandoStatus();
+  }, []);
+
+  const alterandoLiberacao = async (e) => {
+    e.preventDefault(e);
+    try {
+      const valorAlterado = {
+        pp,
+      };
+      const res = await apiAcai.put("/lock", valorAlterado);
+
+      if (res.status === 200) {
+        fecharModalStatus(e);
+
+        toast.success("Alteração realizada");
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const handleSwitchChange = (checked) => {
+    setIsChecked(checked);
+    setPp(checked ? 1 : 0);
   };
   return (
     <>
@@ -356,6 +403,63 @@ const Configuracao = () => {
                   </tr>
                 );
               })}
+              <tr>
+                <td>4</td>
+                <td>
+                  <p>{pp === 0 ? "Inativo" : "Ativo"}</p>
+                </td>
+                <td>
+                  <p>Desativa/ativar venda manual</p>
+                </td>
+                <td>
+                  <p>
+                    <IconeEditavel color="#46295a" onClick={abrirModalStatus} />
+                  </p>
+                  <Modal
+                    isOpen={modalStatus}
+                    onRequestClose={fecharModalStatus}
+                    contentLabel="Modal Preço"
+                    style={{
+                      content: {
+                        width: "50%",
+                        height: "15%",
+                        margin: "auto",
+                        padding: 0,
+                      },
+                    }}
+                  >
+                    <div className="modal-mensagem">
+                      <SetaFechar Click={fecharModalStatus} />
+                      <h2>Ativar/Inativar venda manual</h2>
+                    </div>
+                    <div className="kg">
+                      <label>Ativar/inativar</label>
+                      <Switch
+                        onChange={handleSwitchChange}
+                        checked={isChecked}
+                        onColor="#46295a"
+                        onHandleColor="#593471"
+                        handleDiameter={30}
+                        uncheckedIcon={false}
+                        checkedIcon={false}
+                        boxShadow="0px 1px 5px rgba(0, 0, 0, 0.6)"
+                        activeBoxShadow="0px 0px 1px 10px rgba(0, 0, 0, 0.2)"
+                        height={20}
+                        width={48}
+                      />
+
+                      <input
+                        type="button"
+                        value="Salvar"
+                        className="botao-add"
+                        onClick={(e) => {
+                          alterandoLiberacao(e);
+                        }}
+                      />
+                    </div>
+                  </Modal>
+                </td>
+              </tr>
             </tbody>
           </Tabela>
         </ContainerFlex>

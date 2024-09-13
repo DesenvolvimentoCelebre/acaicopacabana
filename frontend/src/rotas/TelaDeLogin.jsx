@@ -6,6 +6,8 @@ import { login } from "../slices/authSlice";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import styled, { createGlobalStyle } from "styled-components";
+import apiAcai from "../axios/config.js";
+import Draggable from "react-draggable";
 const GlobalStyle = createGlobalStyle`
   body {
     font-family: 'Josefin Sans', serif;
@@ -155,10 +157,61 @@ const TelaDeLogin = () => {
     }
   }, [error]);
 
+  const [diasFaltando, setDiasFaltando] = useState(null);
+  const [dataApi, setDataApi] = useState("");
+  const [mostrarMensagem, setMostrarMensagem] = useState(false);
+
+  useEffect(() => {
+    const carregarFechamentoCaixa = async () => {
+      try {
+        const res = await apiAcai.get("/validation");
+        setDataApi(res.data.validade);
+        console.log("karol", res.data.validade);
+
+        const [dia, mes, ano] = res.data.validade.split("/");
+        const dataApiConvertida = new Date(`${ano}-${mes}-${dia}`);
+        const dataAtual = new Date();
+
+        const diferencaDias = Math.ceil(
+          (dataApiConvertida - dataAtual) / (1000 * 60 * 60 * 24)
+        );
+        console.log(dataApiConvertida, dataAtual, diferencaDias);
+
+        setDiasFaltando(diferencaDias);
+        if (diferencaDias <= 15) {
+          setMostrarMensagem(true);
+        }
+      } catch (error) {
+        console.log("Erro", error);
+      }
+    };
+
+    carregarFechamentoCaixa();
+  }, []);
+
   return (
     <>
       <GlobalStyle />
       <Container>
+        {mostrarMensagem && (
+          <Draggable>
+            <div
+              style={{
+                border: "1px solid black",
+                padding: "40px",
+                position: "absolute",
+                top: "30px",
+                backgroundColor: "white",
+                borderColor: "#bb74ed",
+              }}
+            >
+              <p style={{ fontSize: "22px" }}>
+                Sua licença expira em {diasFaltando} , faça a renovação e não
+                fique sem seu sistema.
+              </p>
+            </div>
+          </Draggable>
+        )}
         <LoginContainer>
           <LoginImage src={logo} alt="Imagem de fundo" />
           <LoginForm>

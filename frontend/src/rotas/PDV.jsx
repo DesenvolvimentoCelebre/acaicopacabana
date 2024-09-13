@@ -590,6 +590,14 @@ const PDV = () => {
   };
   useEffect(() => {}, [produtos]);
 
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter") {
+      setProduto(e.target.value);
+      verificarCodigoProduto(e.target.value);
+      carregandoEstoque(e.target.value);
+    }
+  };
+
   return (
     <>
       <nav>

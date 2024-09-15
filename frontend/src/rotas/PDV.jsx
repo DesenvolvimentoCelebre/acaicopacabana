@@ -429,9 +429,9 @@ const PDV = () => {
       }
     } catch (error) {
       if (error.response && error.response.status === 500) {
-        console.error("Erro ao inserir produto no banco de dados");
+        toast.error(error.response.data.error);
       } else {
-        console.error("Erro inesperado:", error);
+        toast.error("Erro inesperado:", error);
       }
     }
   };

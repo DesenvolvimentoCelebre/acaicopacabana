@@ -12,7 +12,7 @@ async function getcaixa(userno) {
     0
 ) AS s0;
 `;
-    const values = [userno]
+    const values = [userno] 
     const [results] = await pool.query(query, values);
 
     if (results.length === 0) {
@@ -186,27 +186,36 @@ ORDER BY pt.tipo;
     // Consulta para obter o total de vendas
     const totalVendasQuery = `
 SELECT 
-	sum(pedidos.total_vendas) as total_vendas
+    SUM(pedidos.total_vendas) AS total_vendas
 FROM (
-  SELECT 
-	pay.valor_pedido as total_vendas
-FROM 
-	pay
-INNER JOIN
-	pedidos
-ON
-	pay.pedido = pedidos.pedido
-INNER JOIN
-  pedno
-ON
-  pay.pedido = pedno.pedido
-WHERE
-	pedno.data_fechamento = CURRENT_DATE() AND pedno.sta = 1 AND pedno.userno = ?
-GROUP BY
-  pedidos.pedido
-  ) as pedidos
+    SELECT 
+        SUM(pay.valor_pedido) AS total_vendas
+    FROM 
+        pay
+    INNER JOIN
+        pedidos
+    ON
+        pay.pedido = pedidos.pedido
+    INNER JOIN
+        pedno
+    ON
+        pay.pedido = pedno.pedido
+    WHERE
+        pedno.data_fechamento = CURRENT_DATE() 
+        AND pedno.sta = 1
+        AND pedno.userno = ?
+    GROUP BY
+        pedidos.pedido
+) AS pedidos;
+
         `;
     const [totalVendasResult] = await pool.query(totalVendasQuery, [usuarioNome]);
+    
+    
+    
+    
+    // resltado da query abaixo
+    
     const total_vendas = totalVendasResult[0].total_vendas;
 
     // --> Consulta para obter o total de dinheiro -- Recebido (entrada no caixa)
@@ -300,12 +309,6 @@ WHERE NOT EXISTS (
      const caixaDia = parseFloat(caixadia.toFixed(2));
                       // ------->>>>>>>> Teste de resultado <<<<<<<<<<<----------//
                       
-     console.log("recebido: ", caixaDoDia.recebido);
-     console.log("troco: ", caixaDoDia.troco);
-     console.log("sangria: ", caixaDoDia.sangria);
-     console.log("Resultado do dia: ", caixaDia);
-     console.log("novo teste de troco: ", ValortrocoS)
-     console.log("Usuário logado: ", usuarioNome)
     
     const saldodinheiro = {
       recebido: Number(Valorrecebido),
@@ -315,9 +318,103 @@ WHERE NOT EXISTS (
     const rdiarioSaldoDinheiro = saldodinheiro.recebido - saldodinheiro.troco
 
 
-// novo saldo inicial - teste
+// valores do crédito
+
+const queryCredito = `
+SELECT
+	SUM(pay.valor_recebido) AS credito
+FROM
+	pay
+INNER JOIN
+	pedidos
+ON
+	pay.pedido = pedidos.pedido
+WHERE
+	pedidos.data_fechamento = CURRENT_DATE
+  AND
+  pay.tipo = 2
+  AND
+  pedidos.userno = ?`
+  
+  const [resultCredito] =  await pool.query(queryCredito, [usuarioNome]);
+  const credito = resultCredito[0].credito
 
 
+// pix
+
+const queryPix = `
+  SELECT
+    sum(pay.valor_recebido) as pix
+  FROM
+    pay
+  INNER JOIN
+    pedidos
+  ON
+    pay.pedido = pedidos.pedido
+  WHERE
+    pedidos.data_fechamento = current_date
+    AND
+    pay.tipo = 0
+    AND
+    pedidos.userno = ?
+`
+
+const [resultPix] = await pool.query(queryPix, [usuarioNome]);
+const pix = resultPix[0].pix
+
+// debito 
+
+const queryDeb = `
+  SELECT
+    sum(pay.valor_recebido) as debito
+  FROM
+    pay
+  INNER JOIN
+    pedidos
+  ON
+    pay.pedido = pedidos.pedido
+  WHERE
+    pedidos.data_fechamento = current_date
+    AND
+    pay.tipo = 3
+    AND
+    pedidos.userno = ?
+`
+
+const [resultDeb] = await pool.query(queryDeb, [usuarioNome]);
+const debito = resultDeb[0].debito
+
+// Total de vendas 
+
+const query = `
+  SELECT
+    sum(pay.valor_recebido) as cartoes
+  FROM
+    pay
+  INNER JOIN
+    pedidos
+  ON
+    pay.pedido = pedidos.pedido
+  WHERE
+    pedidos.data_fechamento = CURRENT_DATE
+    AND
+    pedidos.userno = ?
+    AND
+    pay.tipo != 1
+`;
+
+const [result] = await pool.query(query, [usuarioNome]); 
+const cartoes = result[0].cartoes;
+
+const vendas = {
+  cartoes: Number(cartoes), 
+  dinheiro: Number(rdiarioSaldoDinheiro)
+}
+
+const tvendas = vendas.cartoes + vendas.dinheiro;
+
+
+ 
     return {
       success: true,
       usuarioNome,
@@ -326,7 +423,11 @@ WHERE NOT EXISTS (
       total_vendas: Number(total_vendas),
       rdiarioSaldoDinheiro,
       caixaDia,
-      sangria
+      sangria,
+      credito,
+      pix,
+      debito,
+      tvendas
     };
   } catch (error) {
     console.error(error)

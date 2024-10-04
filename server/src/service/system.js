@@ -413,6 +413,13 @@ const vendas = {
 
 const tvendas = vendas.cartoes + vendas.dinheiro;
 
+// Cupom fidelidade
+
+const QCP = "SELECT COUNT(pedido) * 12 AS cupom_fidelidade FROM cp";
+const  [resultCP] = await pool.query(QCP);
+const cupomFidelidade = resultCP[0].cupom_fidelidade;
+
+
 
  
     return {
@@ -427,7 +434,8 @@ const tvendas = vendas.cartoes + vendas.dinheiro;
       credito,
       pix,
       debito,
-      tvendas
+      tvendas,
+      cupomFidelidade
     };
   } catch (error) {
     console.error(error)

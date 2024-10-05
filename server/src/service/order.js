@@ -69,10 +69,9 @@ async function infoNextOrder() {
     const proximoProdNo = maxResults[0].maxProdNo + 1;
 
     const innerJoinQuery = `
-      SELECT pedidos.pedido, sys.val as acai_valor
-      FROM pedidos
-      INNER JOIN sys
-      ON pedidos.bit1 = sys.id
+      SELECT preco_custo as acai_valor
+      FROM produto
+      WHERE codigo_produto = 1
     `;
     const [results] = await pool.query(innerJoinQuery);
     const valor = results[0].acai_valor;

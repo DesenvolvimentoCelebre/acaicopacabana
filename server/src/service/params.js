@@ -2,7 +2,7 @@ const  pool  = require('../database/connection');
 
 async function updateAcaiPrice(novoValor) {
   try {
-    const query = "UPDATE sys SET val = ? WHERE id = 1";
+    const query = "UPDATE produto SET preco_custo = ? WHERE id = 1";
     const values = [novoValor];
 
     await pool.query(query, values);

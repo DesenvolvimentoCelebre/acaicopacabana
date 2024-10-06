@@ -427,7 +427,7 @@ const cupomFidelidade = resultCP[0].cupom_fidelidade;
       usuarioNome,
       rdiario_saldoinicial,
       totalRecebidoPorTipo: totalRecebidoPorTipoResult,
-      total_vendas,
+      //total_vendas,
       rdiarioSaldoDinheiro,
       caixaDia,
       sangria,

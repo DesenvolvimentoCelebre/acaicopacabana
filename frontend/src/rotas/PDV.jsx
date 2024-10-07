@@ -24,6 +24,7 @@ const PDV = () => {
   const [proximoPedido, setProximoPedido] = useState("");
   const navigate = useNavigate();
   const [modalConfirmacaoAberto, setModalConfirmacaoAberto] = useState(false);
+  const [modalCupom, setModalCupom] = useState(false);
   const [modalPesquisaAberto, setModalPesquisaAberto] = useState(false);
   const [modalResumo, setModalResumo] = useState(false);
   const [resultadoPesquisaProduto, setResultadoPesquisaProduto] = useState("");
@@ -52,6 +53,8 @@ const PDV = () => {
   const [modalFinalizarPedidoCel, setModalFinalizarPedidoCel] = useState(false);
   const [modalKgAcaiCel, setModalKgAcaiCel] = useState(false);
   const [pp, setPp] = useState("");
+  const [cp, setCp] = useState("");
+  const [valorCupom, setValorCupm] = useState("");
 
   const userData = JSON.parse(localStorage.getItem("user"));
 
@@ -99,8 +102,14 @@ const PDV = () => {
   };
   const abrirAdicionarProdudoCel = () => {
     setModalAdicionarProdudoCel(true);
+    setModalPagamento(true);
   };
-
+  const abrirModalCupom = () => {
+    setModalCupom(true);
+  };
+  const fecharModalCupom = () => {
+    setModalCupom(false);
+  };
   const fecharAdicionarProdudoCel = () => {
     setTabAtiva("produto");
     setModalAdicionarProdudoCel(false);
@@ -116,6 +125,21 @@ const PDV = () => {
     setTabAtiva("resumo");
     setModalInserirProduto(false);
     console.log("foi");
+  };
+  const comCupom = () => {
+    setCp(1);
+    setModalCupom(false);
+    abrirModalConfirmacao(true);
+    setValorCupm(12.0);
+    //setValor_Recebido(parseFloat(12.0));
+    console.log("valor", cp);
+  };
+  const semCupum = () => {
+    setCp(0);
+    setModalCupom(false);
+    abrirModalConfirmacao(true);
+    setValorCupm(0.0);
+    console.log("valor", cp);
   };
 
   const fecharModalInserirProduto = () => {
@@ -174,16 +198,18 @@ const PDV = () => {
     setModalPreco_Recebido(false);
     setTipo("");
     setValor_Recebido("");
+    setModalCupom("");
   };
   const adicionaPagamento = () => {
     const novoPagamento = {
       tipo: tipo,
-      valor_recebido: parseFloat(valor_recebido),
+      valor_recebido: parseFloat(valor_recebido), //mudei 2
     };
     setPagamentos([...pagamentos, novoPagamento]);
     fecharModalPreco_Recebido();
     setTipo("");
     setValor_Recebido("");
+    //setModalCupom("");
   };
 
   const adicionarProduto = () => {
@@ -228,13 +254,14 @@ const PDV = () => {
     });
     return total.toFixed(2);
   };
-  const valorTotalCel = valorTotal();
+  //const valorTotalCel = valorTotal();
   const valorRecebidoPagamento = () => {
-    let total = 0;
+    let total = valorCupom;
+
     pagamentos.forEach((pagameto) => {
       total += pagameto.valor_recebido;
     });
-    return total.toFixed(2);
+    return total;
   };
   const valorTroco = () => {
     const totalValorTotal = parseFloat(valorTotal());
@@ -365,6 +392,7 @@ const PDV = () => {
             valor_pedido: valorTotal(),
             bit3: bit3,
             bit4: bit3,
+            cp: cp,
           },
         ];
       } else {
@@ -380,6 +408,7 @@ const PDV = () => {
             valor_pedido: valorTotal(),
             bit3: bit3,
             bit4: valorTroco(),
+            cp: cp,
           };
         });
 
@@ -457,18 +486,24 @@ const PDV = () => {
     carregarProximoPedido();
   }, []);
 
-  const handlePesquisaProduto = async (e) => {
-    if (e.key == "Enter") {
-      e.preventDefault();
-      try {
-        const encodedPesquisaProduto = encodeURIComponent(pesquisaProduto);
-        const res = await apiAcai.get(`/busca?nome=${encodedPesquisaProduto}`);
+  const handlePesquisaProduto = async (pesquisaProduto) => {
+    try {
+      const encodedPesquisaProduto = encodeURIComponent(pesquisaProduto);
+      const res = await apiAcai.get(`/busca?nome=${encodedPesquisaProduto}`);
 
-        setResultadoPesquisaProduto(res.data.message);
-        console.log(res.data.message);
-      } catch (error) {
-        console.error("Erro ao encontrar produto:", error.message);
-      }
+      setResultadoPesquisaProduto(res.data.message);
+      console.log("aqui karol", res.data.message);
+    } catch (error) {
+      console.error("Erro ao encontrar produto:", error.message);
+    }
+  };
+
+  const handleInputChange = (e) => {
+    const value = e.target.value;
+    setPesquisaProduto(value);
+
+    if (value.trim()) {
+      handlePesquisaProduto(value); // Chama a função de pesquisa a cada letra digitada
     }
   };
 
@@ -647,7 +682,7 @@ const PDV = () => {
                 type="button"
                 value="FINALIZAR"
                 id="verde"
-                onClick={abrirModalConfirmacao}
+                onClick={abrirModalCupom} //mudei
               />
               <Modal
                 isOpen={modalConfirmacaoAberto}
@@ -677,6 +712,35 @@ const PDV = () => {
                       className="vermelho"
                     >
                       Cancelar
+                    </button>
+                  </div>
+                </div>
+              </Modal>
+              <Modal
+                isOpen={modalCupom}
+                onRequestClose={fecharModalCupom}
+                contentLabel="Confirmar o cupom"
+                style={{
+                  content: {
+                    width: "50%",
+                    height: "120px",
+                    margin: "auto",
+                    padding: 0,
+                  },
+                }}
+              >
+                <div className="modal-mensagem">
+                  <SetaFechar Click={fecharModalCupom} />
+                  <h2>Cupom de Fidelidade</h2>
+                </div>
+                <div className="container-modal">
+                  <h2>Cliente possui cupom fidelidade?</h2>
+                  <div className="btn-modal">
+                    <button onClick={comCupom} className="verde">
+                      Sim
+                    </button>
+                    <button onClick={semCupum} className="vermelho">
+                      Não
                     </button>
                   </div>
                 </div>
@@ -1006,26 +1070,41 @@ const PDV = () => {
                   <input
                     type="text"
                     value={pesquisaProduto}
-                    onChange={(e) => {
-                      setPesquisaProduto(e.target.value);
-                    }}
-                    onKeyPress={handlePesquisaProduto}
+                    onChange={handleInputChange}
                   />
                 </div>
-                <ul className="produtos-pesquisa">
-                  {Array.isArray(resultadoPesquisaProduto) ? (
-                    resultadoPesquisaProduto.map((produto) => (
-                      <li
-                        key={produto.id}
-                        onClick={() => handleProdutoSelecionado(produto)}
-                      >
-                        {produto.nome}
-                      </li>
-                    ))
-                  ) : (
-                    <li>Nenhum resultado encontrado</li>
-                  )}
-                </ul>
+                {pesquisaProduto.trim() === "" ? null : (
+                  <table className="produtos-pesquisa">
+                    <thead>
+                      <tr>
+                        <th>ID</th>
+                        <th>Nome</th>
+                        <th>Preço</th>
+                        <th>Estoque</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {Array.isArray(resultadoPesquisaProduto) &&
+                      resultadoPesquisaProduto.length > 0 ? (
+                        resultadoPesquisaProduto.map((produto) => (
+                          <tr
+                            key={produto.id}
+                            onClick={() => handleProdutoSelecionado(produto)}
+                          >
+                            <td>{produto.codigo_produto}</td>
+                            <td>{produto.nome}</td>
+                            <td>{produto.preco_custo}</td>
+                            <td>{produto.quantidade}</td>
+                          </tr>
+                        ))
+                      ) : (
+                        <tr>
+                          <td colSpan="2">Nenhum resultado encontrado</td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                )}
               </Modal>
             </div>
           </div>
@@ -1046,7 +1125,7 @@ const PDV = () => {
                   onKeyDown={(e) => {
                     if (e.key === "Enter") {
                       e.preventDefault();
-                      handlePesquisaProduto(e);
+                      //handlePesquisaProduto(e);
                       handleProdutoSelecionado(e);
                     }
                   }}

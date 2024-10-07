@@ -132,6 +132,7 @@ const SideBar = () => {
   const [fechamentoSangria, setFechamanetoSangria] = useState("");
   const [totalVendas, setTotalVendas] = useState("");
   const [totalFechamento, setTotalFechamento] = useState("");
+  const [cupomFidelidade, setCupomFidelidade] = useState("");
   //const [usuarioId, setUsuarioId] = useState("");
   const [modalCancelamento, setModalCancelamento] = useState(false);
   const [valorSangria, setValorSangria] = useState(false);
@@ -166,6 +167,7 @@ const SideBar = () => {
       try {
         const res = await apiAcai.get(`/rdiario?userno=${user.id}`);
         setSaldoInicial(res.data.rdiario_saldoinicial);
+        setCupomFidelidade(res.data.cupomFidelidade);
         setTotalFechamento(res.data.caixaDia);
         setFechamentoDinheiro(res.data.rdiarioSaldoDinheiro);
         setFechamanetoSangria(res.data.sangria);
@@ -363,11 +365,15 @@ const SideBar = () => {
               <p>Cartão de Débito/alimentação R${fechamentoDebito}</p>
             </div>
             <div className="modal-mensagem modal-coluna">
+              <p>Cupom Fidelidade R${cupomFidelidade}</p>
+            </div>
+            <div className="modal-mensagem modal-coluna">
               <p>Dinheiro R${fechamentoDinheiro}</p>
             </div>
             <div className="modal-mensagem modal-coluna">
               <p>PIX R${fechamentoPix}</p>
             </div>
+
             <div className="modal-mensagem modal-coluna-col">
               <p>FECHAMENTO DO DIA</p>
             </div>

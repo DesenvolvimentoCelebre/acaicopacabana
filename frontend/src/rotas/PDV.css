@@ -782,6 +782,7 @@ nav {
   display: flex;
   padding: 20px;
   justify-content: center;
+  align-items: center;
   gap: 30px;
 }
 
@@ -792,23 +793,67 @@ nav {
 }
 
 .container-modal-produto h2 {
-  font-size: 28px;
+  font-size: 22px;
   color: #46295A;
   font-weight: 700;
   text-align: center;
 }
 
 .container-modal-produto input {
+  padding-left: 10px;
   width: 500px;
   height: 25px;
-  border-bottom: 2px solid #46295A;
-  border-top: 0;
-  border-left: 0;
-  border-right: 0;
-  border-radius: 0;
+  border: 2px solid #46295A;
+  border-radius: 12px;
   outline-color: #46295A;
-  ;
+
 }
+
+.produtos-pesquisa {
+  width: 95%;
+  border-collapse: collapse;
+  border: none;
+  table-layout: fixed;
+  margin: auto;
+  margin-top: 70px;
+
+}
+
+.produtos-pesquisa table {
+  border-spacing: 0;
+  border: 1px solid black;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+
+
+.produtos-pesquisa th,
+td {
+  border: none;
+  padding: 8px;
+  text-align: center;
+}
+
+.produtos-pesquisa td {
+  border-bottom: 2px solid #9582a1;
+  border-left: 2px solid #9582a1;
+  border-right: 2px solid #9582a1;
+  color: #261136;
+  font-weight: 900;
+
+  font-size: 20px;
+}
+
+th {
+  background-color: #46295a;
+  color: #fff;
+}
+
+.produtos-pesquisa tr {
+  cursor: pointer;
+}
+
 
 .vermelho {
   background-color: #FF0000;

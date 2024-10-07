@@ -149,40 +149,6 @@ async function relDiario(userno) {
     
     const saldo_inicial = SaldoInicial[0].saldo_inicial;
     
-
-    // Consulta para obter o total recebido por tipo
-    const totalRecebidoPorTipoQuery = `
-            WITH PaymentTypes AS (
-    SELECT 1 AS tipo, 'Dinheiro' AS descricao
-    UNION ALL
-    SELECT 0, 'Pix'
-    UNION ALL
-    SELECT 2, 'Crédito'
-    UNION ALL
-    SELECT 3, 'Débito'
-),
-
-PayData AS (
-    SELECT
-        pay.tipo,
-        COALESCE(SUM(pay.valor_recebido), 0) AS saldo
-    FROM pay
-    INNER JOIN pedno ON pay.pedido = pedno.pedido
-    WHERE pedno.data_fechamento = CURRENT_DATE
-      AND pedno.userno = ?
-      AND pedno.sta = 1
-    GROUP BY pay.tipo
-)
-
-SELECT 
-    pt.descricao AS Tipo,
-    COALESCE(pd.saldo, 0) AS saldo
-FROM PaymentTypes pt
-LEFT JOIN PayData pd ON pt.tipo = pd.tipo
-ORDER BY pt.tipo;
-        `;
-    const [totalRecebidoPorTipoResult] = await pool.query(totalRecebidoPorTipoQuery, [usuarioNome]);
-
     // Consulta para obter o total de vendas
     const totalVendasQuery = `
 SELECT 
@@ -426,7 +392,6 @@ const cupomFidelidade = resultCP[0].cupom_fidelidade;
       success: true,
       usuarioNome,
       rdiario_saldoinicial,
-      totalRecebidoPorTipo: totalRecebidoPorTipoResult,
       //total_vendas,
       rdiarioSaldoDinheiro,
       caixaDia,

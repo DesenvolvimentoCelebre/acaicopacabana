@@ -163,6 +163,7 @@ const Estoque = () => {
   const [deletarProduto, setDeletarProduto] = useState("");
   const [modalConfirmacao, setModalConfirmacao] = useState(false);
   const [enviando, setEnviando] = useState(false);
+  const [preco_compra, setPreco_compra] = useState("");
   //const [img_produto, setImg_produto] = useState(null);
   //const userData = JSON.parse(localStorage.getItem("user"));
 
@@ -337,6 +338,7 @@ const Estoque = () => {
     formData.append("categoria", categoria);
     formData.append("preco_custo", preco_custo);
     formData.append("quantidade", quantidade);
+    formData.append("preco_compra", preco_compra);
     //formData.append("img_produto", img_produto);
     formData.append("tipo", 1);
 
@@ -346,6 +348,7 @@ const Estoque = () => {
         nome: nome,
         categoria: categoria,
         preco_custo: preco_custo,
+        preco_compra: preco_compra,
         quantidade: quantidade,
         tipo: 1,
       };
@@ -354,7 +357,7 @@ const Estoque = () => {
       if (res.status === 201) {
         console.log(res, nome, quantidade, preco_custo, categoria);
         toast.success(res.data.message);
-        //window.location.reload();
+        window.location.reload();
         fecharModal();
       }
     } catch (error) {
@@ -502,6 +505,18 @@ const Estoque = () => {
                   </Form1> 
                 </Form>
                 */}
+                <Form>
+                  <Form1>
+                    <label>Preço de Custo</label>
+                    <input
+                      type="text"
+                      placeholder="Preço de custo"
+                      value={preco_compra}
+                      onChange={(e) => setPreco_compra(e.target.value)}
+                      required
+                    />
+                  </Form1>
+                </Form>
                 <ButaoEnvioProduto>
                   {enviando ? (
                     "Aguarde..."

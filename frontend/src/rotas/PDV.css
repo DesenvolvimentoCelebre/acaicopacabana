@@ -852,6 +852,11 @@ th {
 
 .produtos-pesquisa tr {
   cursor: pointer;
+
+}
+
+.produtos-pesquisa tr:hover {
+  background-color: #c4bfbf;
 }
 
 

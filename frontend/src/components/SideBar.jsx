@@ -171,9 +171,9 @@ const SideBar = () => {
         setTotalFechamento(res.data.caixaDia);
         setFechamentoDinheiro(res.data.rdiarioSaldoDinheiro);
         setFechamanetoSangria(res.data.sangria);
-        setFechamentoPix(res.data.totalRecebidoPorTipo[0].saldo);
-        setFechamentoCredito(res.data.totalRecebidoPorTipo[2].saldo);
-        setFechamentoDebito(res.data.totalRecebidoPorTipo[3].saldo);
+        setFechamentoPix(res.data.pix);
+        setFechamentoCredito(res.data.credito);
+        setFechamentoDebito(res.data.debito);
         setTotalVendas(res.data.total_vendas);
       } catch (error) {
         console.log("Erro", error);

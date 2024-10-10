@@ -150,7 +150,7 @@ async function relDiario(userno) {
     const saldo_inicial = SaldoInicial[0].saldo_inicial;
     
     // Consulta para obter o total de vendas
-    const totalVendasQuery = `
+/*    const totalVendasQuery = `
 SELECT 
     SUM(pedidos.total_vendas) AS total_vendas
 FROM (
@@ -177,12 +177,12 @@ FROM (
         `;
     const [totalVendasResult] = await pool.query(totalVendasQuery, [usuarioNome]);
     
-    
+  */  
     
     
     // resltado da query abaixo
     
-    const total_vendas = totalVendasResult[0].total_vendas;
+   // const total_vendas = totalVendasResult[0].total_vendas;
 
     // --> Consulta para obter o total de dinheiro -- Recebido (entrada no caixa)
     const valorrecebido = `
@@ -190,7 +190,7 @@ FROM (
             FROM pay
             INNER JOIN pedidos
             ON pay.pedido = pedidos.pedido
-            WHERE pedidos.data_fechamento = CURRENT_DATE AND pay.tipo = 1 AND pedidos.userno = ?`
+            WHERE pedidos.data_fechamento = CURRENT_DATE AND pay.tipo = 1 AND pedidos.userno = ? AND cp = 0`
             
     const [ValorRecebido] = await pool.query(valorrecebido, [usuarioNome]);
     const Valorrecebido = ValorRecebido[0].recebido;
@@ -200,7 +200,7 @@ FROM (
             FROM pay
             INNER JOIN pedidos
             ON pay.pedido = pedidos.pedido
-            WHERE pedidos.data_fechamento = CURRENT_DATE AND pay.tipo = 1 AND pedidos.userno = ? AND pedidos.bit1 != 1`
+            WHERE pedidos.data_fechamento = CURRENT_DATE AND pay.tipo = 1 AND pedidos.userno = ? AND pedidos.bit1 != 1 AND cp = 0`
             
     const [ValorRecebidoS] = await pool.query(valorrecebidoS, [usuarioNome]);
     const ValorrecebidoS = ValorRecebidoS[0].recebido;
@@ -211,7 +211,7 @@ FROM (
             FROM pay
             INNER JOIN pedidos
             ON pay.pedido = pedidos.pedido
-            WHERE pedidos.data_fechamento = CURRENT_DATE AND pay.tipo = 1 AND pedidos.userno = ?`
+            WHERE pedidos.data_fechamento = CURRENT_DATE AND pay.tipo = 1 AND pedidos.userno = ? AND cp = 0`
             
     const [ValorTroco] = await pool.query(valortroco, [usuarioNome]);
     const Valortroco = ValorTroco[0].troco
@@ -221,11 +221,15 @@ FROM (
             FROM pay
             INNER JOIN pedidos
             ON pay.pedido = pedidos.pedido
-            WHERE pedidos.data_fechamento = CURRENT_DATE AND pay.tipo = 1 AND pedidos.userno = ? AND pedidos.bit1 != 1`
+            WHERE pedidos.data_fechamento = CURRENT_DATE AND pay.tipo = 1 AND pedidos.userno = ? AND pedidos.bit1 != 1 AND cp = 0`
             
     const [ValorTrocoS] = await pool.query(valortrocoS, [usuarioNome]);
     const ValortrocoS = ValorTrocoS[0].troco
     
+//	--------------------->>>>>>> Valores com CP <<<<<<<<<---------------
+	const cpQuery = "select sum(valor_recebido + 12 - valor_pedido) as valorcp from pay inner join pedidos on pedidos.pedido = pay.pedido where pedidos.data_fechamento = current_date and pay.tipo = 1 and pedidos.userno = ? and pedidos.bit1 !=1 and pay.cp=1"
+	const [cpresult] = await pool.query(cpQuery, [usuarioNome]);
+	const vcp = cpresult[0].valorcp || "0";
     // sangria
     
     const querySangria = `
@@ -261,7 +265,8 @@ WHERE NOT EXISTS (
       rdiario_saldoinicial = SdinicialFalse[0].sdinicial
     }
     
-
+//  ------------------------->>>>>>>>>>>>>> Retirando valor di CP  rel diario (outras formas de pagamento) <<<<<<<<<<<<<<<<<<<< -------------------------------- |
+const cpquery = "";
     
     
      const caixaDoDia = {
@@ -277,11 +282,12 @@ WHERE NOT EXISTS (
                       
     
     const saldodinheiro = {
-      recebido: Number(Valorrecebido),
-      troco: Number(Valortroco)
+      recebido: Number(ValorrecebidoS),
+      troco: Number(ValortrocoS),
+      cp: Number(vcp)
     }  
     
-    const rdiarioSaldoDinheiro = saldodinheiro.recebido - saldodinheiro.troco
+    const rdiarioSaldoDinheiro = saldodinheiro.recebido - saldodinheiro.troco + saldodinheiro.cp
 
 
 // valores do crédito
@@ -381,7 +387,7 @@ const tvendas = vendas.cartoes + vendas.dinheiro;
 
 // Cupom fidelidade
 
-const QCP = "SELECT COUNT(pedido) * 12 AS cupom_fidelidade FROM cp";
+const QCP = "SELECT COUNT(pedido) * 12 AS cupom_fidelidade FROM cp WHERE date = current_date";
 const  [resultCP] = await pool.query(QCP);
 const cupomFidelidade = resultCP[0].cupom_fidelidade;
 

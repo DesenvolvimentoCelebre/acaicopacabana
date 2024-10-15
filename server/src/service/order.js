@@ -80,7 +80,11 @@ async function infoNextOrder() {
     const [resultlockvalue] = await pool.query(querylockvalue); 
     const lockvalue = resultlockvalue[0].lock;
 
-    return { success: true, message: proximoProdNo, valor: valor, pp: lockvalue };
+    const queryCP = "SELECT cp AS bit FROM sys WHERE id = 7";
+    const [resultCP] = await pool.query(queryCP);
+    const cupom = resultCP[0].bit
+
+    return { success: true, message: proximoProdNo, valor: valor, pp: lockvalue, bit:bit };
   } catch (error) {
     return { success: false, error: "Erro ao buscar próximo número do pedido", details: error };
   }

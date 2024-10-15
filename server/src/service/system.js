@@ -575,7 +575,6 @@ async function ssd(userno) {
   }
 }
 
-
 module.exports = {
   getcaixa,
   saldo,

@@ -84,7 +84,7 @@ async function infoNextOrder() {
     const [resultCP] = await pool.query(queryCP);
     const cupom = resultCP[0].bit
 
-    return { success: true, message: proximoProdNo, valor: valor, pp: lockvalue, bit:bit };
+    return { success: true, message: proximoProdNo, valor: valor, pp: lockvalue, bit:cupom };
   } catch (error) {
     return { success: false, error: "Erro ao buscar próximo número do pedido", details: error };
   }

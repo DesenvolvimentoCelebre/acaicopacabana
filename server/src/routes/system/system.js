@@ -144,7 +144,7 @@ system.get("/sds", async (req, res) => {
 
 system.put("/cp", async (req, res) => {
   const { valor, bit} = req.body;
-  const results = cpUpdate(valor, bit);
+  const results = await cpUpdate(valor, bit);
 
   if (results.success) {
     res.status(200).json(results)

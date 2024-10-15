@@ -575,6 +575,25 @@ async function ssd(userno) {
   }
 }
 
+async function cpUpdate({ valor, bit}) {
+  try {
+      let query = 'UPDATE sys SET cp = ?';
+      const values = [bit];
+
+      if (valor && String(valor).trim() !== '') { 
+          query += ', value = ?'; 
+          values.push(valor);
+      }
+      query += ' WHERE id = 7';
+      await pool.query(query, values);
+      return { success: true, message: 'Parâmetro do cupom fidelidade atualizado com sucesso' };
+  } catch (error) {
+      console.error(error);
+      return { success: false, error: ['Erro interno do servidor', error] };
+  }
+}
+
+
 module.exports = {
   getcaixa,
   saldo,
@@ -583,5 +602,6 @@ module.exports = {
   relDiario,
   getOperador,
   sangria,
-  ssd
+  ssd,
+  cpUpdate
 }

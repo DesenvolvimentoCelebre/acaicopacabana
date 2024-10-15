@@ -1,6 +1,6 @@
 const express = require("express");
 
-const { getcaixa, saldo, abrirCaixa, fechamento, relDiario, getOperador, sangria, ssd, getCp } = require('../../service/system');
+const { getcaixa, saldo, abrirCaixa, fechamento, relDiario, getOperador, sangria, ssd, cpUpdate } = require('../../service/system');
 const { errorMiddleware } = require('../../utils/intTelegram');
 
 const system = express.Router();
@@ -140,6 +140,17 @@ system.get("/sds", async (req, res) => {
     }
   }
   
+})
+
+system.put("/cp", async (req, res) => {
+  const { valor, bit} = req.body;
+  const results = cpUpdate(valor, bit);
+
+  if (results.success) {
+    res.status(200).json(results)
+  } else {
+    res.status(500).json(results)
+  }
 })
 
 system.use(errorMiddleware)

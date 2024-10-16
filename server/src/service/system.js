@@ -575,21 +575,21 @@ async function ssd(userno) {
   }
 }
 
-async function cpUpdate({ valor, bit } = {}) { // Adicionando valor padrão vazio para evitar o erro
+async function cpUpdate({ valor, bit } = {}) {
   try {
       let query = 'UPDATE sys SET';
       const values = [];
       const updates = [];
 
-      // Se 'bit' for fornecido, atualiza o campo 'cp'
-      if (typeof bit !== 'undefined' && bit !== null) {
+      // Verifica se 'bit' foi fornecido, permitindo qualquer valor, inclusive 0
+      if (bit !== undefined) { // Verifica se 'bit' é diferente de undefined
           updates.push(' cp = ?');
           values.push(bit);
       }
 
-      // Se 'valor' for fornecido, atualiza o campo 'value'
-      if (typeof valor !== 'undefined' && valor !== null && String(valor).trim() !== '') {
-          updates.push(' val = ?');
+      // Verifica se 'valor' foi fornecido, permitindo qualquer valor, inclusive 0
+      if (valor !== undefined) { // Verifica se 'valor' é diferente de undefined
+          updates.push(' value = ?');
           values.push(valor);
       }
 
@@ -613,6 +613,7 @@ async function cpUpdate({ valor, bit } = {}) { // Adicionando valor padrão vazi
       return { success: false, error: ['Erro interno do servidor', error] };
   }
 }
+
 
 
 

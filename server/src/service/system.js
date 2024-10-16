@@ -589,7 +589,7 @@ async function cpUpdate({ valor, bit } = {}) { // Adicionando valor padrão vazi
 
       // Se 'valor' for fornecido, atualiza o campo 'value'
       if (typeof valor !== 'undefined' && valor !== null && String(valor).trim() !== '') {
-          updates.push(' value = ?');
+          updates.push(' val = ?');
           values.push(valor);
       }
 

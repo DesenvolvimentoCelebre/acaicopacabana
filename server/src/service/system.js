@@ -575,30 +575,36 @@ async function ssd(userno) {
   }
 }
 
-async function cpUpdate({ valor, bit }) {
+async function cpUpdate({ valor, bit } = {}) { // Adicionando valor padrão vazio para evitar o erro
   try {
       let query = 'UPDATE sys SET';
       const values = [];
       const updates = [];
 
+      // Se 'bit' for fornecido, atualiza o campo 'cp'
       if (typeof bit !== 'undefined' && bit !== null) {
           updates.push(' cp = ?');
           values.push(bit);
       }
 
+      // Se 'valor' for fornecido, atualiza o campo 'value'
       if (typeof valor !== 'undefined' && valor !== null && String(valor).trim() !== '') {
           updates.push(' value = ?');
           values.push(valor);
       }
 
+      // Se não houver nenhum campo para atualizar, retorna sem fazer nada
       if (updates.length === 0) {
           return { success: false, message: 'Nenhum parâmetro válido foi fornecido para atualização' };
       }
 
+      // Concatena as atualizações no SQL
       query += updates.join(',');
 
+      // Define a condição de atualização (por exemplo, 'id = 7')
       query += ' WHERE id = 7';
 
+      // Executa a query com os valores definidos
       await pool.query(query, values);
 
       return { success: true, message: 'Parâmetro atualizado com sucesso' };
@@ -607,6 +613,7 @@ async function cpUpdate({ valor, bit }) {
       return { success: false, error: ['Erro interno do servidor', error] };
   }
 }
+
 
 
 

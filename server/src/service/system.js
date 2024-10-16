@@ -575,23 +575,39 @@ async function ssd(userno) {
   }
 }
 
-async function cpUpdate({ valor, bit}) {
+async function cpUpdate({ valor, bit }) {
   try {
-      let query = 'UPDATE sys SET cp = ?';
-      const values = [bit];
+      let query = 'UPDATE sys SET';
+      const values = [];
+      const updates = [];
 
-      if (valor && String(valor).trim() !== '') { 
-          query += ', value = ?'; 
+      if (typeof bit !== 'undefined' && bit !== null) {
+          updates.push(' cp = ?');
+          values.push(bit);
+      }
+
+      if (typeof valor !== 'undefined' && valor !== null && String(valor).trim() !== '') {
+          updates.push(' value = ?');
           values.push(valor);
       }
+
+      if (updates.length === 0) {
+          return { success: false, message: 'Nenhum parâmetro válido foi fornecido para atualização' };
+      }
+
+      query += updates.join(',');
+
       query += ' WHERE id = 7';
+
       await pool.query(query, values);
-      return { success: true, message: 'Parâmetro do cupom fidelidade atualizado com sucesso' };
+
+      return { success: true, message: 'Parâmetro atualizado com sucesso' };
   } catch (error) {
       console.error(error);
       return { success: false, error: ['Erro interno do servidor', error] };
   }
 }
+
 
 
 module.exports = {

@@ -653,9 +653,10 @@ nav {
 
 .modal-mensagem {
   background-color: #46295A;
-  height: 40px;
+  height: 30px;
   width: 100%;
   display: flex;
+  box-shadow: 3px 3px 5px rgba(0, 0, 0, 0.3);
   align-items: center;
   flex-direction: row-reverse;
   justify-content: space-between;
@@ -667,10 +668,58 @@ nav {
 
 }
 
+.calculator {
+  width: 320px;
+  margin: 30px auto;
+  padding: 20px;
+  background-color: #46295A;
+  border-radius: 10px;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+}
+
+.display {
+  width: 100%;
+  height: 60px;
+  background-color: #fff;
+  color: #46295A;
+  font-size: 2rem;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  padding: 0 10px;
+  margin-bottom: 20px;
+}
+
+.buttons {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+button {
+  width: 100%;
+  height: 60px;
+  font-size: 1.5rem;
+  background-color: #e0e0e0;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #d0d0d0;
+}
+
+button:active {
+  background-color: #c0c0c0;
+}
+
+
 .modal-dados,
 .modal-saldo {
   display: flex;
-  justify-content: center;
+  justify-content: flex-end;
+
 }
 
 .modal-saldo {
@@ -751,7 +800,7 @@ nav {
 }
 
 .modal-mensagem h2 {
-  font-size: 25px;
+  font-size: 20px;
   color: #F3EEF7;
   text-align: center;
   font-weight: 500;
@@ -764,9 +813,9 @@ nav {
 
 .btn-modal {
   display: flex;
-  justify-content: flex-end;
+  justify-content: center;
   gap: 10px;
-  margin-right: 10px;
+
 }
 
 .btn-modal button {
@@ -774,9 +823,23 @@ nav {
   color: #fff;
   border: none;
   border-radius: 10px;
-  height: 30px;
+  height: 35px;
+  width: 110px;
+}
+
+.btn-modal-fecha button {
+  cursor: pointer;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  height: 50px;
   width: 100px;
 }
+
+.btn-modal button:hover {
+  background-color: #261136;
+}
+
 
 .container-modal-produto {
   display: flex;

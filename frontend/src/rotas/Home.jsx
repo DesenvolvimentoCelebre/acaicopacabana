@@ -29,6 +29,16 @@ const Home = () => {
   const [saldoIncial, setSaldoIncial] = useState("");
   const [dataHora, setDataHora] = useState(new Date());
 
+  const [display, setDisplay] = useState("");
+
+  const handleClick = (value) => {
+    setSaldoIncial(saldoIncial + value);
+  };
+
+  const handleClear = () => {
+    setDisplay("");
+  };
+
   const [valorSaldoIncial, setValorSaldoIncial] = useState(false);
   useEffect(() => {
     const tempo = setInterval(() => setDataHora(new Date()), 1000);
@@ -116,18 +126,46 @@ const Home = () => {
         contentLabel="Confirmar Pedido"
         style={{
           content: {
-            width: "50%",
-            height: "30%",
+            width: "60%",
+            height: "85%",
             margin: "auto",
+            border: "8px solid #46295a",
             padding: 0,
           },
         }}
       >
         <div className="modal-mensagem modal-dados">
-          <h2>SALDO INICIAL</h2>
+          <h2>Abertura de caixa</h2>
         </div>
-        <div className="modal-mensagem modal-saldo">R${saldoCaixa}</div>
-        <div className="dados-modal">
+        <div className="calculator">
+          <input
+            type="number"
+            onChange={(e) => setSaldoIncial(e.target.value)}
+            value={saldoIncial}
+            className="display"
+          />
+          <div className="buttons">
+            <button onClick={() => handleClick("7")}>7</button>
+            <button onClick={() => handleClick("8")}>8</button>
+            <button onClick={() => handleClick("9")}>9</button>
+            <button onClick={() => handleClick("4")}>4</button>
+            <button onClick={() => handleClick("5")}>5</button>
+            <button onClick={() => handleClick("6")}>6</button>
+            <button onClick={() => handleClick("1")}>1</button>
+            <button onClick={() => handleClick("2")}>2</button>
+            <button onClick={() => handleClick("3")}>3</button>
+            <button onClick={() => handleClick("0")}>0</button>
+            <button onClick={() => handleClick(".")}>.</button>
+            <button onClick={handleClear}>Del</button>
+          </div>
+        </div>
+        <div className="btn-modal-fecha">
+          <button className="dados-btn" onClick={confirmarAberturaCaixa}>
+            Abrir
+          </button>
+        </div>
+        {/* <div className="modal-mensagem modal-saldo">R${saldoCaixa}</div> */}
+        {/* <div className="dados-modal">
           <h2>Digite a baixo o valor da abertura do caixa na data de {data}</h2>
           <div className="kg">
             <input
@@ -143,12 +181,8 @@ const Home = () => {
               value={saldoIncial}
             />
           </div>
-          <div className="btn-modal">
-            <button className="dados-btn" onClick={confirmarAberturaCaixa}>
-              Confirmar
-            </button>
           </div>
-        </div>
+        </div> */}
       </Modal>
       {/* <Modal
         isOpen={valorSaldoIncial}

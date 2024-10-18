@@ -213,7 +213,7 @@ const Configuracao = () => {
 
   const handleSwitchChange = (checked) => {
     setIsChecked(checked);
-    setPp(checked ? 1 : 0);
+    setPp(checked ? 0 : 1);
   };
   return (
     <>
@@ -231,6 +231,7 @@ const Configuracao = () => {
               </tr>
             </thead>
             <tbody>
+              {/*
               <tr>
                 <td>1</td>
                 <td>
@@ -281,7 +282,7 @@ const Configuracao = () => {
                   </Modal>
                 </td>
               </tr>
-
+*/}
               {estoqueBlue.map((blue) => {
                 return (
                   <tr key={blue.id}>

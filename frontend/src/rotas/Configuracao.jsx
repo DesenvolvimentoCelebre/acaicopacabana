@@ -63,6 +63,7 @@ const Configuracao = () => {
   const [val, setVal] = useState("");
   const [modalPreco, setModalPreco] = useState(false);
   const [modalStatus, setModalStatus] = useState(false);
+  const [modalCupom, setModalCupom] = useState(false);
   const [valor_peso, setValor_Peso] = useState("");
   const [id, setId] = useState("");
   //const [id, setId] = useState("");
@@ -72,6 +73,13 @@ const Configuracao = () => {
   const [modalRed, setModalRed] = useState("");
   const [modalBlue, setModalBlue] = useState("");
   const [isChecked, setIsChecked] = useState(false);
+
+  const abrirModalCupom = () => {
+    setModalCupom(true);
+  };
+  const fecharModalCupom = () => {
+    setModalCupom(false);
+  };
 
   const abrirModalStatus = (pp) => {
     setModalStatus(true);
@@ -286,7 +294,7 @@ const Configuracao = () => {
               {estoqueBlue.map((blue) => {
                 return (
                   <tr key={blue.id}>
-                    <td>{blue.id}</td>
+                    <td>1</td>
                     <td>{blue.val}</td>
                     <td>Valor max estoque (verde)</td>
                     <td>
@@ -406,7 +414,7 @@ const Configuracao = () => {
                 );
               })}
               <tr>
-                <td>4</td>
+                <td>3</td>
                 <td>
                   <p>{pp === 1 ? "Inativo" : "Ativo"}</p>
                 </td>
@@ -457,6 +465,61 @@ const Configuracao = () => {
                         onClick={(e) => {
                           alterandoLiberacao(e);
                         }}
+                      />
+                    </div>
+                  </Modal>
+                </td>
+              </tr>
+              {/* ------------ */}
+              <tr>
+                <td>4</td>
+                <td>
+                  <p>Ativo</p>
+                </td>
+                <td>
+                  <p>Desativa/ativar cupom fidelidade</p>
+                </td>
+                <td>
+                  <p>
+                    <IconeEditavel color="#46295a" onClick={abrirModalCupom} />
+                  </p>
+                  <Modal
+                    isOpen={modalCupom}
+                    onRequestClose={fecharModalCupom}
+                    contentLabel="Modal Preço"
+                    style={{
+                      content: {
+                        width: "50%",
+                        height: "15%",
+                        margin: "auto",
+                        padding: 0,
+                      },
+                    }}
+                  >
+                    <div className="modal-mensagem">
+                      <SetaFechar Click={fecharModalCupom} />
+                      <h2>Ativar/Inativar cupom Fidelidade</h2>
+                    </div>
+                    <div className="kg">
+                      <label>Ativar/inativar</label>
+                      <Switch
+                        onChange={handleSwitchChange}
+                        checked={isChecked}
+                        onColor="#46295a"
+                        onHandleColor="#593471"
+                        handleDiameter={30}
+                        uncheckedIcon={false}
+                        checkedIcon={false}
+                        boxShadow="0px 1px 5px rgba(0, 0, 0, 0.6)"
+                        activeBoxShadow="0px 0px 1px 10px rgba(0, 0, 0, 0.2)"
+                        height={20}
+                        width={48}
+                      />
+
+                      <input
+                        type="button"
+                        value="Salvar"
+                        className="botao-add"
                       />
                     </div>
                   </Modal>

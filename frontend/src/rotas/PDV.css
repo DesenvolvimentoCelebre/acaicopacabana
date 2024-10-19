@@ -898,6 +898,11 @@ td {
   text-align: center;
 }
 
+.btn-modal-fecha {
+  display: flex;
+  justify-content: center;
+}
+
 .produtos-pesquisa td {
   border-bottom: 2px solid #9582a1;
   border-left: 2px solid #9582a1;
@@ -906,6 +911,34 @@ td {
   font-weight: 900;
 
   font-size: 20px;
+}
+
+.linha-cal {
+  display: flex;
+  justify-content: center;
+  margin-top: 30px;
+  border-top: 3px dotted #46295A;
+  border-bottom: 3px dotted #46295A;
+}
+
+.linha-cal h2 {
+  font-size: 22px;
+  color: #46295A;
+  font-weight: normal;
+
+}
+
+.rodape-fechamento {
+  display: flex;
+  margin: 30px 0 0 8px;
+  color: #46295A;
+  font-weight: normal;
+
+}
+
+.rodape-fechamento h2 {
+  font-weight: normal;
+  font-size: 22px;
 }
 
 th {
@@ -1028,4 +1061,9 @@ input:disabled {
   justify-content: center;
   align-items: center;
   justify-content: space-evenly;
+}
+
+.cadeado-img {
+  width: 30px;
+  height: 20px;
 }

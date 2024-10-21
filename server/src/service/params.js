@@ -1,4 +1,5 @@
 const  pool  = require('../database/connection');
+const { get } = require('../routes/params/params');
 
 async function updateAcaiPrice(novoValor) {
   try {
@@ -81,6 +82,60 @@ async function getlogo() {
   return [result]
 }
 
+async function getImp() {
+  try {
+    const query = "SELECT * FROM imp";
+  const [result] = await pool.query(query);
+
+  return {
+    success: true,
+    message: result
+  }
+  } catch (error) {
+    console.error(error)
+    return {
+      success: false,
+      error: ["Erro ao listar impressoras"]
+    }
+  }
+}
+
+async function insertImp(label, ip) {
+  try {
+    const query = "INSERT INTO imp (label, ip) VALUES (?, ?)";
+  const [result] = await pool.query(query, [label, ip]);
+
+  return {
+    success: true,
+    message: "Impressora cadastrada com sucesso"
+  }
+  } catch (error) {
+    console.error(error)
+    return {
+      success: false,
+      error: ["Erro ao cadastrar impressora "]
+    }
+  }
+}
+
+async function delImp(id) {
+  try {
+    const query = "DELETE FROM imp WHERE id = ?";
+    const [result] = await pool.query(query, [id])
+
+    return {
+      success: true,
+      message: ["Impressora deletada com sucesso"]
+    }
+  } catch (error) {
+    return {
+      success: false,
+      message: ["Erro ao deletar impressora"]
+    }
+  }
+}
+
+
 module.exports = {
   updateAcaiPrice,
   getConfigById,
@@ -88,5 +143,8 @@ module.exports = {
   taxCoupon,
   lock,
   unlock,
-  getlogo
+  getlogo,
+  getImp,
+  insertImp,
+  delImp
 };

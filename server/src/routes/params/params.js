@@ -2,7 +2,7 @@ const express = require("express");
 
 const params = express.Router();
 
-const { updateAcaiPrice, getConfigById, valueAcai, taxCoupon, lock, unlock } = require('../../service/params');
+const { updateAcaiPrice, getConfigById, valueAcai, taxCoupon, lock, unlock, getlogo } = require('../../service/params');
 const { errorMiddleware } = require('../../utils/intTelegram')
 const passport = require('passport');
 
@@ -121,6 +121,16 @@ params.put("/lock", async (req, res) => {
 	} else {
 	  res.status(500).json(result)
 	}
+})
+
+params.get("/logo", passport.authenticate("jwt", { session: false }),async (req, res) => {
+  const result = await getlogo();
+
+  if (result.success) {
+    res.status(200).json(result)
+  } else {
+    res.status(500).json(result)
+  }
 })
 
 params.use(errorMiddleware);

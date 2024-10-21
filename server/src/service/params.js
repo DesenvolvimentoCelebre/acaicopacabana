@@ -74,11 +74,19 @@ async function unlock(pp) {
     }
 }
 
+async function getlogo() {
+  const query = "SELECT logo FROM empresa";
+  const [result] = await pool.query(query);
+
+  return [result]
+}
+
 module.exports = {
   updateAcaiPrice,
   getConfigById,
   valueAcai,
   taxCoupon,
   lock,
-  unlock
+  unlock,
+  getlogo
 };

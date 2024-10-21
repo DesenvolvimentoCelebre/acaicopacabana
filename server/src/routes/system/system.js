@@ -143,13 +143,19 @@ system.get("/sds", async (req, res) => {
 })
 
 system.put("/cp", async (req, res) => {
-  const { valor, bit} = req.body;
-  const results = await cpUpdate(valor, bit);
+  try {
+    const { valor, bit} = req.body;
+    console.log(req.body)
+  const results = await cpUpdate({bit, valor});
 
   if (results.success) {
     res.status(200).json(results)
   } else {
     res.status(500).json(results)
+  }
+  } catch (erro) {
+    console.error(erro)
+    res.json('Erro ao atualizar parâmetros do cupom fidelidade')
   }
 })
 

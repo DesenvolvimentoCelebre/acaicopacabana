@@ -575,43 +575,23 @@ async function ssd(userno) {
   }
 }
 
-async function cpUpdate({ valor, bit } = {}) {
-  try {
-      let query = 'UPDATE sys SET';
-      const values = [];
-      const updates = [];
 
-      // Verifica se 'bit' foi fornecido, permitindo qualquer valor, inclusive 0
-      if (bit !== undefined) { // Verifica se 'bit' é diferente de undefined
-          updates.push(' cp = ?');
-          values.push(bit);
-      }
+async function cpUpdate({ bit, valor }) {
+ try {
+  const query = "UPDATE sys SET cp = ?, val = ? WHERE id = 7";
+  const values = [bit, valor]
 
-      // Verifica se 'valor' foi fornecido, permitindo qualquer valor, inclusive 0
-      if (valor !== undefined) { // Verifica se 'valor' é diferente de undefined
-          updates.push(' value = ?');
-          values.push(valor);
-      }
+ const [result] = await pool.query(query, values);
+ console.log(bit, valor)
 
-      // Se não houver nenhum campo para atualizar, retorna sem fazer nada
-      if (updates.length === 0) {
-          return { success: false, message: 'Nenhum parâmetro válido foi fornecido para atualização' };
-      }
-
-      // Concatena as atualizações no SQL
-      query += updates.join(',');
-
-      // Define a condição de atualização (por exemplo, 'id = 7')
-      query += ' WHERE id = 7';
-
-      // Executa a query com os valores definidos
-      await pool.query(query, values);
-
-      return { success: true, message: 'Parâmetro atualizado com sucesso' };
-  } catch (error) {
-      console.error(error);
-      return { success: false, error: ['Erro interno do servidor', error] };
-  }
+ return {
+  success: true,
+  message: "Parâmetros do cupom atualizados com sucesso"
+ }
+ } catch (error) {
+  console.error(error)
+  return "Erro ao atualizar parâmetros do cupom"
+ }
 }
 
 

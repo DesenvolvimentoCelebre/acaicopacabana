@@ -174,7 +174,7 @@ const SideBar = () => {
         setFechamentoPix(res.data.pix);
         setFechamentoCredito(res.data.credito);
         setFechamentoDebito(res.data.debito);
-        setTotalVendas(res.data.total_vendas);
+        setTotalVendas(res.data.tvendas);
       } catch (error) {
         console.log("Erro", error);
       }
@@ -221,6 +221,7 @@ const SideBar = () => {
       user_cx: user && user.id,
       sdret: valorRetirado,
       motivo: motivo,
+      sdi: totalFechamento,
     };
 
     try {
@@ -279,6 +280,12 @@ const SideBar = () => {
                   <Paragraph>Fechamento de caixa</Paragraph>
                 </Box>
                 <Box>
+                  <NavLink onClick={abrirModalSangria}>
+                    <SmallImage src={sangia} alt="" />
+                  </NavLink>
+                  <Paragraph>Sangria</Paragraph>
+                </Box>
+                <Box>
                   <NavLink to="/usuarios">
                     <SmallImage src={pessoas} alt="" />
                   </NavLink>
@@ -317,6 +324,73 @@ const SideBar = () => {
                   </NavLink>
                   <Paragraph>Sangria</Paragraph>
                 </Box>
+                <Modal
+                  isOpen={valorSangria}
+                  contentLabel="Modal Produto Específico"
+                  style={{
+                    content: {
+                      width: "30%",
+                      height: "50%",
+                      margin: "auto",
+                      padding: 0,
+                    },
+                  }}
+                >
+                  <div className="modal-mensagem">
+                    <SetaFechar Click={fecharModalSangria} />
+                    <h2>SANGRIA</h2>
+                  </div>
+                  <div className="kg kg-sangria">
+                    <label>Operador do caixa</label>
+                    <input
+                      type="text"
+                      //onChange={(e) => {
+                      //setSaldoIncial(e.target.value);
+                      //}}
+                      value={user && user.nome}
+                      disabled
+                    />
+                    <label>Saldo</label>
+                    <input
+                      type="text"
+                      //onChange={(e) => {
+                      //setSaldoIncial(e.target.value);
+                      //}}
+                      value={sangria}
+                      disabled
+                    />
+                    <label>Valor que será retirado</label>
+                    <input
+                      type="number"
+                      onChange={(e) => {
+                        setValorRetirado(e.target.value);
+                      }}
+                      value={valorRetirado}
+                    />
+                    <label>Motivo</label>
+                    <input
+                      required
+                      type="text"
+                      onChange={(e) => {
+                        setMotivo(e.target.value);
+                      }}
+                      value={motivo}
+                    />
+                    {enviando ? (
+                      "Aguarde..."
+                    ) : (
+                      <input
+                        type="button"
+                        value="Enviar"
+                        disabled={enviando}
+                        className="botao-add botao-caixa"
+                        onClick={(e) => {
+                          envioSangria(e);
+                        }}
+                      />
+                    )}
+                  </div>
+                </Modal>
                 <Box>
                   <NavLink>
                     <SmallImage

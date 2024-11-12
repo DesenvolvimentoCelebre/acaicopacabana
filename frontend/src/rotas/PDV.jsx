@@ -55,6 +55,8 @@ const PDV = () => {
   const [pp, setPp] = useState("");
   const [cp, setCp] = useState("");
   const [valorCupom, setValorCupm] = useState("");
+  const [opcaoSelecionada, setOpcaoSelecionada] = useState("kg");
+  const [rec, setRec] = useState("");
 
   const userData = JSON.parse(localStorage.getItem("user"));
 
@@ -218,13 +220,13 @@ const PDV = () => {
         (produto !== "1" && unino > parseFloat(quantidadeEstoque)) ||
         (produto === "1" && unino > parseFloat(quantidadeEstoque))
       ) {
-        setNome("");
-        setProduto("");
-        setUnino("");
-        setPrecoUnitario("");
-        setCodigo_Produto("");
-        toast.error("Produto sem estoque");
-        return;
+        // setNome("");
+        // setProduto("");
+        // setUnino("");
+        // setPrecoUnitario("");
+        // setCodigo_Produto("");
+        // toast.error("Produto sem estoque");
+        // return;
       }
       const novoProduto = {
         id: parseInt(produto),
@@ -339,28 +341,35 @@ const PDV = () => {
       console.log("Erro ao inserir produto no banco de dados");
     }
   };
-  const liberarPedido = async (e) => {
+  // const liberarPedido = async (e) => {
+  //   e.preventDefault();
+
+  //   try {
+  //     const usuarioCadastro = {
+  //       operador_liberacao: user && user.id,
+  //       pedido: proximoPedido.message,
+  //       senha,
+  //     };
+
+  //     const res = await apiAcai.post("/liberacao", usuarioCadastro);
+
+  //     if (res.status === 200) {
+  //       setDisabled(false);
+  //       setSenha("");
+  //       toast.success("Pedido liberado para alteração");
+  //       setModalSenha(false);
+  //     }
+  //   } catch (error) {
+  //     setDisabled(false);
+  //     toast.error("Usuário não é administrador ou senha incorreta");
+  //   }
+  // };
+
+  const enviarValor = async (e) => {
     e.preventDefault();
-
-    try {
-      const usuarioCadastro = {
-        operador_liberacao: user && user.id,
-        pedido: proximoPedido.message,
-        senha,
-      };
-
-      const res = await apiAcai.post("/liberacao", usuarioCadastro);
-
-      if (res.status === 200) {
-        setDisabled(false);
-        setSenha("");
-        toast.success("Pedido liberado para alteração");
-        setModalSenha(false);
-      }
-    } catch (error) {
-      setDisabled(false);
-      toast.error("Usuário não é administrador ou senha incorreta");
-    }
+    setModalSenha(false);
+    setInsersaoManual(false);
+    setUnino(1);
   };
 
   const botaoEnvio = async (e) => {
@@ -479,6 +488,7 @@ const PDV = () => {
         const res = await apiAcai.get("/nextped");
         setProximoPedido(res.data);
         setPrecoAcai(res.data.valor);
+        setPp(res.data.pp);
       } catch (error) {
         console.log("Erro", error);
       }
@@ -524,10 +534,10 @@ const PDV = () => {
         setQuantidade(produtoSelecionado.quantidade);
         setQuantidadeEstoque(produto.quantidade);
       } else {
-        setNome("");
-        setPrecoUnitario("");
-        setProduto("");
-        toast.error("Produto sem estoque");
+        // setNome("");
+        // setPrecoUnitario("");
+        // setProduto("");
+        // toast.error("Produto sem estoque");
       }
     }
 
@@ -547,19 +557,28 @@ const PDV = () => {
         const res = await apiAcai.get(`/produtoid?codigo_produto=${codigo}`);
         if (res.status === 200) {
           const produto = res.data[0];
-          if (parseFloat(produto.quantidade) > 0) {
+
+          if (produto.codigo_produto === 1) {
+            setInsersaoManual(true);
+            setUnino(kgacai);
             setNome(produto.nome);
-            setPrecoUnitario(produto.preco_custo);
             setProduto(produto.codigo_produto);
-            setQuantidade(produto.quantidade);
             setQuantidadeEstoque(produto.quantidade);
-            setModalAdicionarProdudoCel(true);
           } else {
-            setNome("");
-            setPrecoUnitario("");
-            setProduto("");
-            setUnino("");
-            toast.error("Produto sem estoque");
+            abrirModalPesquisa(false);
+            if (parseFloat(produto.quantidade) > 0) {
+              setNome(produto.nome);
+              setPrecoUnitario(produto.preco_custo);
+              setProduto(produto.codigo_produto);
+              setQuantidade(produto.quantidade);
+              setQuantidadeEstoque(produto.quantidade);
+              setModalAdicionarProdudoCel(true);
+            } else {
+              setNome("");
+              setPrecoUnitario("");
+              setProduto("");
+              toast.error("Produto sem estoque");
+            }
           }
         }
       }
@@ -604,16 +623,25 @@ const PDV = () => {
       if (res.status === 200) {
         const produdoEsto = res.data[0];
 
-        if (parseFloat(produdoEsto.quantidade) > 0) {
+        if (produdoEsto.codigo_produto === 1) {
+          setUnino(kgacai);
           setNome(produdoEsto.nome);
-          setPrecoUnitario(produdoEsto.preco_custo);
+          setProduto(produdoEsto.codigo_produto);
           setQuantidadeEstoque(produdoEsto.quantidade);
-          setCodigo_Produto(produdoEsto.codigo_produto);
         } else {
-          setNome("");
-          setPrecoUnitario("");
-          setProduto("");
-          toast.error("Produto sem estoque");
+          if (parseFloat(produdoEsto.quantidade) > 0) {
+            setNome(produdoEsto.nome);
+            setPrecoUnitario(produdoEsto.preco_custo);
+            setProduto(produdoEsto.codigo_produto);
+            setQuantidade(produdoEsto.quantidade);
+            setQuantidadeEstoque(produdoEsto.quantidade);
+            setModalAdicionarProdudoCel(true);
+          } else {
+            // setNome("");
+            // setPrecoUnitario("");
+            // setProduto("");
+            // toast.error("Produto sem estoque");
+          }
         }
       }
     } catch (error) {
@@ -653,6 +681,22 @@ const PDV = () => {
 
     carregandoLoock();
   }, []);
+
+  useEffect(() => {
+    const carregandoRec = async () => {
+      try {
+        const resLock = await apiAcai.get("/rec ");
+        setRec(resLock.data.data[0].bit);
+      } catch (error) {
+        console.log("Ocorreu um erro", error);
+      }
+    };
+
+    carregandoRec();
+  }, []);
+  const handleOpcaoChange = (e) => {
+    setOpcaoSelecionada(e.target.value);
+  };
 
   return (
     <>
@@ -1141,42 +1185,58 @@ const PDV = () => {
                     <SetaFechar Click={fecharModalKgAcai} />
                     <h2>Produto por peso</h2>
                   </div>
-                  <div className="kg">
-                    <label>Lançar Quilograma</label>
-                    <input
-                      type="number"
-                      onChange={(e) => {
-                        setKgacai(e.target.value);
-                      }}
-                      value={kgacai}
-                      disabled={disabled}
-                    />
-                    <input
-                      type="button"
-                      value="Ler balança"
-                      className="botao-add"
-                      onClick={() => {
-                        carregandoBalanca();
-                        //calculoKg();
-                      }}
-                    />
-                    <input
-                      type="button"
-                      value="Lançar Peso"
-                      className="botao-add"
-                      onClick={() => {
-                        calculoKg();
-                      }}
-                    />
-                    <input
-                      type="button"
-                      value="Lançar peso manual"
-                      className="botao-add"
-                      onClick={() => {
-                        abrirModalSenha();
-                      }}
-                    />
-                  </div>
+
+                  {rec === 0 ? (
+                    <div className="kg">
+                      <label>Lançar Quilograma</label>
+                      <input
+                        type="number"
+                        placeholder="Digite o peso em quilogramas"
+                        onChange={(e) => setKgacai(e.target.value)}
+                        value={kgacai}
+                        disabled={disabled}
+                      />
+                      <input
+                        type="button"
+                        value="Ler balança"
+                        className="botao-add"
+                        onClick={carregandoBalanca}
+                      />
+                      <input
+                        type="button"
+                        value="Lançar Peso"
+                        className="botao-add"
+                        onClick={calculoKg}
+                      />
+                    </div>
+                  ) : (
+                    <div className="kg">
+                      {rec === 0 && (
+                        <div className="opcao-selecao">
+                          <select
+                            value={opcaoSelecionada}
+                            onChange={handleOpcaoChange}
+                          >
+                            <option value="kg">Lançar Quilograma</option>
+                            <option value="dinheiro">Lançar Dinheiro</option>
+                          </select>
+                        </div>
+                      )}
+                      <input
+                        required
+                        type="number"
+                        placeholder="Digite o valor em dinheiro"
+                        value={precoUnitario}
+                        onChange={(e) => setPrecoUnitario(e.target.value)}
+                      />
+                      <input
+                        type="button"
+                        value="Lançar valor a ser pago"
+                        className="botao-add"
+                        onClick={abrirModalSenha}
+                      />
+                    </div>
+                  )}
                 </Modal>
                 <Modal
                   isOpen={modalSenha}
@@ -1193,23 +1253,23 @@ const PDV = () => {
                 >
                   <div className="modal-mensagem">
                     <SetaFechar Click={fecharModalSenha} />
-                    <h2>Liberação pedido manual</h2>
+                    <h2>Lançar valor a ser pago</h2>
                   </div>
                   <div className="kg">
-                    <label>Inserir senha do ADM</label>
+                    <label>Valor a ser pago</label>
                     <input
-                      type="password"
-                      onChange={(e) => {
-                        setSenha(e.target.value);
-                      }}
-                      value={senha}
+                      required
+                      type="number"
+                      value={precoUnitario}
+                      onChange={(e) => setPrecoUnitario(e.target.value)}
                     />
                     <input
                       type="button"
                       value="Enviar"
                       className="botao-add"
                       onClick={(e) => {
-                        liberarPedido(e);
+                        //liberarPedido(e);
+                        enviarValor(e);
                       }}
                     />
                   </div>

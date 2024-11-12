@@ -468,7 +468,8 @@ nav {
   width: 50%;
 }
 
-.kg input {
+.kg input,
+select {
   border: 1px solid #46295A;
   height: 29px;
   width: 250px;

@@ -144,7 +144,7 @@ const Home = () => {
           <input
             type="text"
             onChange={(e) => setSaldoIncial(e.target.value)}
-            value={saldoIncial}
+            value={`R$ ${saldoIncial}`}
             className="display"
           />
           <div className="buttons">

@@ -427,7 +427,7 @@ const Estoque = () => {
                 content: {
                   borderRadius: "15px",
                   width: "70%",
-                  height: "45%",
+                  maxHeight: "62%",
                   margin: "auto",
                   padding: 0,
                   display: "flex",
@@ -537,11 +537,11 @@ const Estoque = () => {
                 <th>Número do Produto</th>
                 <th>Produto</th>
                 <th>Categoria</th>
-                <th>Status</th>
-                <th>Estoque</th>
+                <th>Monitor</th>
+                <th>Saldo</th>
                 <th>Preço</th>
-                <th>Editar Estoque</th>
-                <th>Ativo/Inativo</th>
+                <th>Editar Produto</th>
+                <th>Status</th>
                 <th>Excluir Produdo</th>
               </tr>
             </thead>
@@ -593,8 +593,8 @@ const Estoque = () => {
                         onRequestClose={fecharModalAdd}
                         style={{
                           content: {
-                            width: "40%",
-                            height: "55%",
+                            maxWidth: "50%",
+                            maxHeight: "60%",
                             margin: "auto",
                             padding: 0,
                           },
@@ -629,8 +629,9 @@ const Estoque = () => {
                         </Form>
                         <Form>
                           <Form1>
-                            <label>Valor</label>
+                            <label>Preço de Venda</label>
                             <input
+                              disabled
                               ref={quantidadeRef}
                               type="number"
                               placeholder="Valor do produto"
@@ -644,8 +645,9 @@ const Estoque = () => {
                             />
                           </Form1>
                           <Form1>
-                            <label>Adicionar</label>
+                            <label>Saldo</label>
                             <input
+                              disabled
                               ref={valorRef}
                               type="number"
                               placeholder="Quantidade de produto"

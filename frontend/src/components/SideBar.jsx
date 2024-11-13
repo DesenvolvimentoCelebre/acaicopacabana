@@ -569,7 +569,7 @@ const SideBar = () => {
             </div>
           </Modal>
           <Footer>
-            <p>Versão 1.0.3</p>
+            <p>Versão 2.0.0</p>
           </Footer>
         </SideBarClass>
         <MainContainer></MainContainer>

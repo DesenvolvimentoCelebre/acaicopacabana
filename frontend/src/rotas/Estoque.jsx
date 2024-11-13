@@ -8,6 +8,10 @@ import { toast } from "react-toastify";
 import { HiOutlinePencilSquare } from "react-icons/hi2";
 import SetaFechar from "../components/SetaFechar";
 import { MdDelete } from "react-icons/md";
+
+import { MdAddCircleOutline } from "react-icons/md";
+
+
 import Switch from "react-switch";
 const GlobalStyle = createGlobalStyle`
   * {
@@ -80,6 +84,32 @@ const ModalCadastroProduto = styled.div`
 const Form = styled.div`
   display: flex;
   align-items: center;
+
+
+  input,
+  label {
+    margin: 5px 20px;
+    height: 25px;
+    max-width: 700px;
+    color: #46295a;
+    font-weight: 700;
+    font-size: 20px;
+  }
+  input {
+    height: 45px;
+    padding-left: 10px;
+    border-radius: 20px;
+    border: 1px solid #290d3c;
+  }
+  .img-produto {
+    width: 600px;
+  }
+`;
+const FormAdd = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
 
   input,
   label {
@@ -164,8 +194,19 @@ const Estoque = () => {
   const [modalConfirmacao, setModalConfirmacao] = useState(false);
   const [enviando, setEnviando] = useState(false);
   const [preco_compra, setPreco_compra] = useState("");
+  const [modalAddProduto, setModalAddProduto] = useState("");
   //const [img_produto, setImg_produto] = useState(null);
   //const userData = JSON.parse(localStorage.getItem("user"));
+  const abrirModalAddProduto = () => {
+    setModalAddProduto(true);
+  };
+  const fecharModalAddProduto = () => {
+    setModalAddProduto(false);
+  };
+
+  //const [img_produto, setImg_produto] = useState(null);
+  //const userData = JSON.parse(localStorage.getItem("user"));
+
 
   const abrirModalConfirmacao = () => {
     setModalConfirmacao(true);
@@ -245,6 +286,31 @@ const Estoque = () => {
     console.log(nome);
     setBit(bit);
     setMoldalAdd(true);
+  };
+
+  const valorModalAddSaldo = (
+    quantidade,
+    codigo_produto,
+    bit,
+    preco_custo,
+    nome,
+    categoria
+  ) => {
+    if (parseInt(bit) === 1) {
+      setIsChecked(true);
+    } else {
+      setIsChecked(false);
+    }
+    console.log("teste-bit", bit);
+    setQuantidade(quantidade);
+    setModalQuantidade(quantidade);
+    setCodigo_Produto(codigo_produto);
+    setPreco_Custo(preco_custo);
+    setCategoria(categoria);
+    setNome(nome);
+    console.log(nome);
+    setBit(bit);
+    setModalAddProduto(true);
   };
   const Tabela = styled.table`
     width: 95%;
@@ -541,6 +607,8 @@ const Estoque = () => {
                 <th>Saldo</th>
                 <th>Preço</th>
                 <th>Editar Produto</th>
+                <th>Adicionar Saldo</th>
+
                 <th>Status</th>
                 <th>Excluir Produdo</th>
               </tr>
@@ -600,6 +668,261 @@ const Estoque = () => {
                           },
                         }}
                       >
+                        <div className="modal-mensagem margin-msg">
+                          <SetaFechar Click={fecharModalAdd} />
+                          <h2>Editar Produto</h2>
+                        </div>
+                        <Form>
+                          <Form1>
+                            <label>Código</label>
+                            <input
+                              type="number"
+                              onChange={(e) => {
+                                setCodigo_Produto(e.target.value);
+                              }}
+                              value={codigo_produto}
+                              disabled
+                            />
+                          </Form1>
+                          <Form1>
+                            <label>Nome</label>
+                            <input
+                              type="text"
+                              onChange={(e) => {
+                                setNome(e.target.value);
+                              }}
+                              value={nome}
+                            />
+                          </Form1>
+                        </Form>
+                        <Form>
+                          <Form1>
+                            <label>Preço de Venda</label>
+                            <input
+                              ref={quantidadeRef}
+                              type="number"
+                              placeholder="Valor do produto"
+                              value={preco_custo}
+                              onChange={(e) => {
+                                setPreco_Custo(e.target.value);
+                                setTimeout(() => {
+                                  quantidadeRef.current.focus();
+                                }, 0);
+                              }}
+                            />
+                          </Form1>
+                          <Form1>
+                            <label>Preço de Custo</label>
+                            <input
+                              disabled
+                              ref={valorRef}
+                              type="number"
+                              placeholder="Quantidade de produto"
+                              value={modalQuantidade}
+                              onChange={(e) => {
+                                setModalQuantidade(e.target.value);
+                                setTimeout(() => {
+                                  valorRef.current.focus();
+                                }, 0);
+                              }}
+                            />
+                          </Form1>
+                        </Form>
+                        <Form>
+                          <Form1>
+                            <label>Categoria</label>
+                            <SelectEstilizado
+                              value={categoria}
+                              onChange={(e) =>
+                                setCategoria(parseInt(e.target.value))
+                              }
+                            >
+                              <OptionEstilizado value={0}>
+                                Quilo
+                              </OptionEstilizado>
+                              <OptionEstilizado value={1}>
+                                Quantidade
+                              </OptionEstilizado>
+                            </SelectEstilizado>
+                          </Form1>
+                          <Form1>
+                            <label>Ativar/Inativar</label>
+
+                            <Switch
+                              onChange={handleSwitchChange}
+                              checked={isChecked}
+                              onColor="#46295a"
+                              onHandleColor="#593471"
+                              handleDiameter={30}
+                              uncheckedIcon={false}
+                              checkedIcon={false}
+                              boxShadow="0px 1px 5px rgba(0, 0, 0, 0.6)"
+                              activeBoxShadow="0px 0px 1px 10px rgba(0, 0, 0, 0.2)"
+                              height={20}
+                              width={48}
+                            />
+                          </Form1>
+                        </Form>
+                        <ButaoEnvioProduto>
+                          {enviando ? (
+                            "Aguarde..."
+                          ) : (
+                            <input
+                              type="submit"
+                              value="Salvar"
+                              disabled={enviando}
+                              onClick={(e) => {
+                                adicionarEstoque(e);
+                              }}
+                            />
+                          )}
+                        </ButaoEnvioProduto>
+                        <div className="kg kg-estoque"></div>
+                      </Modal>
+                    </td>
+
+                    <td>
+                      <MdAddCircleOutline
+                        onClick={() =>
+                          valorModalAddSaldo(
+                            produto.quantidade,
+                            produto.codigo_produto,
+                            produto.bit,
+                            produto.preco_custo,
+                            produto.nome,
+                            produto.categoria
+                          )
+                        }
+                        color="#46295a"
+                        size={30}
+                        style={{ cursor: "pointer" }}
+                      />
+                      <Modal
+                        isOpen={modalAddProduto}
+                        onRequestClose={fecharModalAddProduto}
+                        style={{
+                          content: {
+                            maxWidth: "50%",
+                            maxHeight: "60%",
+                            margin: "auto",
+                            padding: 0,
+                          },
+                        }}
+                      >
+                        <div className="modal-mensagem margin-msg">
+                          <SetaFechar Click={fecharModalAddProduto} />
+                          <h2>Adicionar Produto</h2>
+                        </div>
+                        <FormAdd>
+                          <Form1>
+                            <label>Código</label>
+                            <input
+                              type="number"
+                              onChange={(e) => {
+                                setCodigo_Produto(e.target.value);
+                              }}
+                              value={codigo_produto}
+                              disabled
+                            />
+                          </Form1>
+                          <Form1>
+                            <label>Descrição do produto</label>
+                            <input
+                              type="text"
+                              onChange={(e) => {
+                                setNome(e.target.value);
+                              }}
+                              value={nome}
+                            />
+                          </Form1>
+                        </FormAdd>
+                        <FormAdd>
+                          <Form1>
+                            <label>Preço de Custo</label>
+                            <input
+                              ref={quantidadeRef}
+                              type="number"
+                              placeholder="Valor do produto"
+                              value={preco_custo}
+                              onChange={(e) => {
+                                setPreco_Custo(e.target.value);
+                                setTimeout(() => {
+                                  quantidadeRef.current.focus();
+                                }, 0);
+                              }}
+                            />
+                          </Form1>
+                          <Form1>
+                            <label>Saldo</label>
+                            <input
+                              ref={valorRef}
+                              type="number"
+                              placeholder="Quantidade de produto"
+                              value={modalQuantidade}
+                              onChange={(e) => {
+                                setModalQuantidade(e.target.value);
+                                setTimeout(() => {
+                                  valorRef.current.focus();
+                                }, 0);
+                              }}
+                            />
+                          </Form1>
+                        </FormAdd>
+                        <FormAdd>
+                          <Form1>
+                            <label>Fornecedor</label>
+                            <input
+                              type="text"
+                              onChange={(e) => {
+                                setNome(e.target.value);
+                              }}
+                            />
+                          </Form1>
+                        </FormAdd>
+                        <ButaoEnvioProduto>
+                          {enviando ? (
+                            "Aguarde..."
+                          ) : (
+                            <input
+                              type="submit"
+                              value="Salvar"
+                              disabled={enviando}
+                              onClick={(e) => {
+                                adicionarEstoque(e);
+                              }}
+                            />
+                          )}
+                        </ButaoEnvioProduto>
+                      </Modal>
+                    </td>
+                    <td>{produto.bit === 0 ? "Ativo" : "Inativo"}</td>
+                    <td>
+                      <span style={{ cursor: "pointer" }}>
+                        <MdDelete
+                          color="#46295a"
+                          onClick={() =>
+                            abrirModalConfirmacao(produto.codigo_produto)
+                          }
+                        />
+                      </span>
+                      <Modal
+                        isOpen={modalConfirmacao}
+                        onRequestClose={fecharModalConfirmacao}
+                        contentLabel="Confirmar Pedido"
+                        style={{
+                          content: {
+                            width: "70%",
+                            height: "120px",
+                            margin: "auto",
+                            padding: 0,
+                          },
+                        }}
+                      >
+
+                        <div className="modal-mensagem">
+                          <SetaFechar Click={fecharModalConfirmacao} />
+                          <h2>Confirmação de exlusão</h2>
+                        </div>
                         <div className="modal-mensagem margin-msg">
                           <SetaFechar Click={fecharModalAdd} />
                           <h2>Adicionar Estoque</h2>

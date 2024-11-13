@@ -1,4 +1,4 @@
-const pool  = require('../database/connection');
+const pool = require('../database/connection');
 
 async function stockList() {
   try {
@@ -9,6 +9,7 @@ async function stockList() {
         codigo_produto,
         codigo_personalizado,
         preco_custo,
+        preco_compra,
         tipo,
         SUM(quantidade) as quantidade,
         bit,
@@ -66,39 +67,39 @@ async function registerProduct(productDate) {
 }
 
 async function allProducts() {
-    try {
-      const query = "SELECT * FROM estoque";
-      const [results] = await pool.query(query);
-  
-      if (results.length === 0) {
-        return { success: true, message: "Não existem produtos cadastrados" };
-      } else {
-        return { success: true, data: results };
-      }
-    } catch (error) {
-      return { success: false, error: "Por favor contatar o suporte", details: error };
-    }
-  }
-  
-  async function serachProductByName(nome) {
-    try {
-      const query = `SELECT * FROM produto WHERE nome LIKE ? and bit != 1`;
-      const values = [`${nome}%`];
-      const [results] = await pool.query(query, values);
-  
-      if (results.length === 0) {
-        return { success: true, message: "Não foi encontrado nenhum produto com esse nome" };
-      } else {
-        return { success: true, message: results };
-      }
-    } catch (error) {
-      return { success: false, error: "Erro no servidor, por favor contatar o administrador", details: error };
-    }
-  }
+  try {
+    const query = "SELECT * FROM estoque";
+    const [results] = await pool.query(query);
 
-  async function inactive(id, bit) {
-    try {
-      
+    if (results.length === 0) {
+      return { success: true, message: "Não existem produtos cadastrados" };
+    } else {
+      return { success: true, data: results };
+    }
+  } catch (error) {
+    return { success: false, error: "Por favor contatar o suporte", details: error };
+  }
+}
+
+async function serachProductByName(nome) {
+  try {
+    const query = `SELECT * FROM produto WHERE nome LIKE ? and bit != 1`;
+    const values = [`${nome}%`];
+    const [results] = await pool.query(query, values);
+
+    if (results.length === 0) {
+      return { success: true, message: "Não foi encontrado nenhum produto com esse nome" };
+    } else {
+      return { success: true, message: results };
+    }
+  } catch (error) {
+    return { success: false, error: "Erro no servidor, por favor contatar o administrador", details: error };
+  }
+}
+
+async function inactive(id, bit) {
+  try {
+
     const query = `UPDATE set bit = ? WHERE id = ?`;
     const values = [id, bit];
 
@@ -115,45 +116,45 @@ async function allProducts() {
         message: results
       }
     }
-    } catch (error) {
-      return {
-        success: false,
-        error: ['Erro no servidor, por favor entrar em contato com o administrador', error]
-      }
+  } catch (error) {
+    return {
+      success: false,
+      error: ['Erro no servidor, por favor entrar em contato com o administrador', error]
     }
   }
+}
 
-  async function productUpdate({ bit, quantidade, codigo_produto, categoria, nome, preco_custo }) {
-    try {
-        let query = 'UPDATE produto SET bit = ?';
-        const values = [bit];
+async function productUpdate({ bit, quantidade, codigo_produto, categoria, nome, preco_custo }) {
+  try {
+    let query = 'UPDATE produto SET bit = ?';
+    const values = [bit];
 
-        if (quantidade && String(quantidade).trim() !== '') { 
-            query += ', quantidade = ?'; 
-            values.push(quantidade);
-        }
-        if (categoria && String(categoria).trim() !== '') { 
-            query += ', categoria = ?'; 
-            values.push(categoria);
-        }
-        if (nome && String(nome).trim() !== '') { 
-            query += ', nome = ?'; 
-            values.push(nome);
-        }
-        if (preco_custo && String(preco_custo).trim() !== '') { 
-            query += ', preco_custo = ?'; 
-            values.push(preco_custo);
-        }
-
-        query += ' WHERE codigo_produto = ?';
-        values.push(codigo_produto);
-
-        await pool.query(query, values);
-        return { success: true, message: 'Produto atualizado com sucesso' };
-    } catch (error) {
-        console.error(error);
-        return { success: false, error: ['Erro interno do servidor', error] };
+    if (quantidade && String(quantidade).trim() !== '') {
+      query += ', quantidade = ?';
+      values.push(quantidade);
     }
+    if (categoria && String(categoria).trim() !== '') {
+      query += ', categoria = ?';
+      values.push(categoria);
+    }
+    if (nome && String(nome).trim() !== '') {
+      query += ', nome = ?';
+      values.push(nome);
+    }
+    if (preco_custo && String(preco_custo).trim() !== '') {
+      query += ', preco_custo = ?';
+      values.push(preco_custo);
+    }
+
+    query += ' WHERE codigo_produto = ?';
+    values.push(codigo_produto);
+
+    await pool.query(query, values);
+    return { success: true, message: 'Produto atualizado com sucesso' };
+  } catch (error) {
+    console.error(error);
+    return { success: false, error: ['Erro interno do servidor', error] };
+  }
 }
 
 
@@ -181,9 +182,28 @@ async function deleteProduto(id) {
       success: false,
       erro: ['Erro ao excluir produto', error]
     }
-  } 
+  }
 }
 
+async function postsaldo(saldo, fornecedor, productid) {
+  try {
+    const query = "INSERT INTO productsd (productid, sd, forn, date, time) VALUES (?,?,?,current_date,current_time);"
+    const values = [productid, saldo, fornecedor]
+
+    const [results] = await pool.query(query, values);
+
+    return {
+      success: true,
+      message: "Saldo do produto adicionado com sucesso"
+    }
+  } catch (error) {
+    return {
+      success: false,
+      error: ['Erro ao adicionar saldo', error]
+    }
+  }
+  
+}
 
 module.exports = {
   stockList,
@@ -191,5 +211,6 @@ module.exports = {
   allProducts,
   serachProductByName,
   productUpdate,
-  deleteProduto
+  deleteProduto,
+  postsaldo
 };

@@ -1,5 +1,5 @@
 const express = require("express");
-const { stockList, registerProduct, allProducts, serachProductByName, productUpdate, deleteProduto } = require('../../service/stock');
+const { stockList, registerProduct, allProducts, serachProductByName, productUpdate, deleteProduto, postsaldo } = require('../../service/stock');
 const { sendErrorMessage } = require('../../utils/intTelegram');
 
 const stock = express.Router();
@@ -100,5 +100,18 @@ stock.delete("/dell", async (req, res, next) => {
         res.status(500).json({ success: false, error: "Erro interno do servidor", details: error });
     }
 });
+
+stock.post("/stock/sd", async (req, res) => {
+    const { saldo, fornecedor, productid } = req.body;
+
+    const results = await postsaldo({ saldo, fornecedor, productid})
+    
+    if (results.success === true) {
+        res.status(200).json(results)
+    } else {
+        sendErrorMessage(`Erro na rota /stock/saldo POST: ${JSON.stringify(results)}`)
+        res.status(500).json(results)
+    }
+})
 
 module.exports = stock;

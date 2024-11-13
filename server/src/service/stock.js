@@ -185,25 +185,25 @@ async function deleteProduto(id) {
   }
 }
 
-async function postsaldo(saldo, fornecedor, productid) {
+async function postsaldo(productid, sd, forn) {
   try {
-    const query = "INSERT INTO productsd (productid, sd, forn, date, time) VALUES (?,?,?,current_date,current_time);"
-    const values = [productid, saldo, fornecedor]
+    const query = "INSERT INTO productsd (productid, sd, forn, date, time) VALUES (?, ?, ?, current_date, current_time);";
+    const values = [productid, sd, forn];
 
     const [results] = await pool.query(query, values);
 
     return {
       success: true,
       message: "Saldo do produto adicionado com sucesso"
-    }
+    };
   } catch (error) {
     return {
       success: false,
-      error: ['Erro ao adicionar saldo', error]
-    }
+      error: ["Erro ao adicionar saldo", error]
+    };
   }
-  
 }
+
 
 module.exports = {
   stockList,

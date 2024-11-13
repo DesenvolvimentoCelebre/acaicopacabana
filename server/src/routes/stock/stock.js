@@ -102,11 +102,11 @@ stock.delete("/dell", async (req, res, next) => {
 });
 
 stock.post("/stock/sd", async (req, res) => {
-    const { saldo, fornecedor, productid } = req.body;
+    const { productid, sd, forn} = req.body;
 
-    const results = await postsaldo({ saldo, fornecedor, productid})
+    const results = await postsaldo( productid, sd, forn)
     
-    if (results.success === true) {
+    if (results.success) {
         res.status(200).json(results)
     } else {
         sendErrorMessage(`Erro na rota /stock/saldo POST: ${JSON.stringify(results)}`)

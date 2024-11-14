@@ -291,7 +291,7 @@ WHERE NOT EXISTS (
     const sangria = resultSangria[0].sangria;    
     
     // novo saldo inicial 
-    const sdinicial = "SELECT sd_old as sdinicial FROM s_log WHERE user_cx = ? AND date = current_date";
+    const sdinicial = "SELECT sd_old as sdinicial FROM s_log WHERE user_cx = ? AND date = current_date" | "0";
     const [SdinicialTrue] = await pool.query(sdinicial, [userno]);
     const sdinicialFalse = "SELECT sd as sdinicial FROM cxlog WHERE date = current_date AND s0 = 1 AND userno = ?"
     const [SdinicialFalse] = await pool.query(sdinicialFalse, [userno]);

@@ -828,6 +828,7 @@ const Estoque = () => {
                           <Form1>
                             <label>Descrição do produto</label>
                             <input
+                              disabled
                               type="text"
                               onChange={(e) => {
                                 setNome(e.target.value);

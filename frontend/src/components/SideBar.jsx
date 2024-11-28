@@ -7,8 +7,15 @@ import relatorio from "../assets/img/relatorio.png";
 import estoque from "../assets/img/estoque.png";
 import engrenagem from "../assets/img/engrenagem.png";
 import sair from "../assets/img/sair.png";
+import dinheiro from "../assets/img/saco-de-dinheiro.png";
+import sangia from "../assets/img/sangria.png";
 import { logout, reset } from "../slices/authSlice.js";
 import { useDispatch } from "react-redux";
+import Modal from "react-modal";
+import { useState, useEffect } from "react";
+import apiAcai from "../axios/config.js";
+import { toast } from "react-toastify";
+import SetaFechar from "../components/SetaFechar";
 
 const GlobalStyle = createGlobalStyle`
   * {
@@ -114,7 +121,129 @@ const SideBar = () => {
 
     navigate("/login");
   };
+  const [modalFechamentoCaixa, setModalFechamentoCaixa] = useState(false);
 
+  //const [saldoFechamento, setSaldoFechamento] = useState("");
+  const [saldoInicial, setSaldoInicial] = useState("");
+  const [fechamentoDinheiro, setFechamentoDinheiro] = useState("");
+  const [fechamentoPix, setFechamentoPix] = useState("");
+  const [fechamentoCredito, setFechamentoCredito] = useState("");
+  const [fechamentoDebito, setFechamentoDebito] = useState("");
+  const [fechamentoSangria, setFechamanetoSangria] = useState("");
+  const [totalVendas, setTotalVendas] = useState("");
+  const [totalFechamento, setTotalFechamento] = useState("");
+  const [cupomFidelidade, setCupomFidelidade] = useState("");
+  //const [usuarioId, setUsuarioId] = useState("");
+  const [modalCancelamento, setModalCancelamento] = useState(false);
+  const [valorSangria, setValorSangria] = useState(false);
+  const [valorRetirado, setValorRetirado] = useState("");
+  const [motivo, setMotivo] = useState("");
+  const [sangria, setSangria] = useState("");
+  const [enviando, setEnviando] = useState(false);
+
+  const abrirModalSangria = () => {
+    setValorSangria(true);
+  };
+  const fecharModalSangria = () => {
+    setValorSangria(false);
+  };
+
+  const abrirModalCancelamento = () => {
+    setModalCancelamento(true);
+  };
+  const fecharModalCancelamento = () => {
+    setModalCancelamento(false);
+  };
+
+  const abrirModalFechamentoCaixa = () => {
+    setModalFechamentoCaixa(true);
+  };
+  const fecharModalFechamentoCaixa = () => {
+    setModalFechamentoCaixa(false);
+  };
+
+  useEffect(() => {
+    const carregarFechamentoCaixa = async () => {
+      try {
+        const res = await apiAcai.get(`/rdiario?userno=${user.id}`);
+        setSaldoInicial(res.data.rdiario_saldoinicial);
+        setCupomFidelidade(res.data.cupomFidelidade);
+        setTotalFechamento(res.data.caixaDia);
+        setFechamentoDinheiro(res.data.rdiarioSaldoDinheiro);
+        setFechamanetoSangria(res.data.sangria);
+        setFechamentoPix(res.data.pix);
+        setFechamentoCredito(res.data.credito);
+        setFechamentoDebito(res.data.debito);
+        setTotalVendas(res.data.tvendas);
+      } catch (error) {
+        console.log("Erro", error);
+      }
+    };
+    carregarFechamentoCaixa();
+  }, []);
+
+  useEffect(() => {
+    const carregarFechamentoCaixa = async () => {
+      try {
+        const res = await apiAcai.get(`/rdiario?userno=${user.id}`);
+        setSangria(res.data.caixaDia);
+      } catch (error) {
+        console.log("Erro", error);
+      }
+    };
+    carregarFechamentoCaixa();
+  }, []);
+
+  const fechamentoCaixa = async (e) => {
+    e.preventDefault(e);
+
+    const usuarioFechamento = {
+      userno: user && user.id,
+    };
+
+    try {
+      const res = await apiAcai.post("/fechamento", usuarioFechamento);
+      if (res.status === 200) {
+        fecharModalCancelamento();
+        fecharModalFechamentoCaixa();
+        toast.success("Fecahmento do caixa realizada");
+      }
+    } catch (error) {
+      console.log("Erro", error);
+    }
+  };
+
+  const envioSangria = async (e) => {
+    e.preventDefault();
+
+    setEnviando(true);
+    const usuarioSangria = {
+      user_cx: user && user.id,
+      sdret: valorRetirado,
+      motivo: motivo,
+      sdi: totalFechamento,
+    };
+
+    try {
+      const res = await apiAcai.post("/sangria", usuarioSangria);
+
+      if (res.status === 200) {
+        fecharModalSangria();
+        toast.success("Sangria realizada com sucesso");
+        setMotivo("");
+        setValorRetirado("");
+        window.location.reload();
+      }
+    } catch (error) {
+      if (error.response && error.response.status === 500) {
+        toast.error(error.response.data.error[0]);
+      } else {
+        toast.error("Erro ao realizar a sangria. Tente novamente.");
+      }
+    } finally {
+      setEnviando(false);
+    }
+  };
   return (
     <>
       <GlobalStyle />
@@ -146,6 +275,16 @@ const SideBar = () => {
                   </NavLink>
                   <Paragraph>Relatórios</Paragraph>
                 </Box>
+                <Box onClick={abrirModalFechamentoCaixa}>
+                  <SmallImage src={dinheiro} alt="" />
+                  <Paragraph>Fechamento de caixa</Paragraph>
+                </Box>
+                <Box>
+                  <NavLink onClick={abrirModalSangria}>
+                    <SmallImage src={sangia} alt="" />
+                  </NavLink>
+                  <Paragraph>Sangria</Paragraph>
+                </Box>
                 <Box>
                   <NavLink to="/usuarios">
                     <SmallImage src={pessoas} alt="" />
@@ -175,6 +314,83 @@ const SideBar = () => {
                   </NavLink>
                   <Paragraph>PDV</Paragraph>
                 </Box>
+                <Box onClick={abrirModalFechamentoCaixa}>
+                  <SmallImage src={dinheiro} alt="" />
+                  <Paragraph>Fechamento de caixa</Paragraph>
+                </Box>
+                <Box>
+                  <NavLink onClick={abrirModalSangria}>
+                    <SmallImage src={sangia} alt="" />
+                  </NavLink>
+                  <Paragraph>Sangria</Paragraph>
+                </Box>
+                <Modal
+                  isOpen={valorSangria}
+                  contentLabel="Modal Produto Específico"
+                  style={{
+                    content: {
+                      width: "30%",
+                      height: "50%",
+                      margin: "auto",
+                      padding: 0,
+                    },
+                  }}
+                >
+                  <div className="modal-mensagem">
+                    <SetaFechar Click={fecharModalSangria} />
+                    <h2>SANGRIA</h2>
+                  </div>
+                  <div className="kg kg-sangria">
+                    <label>Operador do caixa</label>
+                    <input
+                      type="text"
+                      //onChange={(e) => {
+                      //setSaldoIncial(e.target.value);
+                      //}}
+                      value={user && user.nome}
+                      disabled
+                    />
+                    <label>Saldo</label>
+                    <input
+                      type="text"
+                      //onChange={(e) => {
+                      //setSaldoIncial(e.target.value);
+                      //}}
+                      value={sangria}
+                      disabled
+                    />
+                    <label>Valor que será retirado</label>
+                    <input
+                      type="number"
+                      onChange={(e) => {
+                        setValorRetirado(e.target.value);
+                      }}
+                      value={valorRetirado}
+                    />
+                    <label>Motivo</label>
+                    <input
+                      required
+                      type="text"
+                      onChange={(e) => {
+                        setMotivo(e.target.value);
+                      }}
+                      value={motivo}
+                    />
+                    {enviando ? (
+                      "Aguarde..."
+                    ) : (
+                      <input
+                        type="button"
+                        value="Enviar"
+                        disabled={enviando}
+                        className="botao-add botao-caixa"
+                        onClick={(e) => {
+                          envioSangria(e);
+                        }}
+                      />
+                    )}
+                  </div>
+                </Modal>
                 <Box>
                   <NavLink>
                     <SmallImage
@@ -188,13 +404,172 @@ const SideBar = () => {
                       }}
                     />
                   </NavLink>
+
                   <Paragraph>SAIR</Paragraph>
                 </Box>
               </>
             )}
           </Container2>
+          <Modal
+            isOpen={modalFechamentoCaixa}
+            onRequestClose={fecharModalFechamentoCaixa}
+            contentLabel="Confirmar Pedido"
+            style={{
+              content: {
+                width: "30%",
+                height: "63%",
+                margin: "auto",
+                padding: 0,
+              },
+            }}
+          >
+            <div className="modal-mensagem modal-fechamento">
+              <h2>RELATÓRIO DIÁRIO</h2>
+            </div>
+            <div className="modal-mensagem modal-coluna">
+              <p>(+) SALDO INICIAL: R${saldoInicial}</p>
+            </div>
+            <div className="modal-mensagem modal-coluna">
+              <p>(+) ENTRADAS DO DIA</p>
+            </div>
+            <div className="modal-mensagem modal-coluna">
+              <p>Cartão de credito R${fechamentoCredito}</p>
+            </div>
+            <div className="modal-mensagem modal-coluna">
+              <p>Cartão de Débito/alimentação R${fechamentoDebito}</p>
+            </div>
+            <div className="modal-mensagem modal-coluna">
+              <p>Cupom Fidelidade R${cupomFidelidade}</p>
+            </div>
+            <div className="modal-mensagem modal-coluna">
+              <p>Dinheiro R${fechamentoDinheiro}</p>
+            </div>
+            <div className="modal-mensagem modal-coluna">
+              <p>PIX R${fechamentoPix}</p>
+            </div>
+
+            <div className="modal-mensagem modal-coluna-col">
+              <p>FECHAMENTO DO DIA</p>
+            </div>
+            <div className="modal-mensagem modal-coluna">
+              <p>(+) TOTAL DE VENDA: R${totalVendas}</p>
+            </div>
+            <div className="modal-mensagem modal-coluna">
+              <p>(+) SALDO EM CAIXA: R${totalFechamento}</p>
+            </div>
+            <div className="modal-mensagem modal-coluna">
+              <p className="red">(-) TOTAL SANGRIA: R${fechamentoSangria}</p>
+            </div>
+            <div className="modal-coluna-col btn-col">
+              <button onClick={abrirModalCancelamento}>
+                FECHAMENTO DO DIA
+              </button>
+            </div>
+          </Modal>
+          <Modal
+            isOpen={modalCancelamento}
+            onRequestClose={fecharModalCancelamento}
+            contentLabel="Confirmar Pedido"
+            style={{
+              content: {
+                width: "50%",
+                height: "120px",
+                margin: "auto",
+                padding: 0,
+              },
+            }}
+          >
+            <div className="modal-mensagem">
+              <SetaFechar Click={fecharModalCancelamento} />
+              <h2>Confirmação de fechamento</h2>
+            </div>
+            <div className="container-modal">
+              <h2>Deseja confirmar o fechamento do caixa?</h2>
+              <div className="btn-modal">
+                <button
+                  onClick={(e) => {
+                    botaoLogout(e);
+                    fechamentoCaixa(e);
+                  }}
+                  className="verde"
+                >
+                  Confirmar
+                </button>
+                <button onClick={fecharModalCancelamento} className="vermelho">
+                  Cancelar
+                </button>
+              </div>
+            </div>
+          </Modal>
+          <Modal
+            isOpen={valorSangria}
+            contentLabel="Modal Produto Específico"
+            style={{
+              content: {
+                width: "30%",
+                height: "50%",
+                margin: "auto",
+                padding: 0,
+              },
+            }}
+          >
+            <div className="modal-mensagem">
+              <SetaFechar Click={fecharModalSangria} />
+              <h2>SANGRIA</h2>
+            </div>
+            <div className="kg kg-sangria">
+              <label>Operador do caixa</label>
+              <input
+                type="text"
+                //onChange={(e) => {
+                //setSaldoIncial(e.target.value);
+                //}}
+                value={user && user.nome}
+                disabled
+              />
+              <label>Saldo</label>
+              <input
+                type="text"
+                //onChange={(e) => {
+                //setSaldoIncial(e.target.value);
+                //}}
+                value={sangria}
+                disabled
+              />
+              <label>Valor que será retirado</label>
+              <input
+                type="number"
+                onChange={(e) => {
+                  setValorRetirado(e.target.value);
+                }}
+                value={valorRetirado}
+              />
+              <label>Motivo</label>
+              <input
+                required
+                type="text"
+                onChange={(e) => {
+                  setMotivo(e.target.value);
+                }}
+                value={motivo}
+              />
+              {enviando ? (
+                "Aguarde..."
+              ) : (
+                <input
+                  type="button"
+                  value="Enviar"
+                  disabled={enviando}
+                  className="botao-add botao-caixa"
+                  onClick={(e) => {
+                    envioSangria(e);
+                  }}
+                />
+              )}
+            </div>
+          </Modal>
           <Footer>
-            <p>Versão 1.0.0</p>
+            <p>Versão 2.0.0</p>
           </Footer>
         </SideBarClass>
         <MainContainer></MainContainer>

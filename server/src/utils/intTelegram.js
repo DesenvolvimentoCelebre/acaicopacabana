@@ -1,22 +1,29 @@
-const { exec } = require('child_process');
+const axios = require('axios');
+const dotenv = require('dotenv').config()
+const pool = require('../database/connection')
 
-const sendErrorMessage = (errorMessage) => {
-  exec(
-    `/usr/bin/curl --silent -X POST --data-urlencode "chat_id=-1002050829709" --data-urlencode "text='${errorMessage}'" "https://api.telegram.org/bot7100459400:AAH3qtvp5jBCgieOIzKHC7sp28sBXhVISug/sendMessage?disable_web_page_preview=true&parse_mode=html"`,
-    (error, stdout, stderr) => {
-      if (error) {
-        console.error(`Erro ao enviar mensagem para o Telegram: ${error.message}`);
-      }
-    }
-  );
+const botToken = process.env.token;
+const chatId = process.env.chatid;
+
+const sendErrorMessage = async (errorMessage) => {
+  const query = "SELECT bairro FROM empresa";
+  const [results] = await pool.query(query);
+  const filial = results[0].bairro;
+  try {
+    const url = `https://api.telegram.org/bot${botToken}/sendMessage`;
+    const response = await axios.post(url, {
+      chat_id: chatId,
+      text: `Problema na filial: ${filial}\n${errorMessage}`,
+      disable_web_page_preview: true,
+      parse_mode: 'html'
+    });
+  } catch (error) {
+  }
 };
 
 const errorMiddleware = (err, req, res, next) => {
-  
-  const errorMessage = `Erro na rota ${req.path}: ${err.message}`;
-
+  const errorMessage = `Erro na rota ${req.path}:\nMensagem: ${err.message}\nStack: ${err.stack}`;
   sendErrorMessage(errorMessage);
-
   res.status(500).json({ message: 'Ocorreu um erro interno. Estamos trabalhando nisso.' });
 };
 

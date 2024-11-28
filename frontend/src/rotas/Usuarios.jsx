@@ -164,6 +164,7 @@ const Usuarios = () => {
   const [pesquisa, setPesquisa] = useState("");
   const [deletarUsuario, setDeletarUsuario] = useState("");
   const [modalConfirmacao, setModalConfirmacao] = useState(false);
+  const [enviando, setEnviando] = useState(false);
   useEffect(() => {
     const carregarUsuarios = async () => {
       try {
@@ -225,6 +226,7 @@ const Usuarios = () => {
     e.preventDefault();
 
     try {
+      setEnviando(true);
       const usuarioCadastro = {
         id,
         nome,
@@ -380,7 +382,15 @@ const Usuarios = () => {
                   </Form1>
                 </Form>
                 <ButaoEnvioUsuario>
-                  <input type="submit" value="Enviar usuario" />
+                  {enviando ? (
+                    "Aguarde..."
+                  ) : (
+                    <input
+                      type="submit"
+                      value="Enviar usuario"
+                      disabled={enviando}
+                    />
+                  )}
                 </ButaoEnvioUsuario>
               </form>
             </Modal>
@@ -451,6 +461,7 @@ const Usuarios = () => {
                                 placeholder="ID do Usuário"
                                 value={id}
                                 onChange={(e) => setId(e.target.value)}
+                                disabled
                               />
                             </Form1>
                             <Form1>

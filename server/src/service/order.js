@@ -34,14 +34,16 @@ async function createOrder(order) {
     }
 
     for (const pagamento of order.pagamentos) {
-      const sqlpay = `INSERT INTO pay (pedido, tipo, valor_recebido, status, valor_pedido, bit3) VALUES (?,?,?,?,?,?)`;
+      const sqlpay = `INSERT INTO pay (pedido, tipo, valor_recebido, status, valor_pedido, bit3, bit4, cp) VALUES (?,?,?,?,?,?,?,?)`;
       const values2 = [
         pagamento.pedido,
         pagamento.tipo,
         pagamento.valor_recebido,
         pagamento.status,
         pagamento.valor_pedido,
-        pagamento.bit3
+        pagamento.bit3,
+        pagamento.bit4,
+        pagamento.cp
         ];
 
       await connection.query(sqlpay, values2);
@@ -67,15 +69,22 @@ async function infoNextOrder() {
     const proximoProdNo = maxResults[0].maxProdNo + 1;
 
     const innerJoinQuery = `
-      SELECT pedidos.pedido, sys.val as acai_valor
-      FROM pedidos
-      INNER JOIN sys
-      ON pedidos.bit1 = sys.id
+      SELECT preco_custo as acai_valor
+      FROM produto
+      WHERE codigo_produto = 1
     `;
     const [results] = await pool.query(innerJoinQuery);
     const valor = results[0].acai_valor;
+    
+    const querylockvalue = "SELECT t1  AS `lock` FROM sys WHERE id = 6";
+    const [resultlockvalue] = await pool.query(querylockvalue); 
+    const lockvalue = resultlockvalue[0].lock;
 
-    return { success: true, message: proximoProdNo, valor: valor };
+    const queryCP = "SELECT cp AS bit FROM sys WHERE id = 7";
+    const [resultCP] = await pool.query(queryCP);
+    const cupom = resultCP[0].bit
+
+    return { success: true, message: proximoProdNo, valor: valor, pp: lockvalue, bit:cupom };
   } catch (error) {
     return { success: false, error: "Erro ao buscar próximo número do pedido", details: error };
   }

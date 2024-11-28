@@ -13,6 +13,18 @@ const login = async (data) => {
       const expiration = new Date(res.expiration);
       const userData = { user: res, loginTime, expiration };
       console.log(userData);
+      /*
+      const userId = res.id;
+      const chaveUltimoLogin = `primeiro login_${userId}`;
+      console.log("teste", chaveUltimoLogin);
+      const lastLogin = localStorage.getItem(chaveUltimoLogin);
+      const dataLoginAtual = new Date().toLocaleDateString();
+
+      if (lastLogin !== dataLoginAtual) {
+        alert("Primeiro login do dia");
+        localStorage.setItem(chaveUltimoLogin, dataLoginAtual);
+      }
+      */
       localStorage.setItem("user", JSON.stringify(userData));
     } else {
       throw new Error(res.errors[0] || "Erro ao fazer login");
@@ -24,7 +36,8 @@ const login = async (data) => {
   }
 };
 const logout = () => {
-  localStorage.clear();
+  localStorage.removeItem("user");
+  localStorage.removeItem("token");
 };
 
 const authService = {

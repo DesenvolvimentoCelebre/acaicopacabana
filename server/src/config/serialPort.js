@@ -2,7 +2,7 @@ const {SerialPort} = require('serialport');
 
 const serialPort = new SerialPort({
   path: "COM1",
-  baudRate: 9600,
+  baudRate: 4800,
   autoOpen: false,
 });
 let weightData = "";

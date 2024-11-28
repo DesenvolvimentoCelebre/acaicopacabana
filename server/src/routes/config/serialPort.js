@@ -1,18 +1,31 @@
 const express = require("express");
+const {SerialPort} = require('serialport');
 const config = express.Router();
 
-const { openSerialPort, getWeightData } = require('../../config/serialPort');
-const { errorMiddleware }  = require('../../utils/intTelegram')
+const serialPort = new SerialPort({
+  path: 'COM3', 
+  baudRate: 4800, 
+  autoOpen: false, 
+});
 
-config.get("/peso", async (req, res, next) => {
-  try {
-    await openSerialPort();
-    res.send({ peso: getWeightData() });
-  } catch (error) {
-    res.status(500).json({ success: false, error: "Erro interno do servidor", details: error });
-    const err = error;
-    next(new Error(`Erro ao puxar peso da balança, ${err}`))
+serialPort.open((err) => {
+  if (err) {
+      console.error('Erro ao abrir a porta serial:', err.message);
   }
+});
+
+let weightData = '';
+
+serialPort.on('data', (data) => {
+  const dataStr = data.toString().replace(/[^\d]/g, '');
+
+  if (dataStr) {
+      weightData = Number(dataStr).toLocaleString('pt-BR'); 
+  }
+});
+
+config.get('/peso', (req, res) => {
+  res.send({ peso: weightData }); 
 });
 
 module.exports = config;

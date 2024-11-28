@@ -17,14 +17,11 @@ async function checkDate() {
         const license = rows[0].bitl1;
         
         if (license >= date) {
-            console.log('Importando rotas de router');
             return router;
         } else {
-            console.log('Importando rotas de crypt');
             return crypt;
         }
     } catch (error) {
-        console.error('Erro ao verificar a data:', error);
         return crypt;
     }
 }

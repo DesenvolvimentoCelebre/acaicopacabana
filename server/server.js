@@ -4,7 +4,7 @@ const main = require('./src/main')
 const app = express();
 
 app.use(main)
-const port = process.env.port
+const port = 21176
 
 app.listen(port, () => {
     console.log(`Servidor rodando na porta ${port}`)
